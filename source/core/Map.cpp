@@ -34,11 +34,11 @@
 #endif
 
 Map::Map(Demo* const demo) :
-demo(demo), flock(0),
-collmgr(demo->getSceneManager()->getSceneCollisionManager()), selector(0), anim(0), ps(0),
-terrain(0), forest(0), grassGeneratorNode(0), cursor(0), crosshair(0)
+	demo(demo), flock(0),
+	collmgr(demo->getSceneManager()->getSceneCollisionManager()), selector(0), anim(0), ps(0),
+	terrain(0), forest(0), grassGeneratorNode(0), cursor(0), crosshair(0)
 #ifdef _SOUND
-, wind(0)
+	, wind(0)
 #endif
 {
 
@@ -89,7 +89,7 @@ void Map::loadDefault()
 	irr::scene::IMeshSceneNode* const startNode = smgr->addMeshSceneNode(startMesh);
 	startNode->setPosition(this->playerStartPosition - irr::core::vector3df(0.0f, 360.0f, 0.0f));
 	startNode->setMaterialFlag(irr::video::EMF_NORMALIZE_NORMALS, true);
-	startNode->setMaterialTexture(0, driver->getTexture("media/images/button.png"));
+	startNode->setMaterialTexture(0, driver->getTexture("media/images/checkerboard.png"));
 	startMesh->drop();
 
 	irr::scene::ITriangleSelector* const startSelector = smgr->createTriangleSelector(startMesh, startNode);
@@ -102,16 +102,16 @@ void Map::loadDefault()
 	irr::scene::IParticleSystemSceneNode* const startEmitter = smgr->addParticleSystemSceneNode(false, startNode);
 	startEmitter->setMaterialFlag(irr::video::EMF_LIGHTING, false);
 	startEmitter->setMaterialTexture(0, driver->getTexture("media/images/button.png"));
-	startEmitter->setMaterialType(irr::video::EMT_TRANSPARENT_ALPHA_CHANNEL);
+	startEmitter->setMaterialType(irr::video::EMT_TRANSPARENT_VERTEX_ALPHA);
 	irr::scene::IParticleRingEmitter* const re = startEmitter->createRingEmitter(
-			irr::core::vector3df(0.0f, 0.0f, 0.0f), 100.0f, 10.0f, irr::core::vector3df(0.0f, 0.5f, 0.0f),
+			irr::core::vector3df(0.0f, startNode->getBoundingBox().getExtent().Y, 0.0f), 100.0f, 10.0f, irr::core::vector3df(0.0f, 0.1f, 0.0f),
 			100,
-			300,
-			irr::video::SColor(0,255,255,255),
-			irr::video::SColor(0,255,255,255),
-			1000, 2000, 0,
-			irr::core::dimension2df(1.0f, 2.0f),
-			irr::core::dimension2df(2.5f, 5.0f));
+			500,
+			irr::video::SColor(0, 0, 0 , 255),
+			irr::video::SColor(0, 255, 255, 255),
+			1500, 3000, 0,
+			irr::core::dimension2df(0.5f, 2.0f),
+			irr::core::dimension2df(0.5f, 2.0f));
 	startEmitter->setEmitter(re);
 	re->drop();
 
@@ -740,8 +740,8 @@ void Map::drawDebug() const
 		const irr::core::vector3df& boidPos = boids[p]->getPosition();
 
 		//line 1 (velocity)
-		vertices[vIndex + 0].Pos = boidPos;
-		vertices[vIndex + 0].Color.set(255, 0, 255, 0);
+		vertices[vIndex].Pos = boidPos;
+		vertices[vIndex].Color.set(255, 0, 255, 0);
 		vertices[vIndex + 1].Pos.set(boidPos + irr::core::vector3df(velocity[0], velocity[1], velocity[2]).normalize()*100.0f);
 		vertices[vIndex + 1].Color.set(255, 255, 0, 0);
 
