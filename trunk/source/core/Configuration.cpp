@@ -1,5 +1,5 @@
 // Copyright (C) 2009 randomMesh
-// This file is part of the "Flocking boids" demo.
+// This file is part of the "Katastrophe flocking boids demo".
 // For conditions of distribution and use, see copyright notice in main.cpp
 
 #include "Configuration.h"
@@ -7,7 +7,7 @@
 
 Configuration::Configuration() :
 	//setup name and versioning
-	projectName(L"Flocking boids 0.01"),
+	projectName(L"Katastrophe 0.01"),
 
 #ifdef _SOUND
 	//sound
