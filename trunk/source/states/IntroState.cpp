@@ -178,7 +178,7 @@ void IntroState::onEnter(Demo* const demo)
 
 
 	//add the info text
-	this->infoText = guienv->addStaticText(L"Press [ESC] to skip intro",
+	this->infoText = guienv->addStaticText(L"Press [LMB] or [ESC] to skip intro",
 		irr::core::rect<irr::s32>(SX(30), SY(20), SX(190), SY(40)),	false, true, 0, -1, false);
 	this->infoText->grab();
 	this->infoText->setOverrideColor(irr::video::SColor(255, 0, 255, 255));
@@ -235,6 +235,16 @@ const bool IntroState::onEvent(Demo* const game, const irr::SEvent& event)
 			case irr::KEY_ESCAPE: game->setState(game->findGameState("menu")); return true;
 			default: return false;
 			}
+		}
+	}
+	break;
+
+	case irr::EET_MOUSE_INPUT_EVENT:
+	{
+		if (irr::EMIE_LMOUSE_LEFT_UP == event.MouseInput.Event)
+		{
+			game->setState(game->findGameState("menu"));
+			return true;;
 		}
 	}
 	break;

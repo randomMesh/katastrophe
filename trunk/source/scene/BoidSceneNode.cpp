@@ -125,9 +125,8 @@ void BoidSceneNode::render()
 	//draw mesh
 	const IMeshBuffer* const mb = Mesh->getMeshBuffer(0);
 	driver->setMaterial(this->material);
-	driver->setTransform(video::ETS_WORLD, AbsoluteTransformation);
+	driver->setTransform(video::ETS_WORLD, this->AbsoluteTransformation);
 	driver->drawMeshBuffer(mb);
-
 
 
 	//draw normals
@@ -162,7 +161,6 @@ void BoidSceneNode::render()
 			}
 		}
 	}
-
 
 	//draw oabb
 	if (DebugDataVisible & scene::EDS_BBOX)
