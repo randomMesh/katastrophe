@@ -1,12 +1,18 @@
 /*
- * Flocking demo for the Irrlicht In Motion Competition 08/09 by randomMesh
+ * Overview:
+ *
+ *
+ * Katastrophe: 'Flocking boids'
  *
  * Boids, developed by Craig Reynolds (http://www.red3d.com/cwr/) in 1986, is an artificial life program,
  * simulating the flocking behaviour of birds.
  *
- * This demo is an implementation of the pseudocode found at the website of Conrad Parker.
- * See http://www.vergenet.net/~conrad/boids/pseudocode.html
+ * Katastrophe is written in C++ and implements of the pseudocode found at the website of Conrad Parker.
+ * See http://www.kfish.org/boids/pseudocode.html
  *
+ * -----------------------------------------------------------------------------
+ *
+ * Compilation:
  *
  *
  * Used libraries:
@@ -19,8 +25,10 @@
  *
  * -D_SOUND - Add _SOUND to the defined symbols to compile with sound using irrklang
  *
+ * -------------------------------------------------------------------------------
  *
  * License:
+ *
  *
  * The Irrlicht Engine License
  *
