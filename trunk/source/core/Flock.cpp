@@ -91,7 +91,6 @@ irr::scene::BoidSceneNode* const Flock::addBoid(irr::scene::IMesh* const boidMes
 
 bool Flock::removeBoid(irr::scene::BoidSceneNode* const boid)
 {
-	bool success = false;
 	const irr::u32 numBoids = this->boids.size();
 
 	if (numBoids > 2) // there should be at least 2 boids in the flock
@@ -109,5 +108,5 @@ bool Flock::removeBoid(irr::scene::BoidSceneNode* const boid)
 		}
 	}
 
-	return success;
+	return false;
 }

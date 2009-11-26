@@ -55,6 +55,33 @@ BoidSceneNode::BoidSceneNode(
 
 	this->groundRay.start = this->RelativeTranslation;
 	this->groundRay.end = this->RelativeTranslation - irr::core::vector3df(0.0f, mimimumAboveGround, 0.0f);
+
+	this->updateAbsolutePosition();
+
+
+	//store normals
+	core::vector3df normalizedNormal;
+	static const f32 DebugNormalLength = 3.0f;
+
+	for (u32 g = 0; g < Mesh->getMeshBufferCount(); ++g)
+	{
+		const scene::IMeshBuffer* mb = Mesh->getMeshBuffer(g);
+		const u32 vSize = video::getVertexPitchFromType(mb->getVertexType());
+		const video::S3DVertex* v = (const video::S3DVertex*)mb->getVertices();
+		const bool normalize = mb->getMaterial().NormalizeNormals;
+
+		const u32 vCount = mb->getVertexCount();
+		for (u32 i = 0; i != vCount; ++i)
+		{
+			normalizedNormal = v->Normal;
+			if (normalize)
+				normalizedNormal.normalize();
+
+			normals.push_back(core::line3df(v->Pos, v->Pos + (normalizedNormal*DebugNormalLength)));
+
+			v = (const video::S3DVertex*) ( (u8*) v + vSize );
+		}
+	}
 }
 
 BoidSceneNode::~BoidSceneNode()
@@ -132,34 +159,14 @@ void BoidSceneNode::render()
 	//draw normals
 	if (DebugDataVisible & scene::EDS_NORMALS)
 	{
-		irr::video::SMaterial mat;
+		video::SMaterial mat;
 		mat.Lighting = false;
 
 		driver->setMaterial(mat);
 
-		core::vector3df normalizedNormal;
-		static const f32 DebugNormalLength = 3.0f;
-
-		// draw normals
-		for (u32 g = 0; g < Mesh->getMeshBufferCount(); ++g)
-		{
-			const scene::IMeshBuffer* mb = Mesh->getMeshBuffer(g);
-			const u32 vSize = video::getVertexPitchFromType(mb->getVertexType());
-			const video::S3DVertex* v = (const video::S3DVertex*)mb->getVertices();
-			const bool normalize = mb->getMaterial().NormalizeNormals;
-
-			const u32 vCount = mb->getVertexCount();
-			for (u32 i = 0; i != vCount; ++i)
-			{
-				normalizedNormal = v->Normal;
-				if (normalize)
-					normalizedNormal.normalize();
-
-				driver->draw3DLine(v->Pos, v->Pos + (normalizedNormal*DebugNormalLength), irr::video::SColor(255, 128, 128, 0));
-
-				v = (const video::S3DVertex*) ( (u8*) v + vSize );
-			}
-		}
+		const u32 numNormals = this->normals.size();
+		for (u32 i = 0; i < numNormals; ++i)
+			driver->draw3DLine(normals[i].start, normals[i].end, video::SColor(255, 128, 128, 0)); //TODO: make VertexPrimitiveList
 	}
 
 	//draw oabb
@@ -404,7 +411,7 @@ void BoidSceneNode::applyRules(
 		this->velocity[2] = (this->velocity[2]/absZ)*speedLimit;
 
 	//set new position based upon rules and elapsed time
-	this->RelativeTranslation += core::vector3df(this->velocity[0], this->velocity[1], this->velocity[2])*deltaTime;
+	this->RelativeTranslation += (core::vector3df(this->velocity[0], this->velocity[1], this->velocity[2])*deltaTime);
 }
 
 void BoidSceneNode::startPerching(const core::vector3df& outCollisionPoint)
