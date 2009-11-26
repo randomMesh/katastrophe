@@ -97,6 +97,9 @@ private:
 	///The mesh of the boid.
 	IMesh* const Mesh;
 
+	///The normals of the mesh
+	core::array<core::line3df> normals;
+
 	///The boundingbox.
 	core::aabbox3d<f32> Box;
 
