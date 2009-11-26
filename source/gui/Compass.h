@@ -44,14 +44,14 @@ public:
 	//! set compass heading
 	inline void SetCompassHeading(const irr::f32 deg)
 	{
-	    Matrix.makeIdentity();
+	    //Matrix.makeIdentity();
 	    Matrix.setRotationDegrees(core::vector3df(0.0f, 0.0f, deg));
 	}
 
 private:
 
 	//! sets up a quad mesh of given dimension
-	const void SetupQuadMesh(scene::SMeshBuffer& mesh, const f32 f32Width) const;
+	void SetupQuadMesh(scene::SMeshBuffer& mesh, const f32 f32Width) const;
 
 	scene::SMeshBuffer BodyMesh;
 

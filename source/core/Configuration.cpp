@@ -49,10 +49,9 @@ Configuration::Configuration() :
 void Configuration::readFromFile(const irr::c8* const fileName)
 {
 	irr::IrrlichtDevice* device = irr::createDevice(irr::video::EDT_NULL);
-	//create xml reader
-	irr::io::IXMLReader* xml = 0;
-	xml = device->getFileSystem()->createXMLReader(fileName); //create xmlreader
 
+	//create xml reader
+	irr::io::IXMLReader* xml = device->getFileSystem()->createXMLReader(fileName);
 	if (xml == 0)
 	{
 		device->getLogger()->log(L"Cannot find configuration file. Falling back to defaults.", irr::ELL_WARNING);
@@ -60,8 +59,6 @@ void Configuration::readFromFile(const irr::c8* const fileName)
 
 		return;
 	}
-
-	device->getLogger()->log(L"Reading configuration file...", irr::ELL_NONE);
 
 	while(xml && xml->read())
 	{
@@ -151,8 +148,7 @@ void Configuration::readFromFile(const irr::c8* const fileName)
 
 void Configuration::writeToFile(const irr::c8* const fileName) const
 {
-	irr::IrrlichtDevice* device = 0;
-	device = irr::createDevice(irr::video::EDT_NULL);
+	irr::IrrlichtDevice* device = irr::createDevice(irr::video::EDT_NULL);
 
 	irr::io::IXMLWriter* xmlw = 0;
 	if (device->getFileSystem()->existFile(fileName))
@@ -165,8 +161,6 @@ void Configuration::writeToFile(const irr::c8* const fileName) const
 		device->drop();
 		return;
 	}
-
-	device->getLogger()->log(L"Writing configuration file...", irr::ELL_NONE);
 
 	xmlw->writeXMLHeader();
 	xmlw->writeLineBreak();

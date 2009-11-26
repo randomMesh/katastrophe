@@ -108,6 +108,8 @@ void OptionsState::onEnter(Demo* const demo)
 	irr::gui::IGUITabControl* const tabControl = guienv->addTabControl(tabControlSize, this->window, true, true, -1);
 
 
+	const irr::u32 tabControlWidth = tabControl->getAbsolutePosition().getWidth();
+
 	static const irr::video::SColor titleColor(255, 0, 0, 255);
 
 	//about tab
@@ -131,15 +133,14 @@ void OptionsState::onEnter(Demo* const demo)
 
 
 	const irr::u32 textWidth = 160;
-	const irr::u32 horizontalBorder = 50;
 	const irr::u32 spacer = 20;
+	const irr::u32 horizontalBorder = 50;
+	const irr::u32 posX2 = tabControlWidth - horizontalBorder;
 
 	//flock rules tab
 	{
 		irr::gui::IGUITab* const rulesTab = tabControl->addTab(L"Flock rules", -1);
 
-		const irr::u32 tabWidth = rulesTab->getAbsolutePosition().getWidth();
-		const irr::u32 posX2 = tabWidth - horizontalBorder;
 
 		irr::gui::IGUIStaticText* text = 0;
 
@@ -232,9 +233,6 @@ void OptionsState::onEnter(Demo* const demo)
 	{
 		irr::gui::IGUITab* const videoTab = tabControl->addTab(L"Video", -1);
 
-		const irr::u32 tabWidth = videoTab->getAbsolutePosition().getWidth();
-		const irr::u32 posX2 = tabWidth - horizontalBorder;
-
 
 		irr::gui::IGUIStaticText* text = 0;
 
@@ -246,9 +244,7 @@ void OptionsState::onEnter(Demo* const demo)
 		text->setOverrideColor(titleColor);
 
 
-
 		const irr::u32 posX = horizontalBorder + textWidth;
-
 
 		text = guienv->addStaticText(L"Graphic driver",
 			irr::core::rect<irr::s32>(horizontalBorder, 50, posX, 70), false, false, videoTab);
@@ -271,9 +267,7 @@ void OptionsState::onEnter(Demo* const demo)
 		text->setTextAlignment(irr::gui::EGUIA_LOWERRIGHT, irr::gui::EGUIA_CENTER);
 
 
-
 		const irr::u32 depp = posX + spacer;
-
 
 		this->driverSelectionBox = guienv->addComboBox(irr::core::rect<irr::s32>(depp, 50, posX2, 70), videoTab);
 		this->driverSelectionBox->addItem(L"OpenGL");
@@ -339,7 +333,7 @@ void OptionsState::onEnter(Demo* const demo)
 		if (logo)
 		{
 			const irr::core::dimension2d<irr::u32>& imageSize = logo->getSize();
-			const irr::u32 posX = (tabWidth - imageSize.Width)/2;
+			const irr::u32 posX = (tabControlWidth - imageSize.Width)/2;
 			guienv->addImage(logo, irr::core::position2d<irr::s32>(posX, 210), true, videoTab);
 		}
 	}
@@ -348,13 +342,8 @@ void OptionsState::onEnter(Demo* const demo)
 	{
 		irr::gui::IGUITab* const cameraTab = tabControl->addTab(L"Camera", -1);
 
-		const irr::u32 tabWidth = cameraTab->getAbsolutePosition().getWidth();
-		const irr::u32 horizontalBorder = 50;
-		const irr::u32 posX2 = tabWidth - horizontalBorder;
-
 
 		irr::gui::IGUIStaticText* text = 0;
-
 
 		//title text
 		text = guienv->addStaticText(
@@ -383,8 +372,6 @@ void OptionsState::onEnter(Demo* const demo)
 		text->setTextAlignment(irr::gui::EGUIA_LOWERRIGHT, irr::gui::EGUIA_CENTER);
 
 
-
-
 		const irr::u32 depp = posX + spacer;
 
 		this->cameraRotateSpeedBox = guienv->addEditBox(
@@ -408,12 +395,7 @@ void OptionsState::onEnter(Demo* const demo)
 	{
 		irr::gui::IGUITab* const soundTab = tabControl->addTab(L"Sound", -1);
 
-		const irr::u32 tabWidth = soundTab->getAbsolutePosition().getWidth();
-		const irr::u32 posX2 = tabWidth - horizontalBorder;
-
-
 		irr::gui::IGUIStaticText* text = 0;
-
 
 		//title text
 		text = guienv->addStaticText(L"Edit audio settings.",
@@ -447,7 +429,7 @@ void OptionsState::onEnter(Demo* const demo)
 		if (logo)
 		{
 			const irr::core::dimension2d<irr::u32>& imageSize = logo->getSize();
-			const irr::u32 posX = (tabWidth - imageSize.Width)/2;
+			const irr::u32 posX = (tabControlWidth - imageSize.Width)/2;
 			guienv->addImage(logo, irr::core::position2d<irr::s32>(posX, 210), true, soundTab);
 		}
 	}

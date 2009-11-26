@@ -18,69 +18,35 @@
 template <class T, class E>
 class StateManager
 {
-private:
-
-	T* owner; //!< Owner of this state machine instance
-	State<T,E>* currentState;  //!< Current state of the state machine
-	State<T,E>* previousState; //!< Previous state of the state machine
-	State<T,E>* globalState;   //!< Global state
 
 public:
 
-	StateManager(T* owner) :
+	StateManager(T* const owner) :
 		owner(owner),
-		currentState(0),
-		previousState(0),
-		globalState(0)
+		currentState(0), previousState(0), globalState(0)
 	{
+
 	}
 
 	virtual ~StateManager()
 	{
-	}
 
-	/*! Set the current state.
-	 *
-	 * Usually only used for setting the initial state. Could be dangerous
-	 * if you are arbitrarily setting states without correctly entering or
-	 * exiting the states. Use with caution. Normally you would call the
-	 * setState() method to properly transition through states.
-	 *
-	 * \param state The state to use as the new current state.
-	 */
-	const void setCurrentState(State<T,E>* state)
-	{
-		this->currentState = state;
 	}
 
 	/*! Retrieve the current state.
 	 *
 	 * \return Pointer to the current state.
 	 */
-	State<T,E>* getCurrentState() const
+	State<T,E>* const getCurrentState() const
 	{
 		return this->currentState;
-	}
-
-	/*! Set the previous state.
-	 *
-	 * Usually only used for setting the initial state. Could be dangerous
-	 * if you are arbitrarily setting states without correctly entering or
-	 * exiting the states. Use with caution. Normally you would call the
-	 * setState() method to properly transition through states.
-	 *
-	 * \param state The state to use as the new previous state.
-	 */
-	const void setPreviousState(State<T,E>* state)
-	{
-		this->previousState = state;
 	}
 
 	/*! Retrieve the previous state.
 	 *
 	 * \return Pointer to the previous state.
 	 */
-	State<T,E>* getPreviousState() const
+	State<T,E>* const getPreviousState() const
 	{
 		return this->previousState;
 	}
@@ -92,7 +58,7 @@ public:
 	 *
 	 * \param state The new global state
 	 */
-	const void setGlobalState(State<T,E>* state)
+	const void setGlobalState(State<T,E>* const state)
 	{
 		this->globalState = state;
 		//if (this->globalState)
@@ -121,27 +87,6 @@ public:
 			this->currentState->onUpdate(this->owner);
 	}
 
-	/*! Process an incoming message.
-	 *
-	 * Forwards the message to the current state. If the current state
-	 * does not process the message, it is forwarded to the global state.
-	 *
-	 * \param event The message to process.
-	 * \return Returns true if the message was processed, otherwise false.
-	 */
-	const bool onEvent(const E& event) const
-	{
-		// allow current state to handle message
-		if (this->currentState && this->currentState->onEvent(this->owner, event))
-			return true;
-
-		// message not processed by current state, try global state
-		else if (this->globalState && this->globalState->onEvent(this->owner, event))
-			return true;
-
-		return false;
-	}
-
 	/*! Transition to next state.
 	 *
 	 * Exits the current state and enters the provided state. This is the
@@ -150,7 +95,7 @@ public:
 	 *
 	 * \param state The state to transition to.
 	 */
-	const void setState(State<T,E>* state)
+	const void setState(State<T, E>* const state)
 	{
 		if (state == 0) return;
 
@@ -173,10 +118,57 @@ public:
 	 * \return Returns true if the machine is in the provided state, else
 	 * false.
 	 */
-	const bool isInState(const State<T,E>* state) const
+	const bool isInState(const State<T, E>* const state) const
 	{
 		return state == currentState;
 	}
+
+protected:
+
+	/*! Process an incoming message.
+	 *
+	 * Forwards the message to the current state. If the current state
+	 * does not process the message, it is forwarded to the global state.
+	 *
+	 * \param event The message to process.
+	 * \return Returns true if the message was processed, otherwise false.
+	 */
+	const bool onEvent(const E& event) const
+	{
+		// allow current state to handle message
+		if (this->currentState && this->currentState->onEvent(this->owner, event))
+			return true;
+
+		// message not processed by current state, try global state
+		else if (this->globalState && this->globalState->onEvent(this->owner, event))
+			return true;
+
+		return false;
+	}
+
+private:
+
+	/*! Set the current state.
+	 * \param state The state to use as the new current state.
+	 */
+	const void setCurrentState(State<T,E>* state) { this->currentState = state;	}
+
+	/*! Set the previous state.
+	 * \param state The state to use as the new previous state.
+	 */
+	const void setPreviousState(State<T,E>* state) { this->previousState = state; }
+
+	//! Owner of this state machine instance.
+	T* const owner;
+
+	//! Current state of the state machine.
+	State<T, E>* currentState;
+
+	//! Previous state of the state machine.
+	State<T, E>* previousState;
+
+	//! Global state
+	State<T, E>* globalState;
 };
 
 #endif // _T_GRAPH_H_INCLUDED__

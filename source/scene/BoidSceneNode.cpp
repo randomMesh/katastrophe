@@ -102,7 +102,7 @@ void BoidSceneNode::OnAnimate(u32 timeMs)
 
 		if (elapsed > 1500.0)
 		{
-			this->setScale(irr::core::vector3df(al, al, al));
+			this->RelativeScale = irr::core::vector3df(al, al, al);
 			lastScaleTime = 0;
 		}
 	}
@@ -411,8 +411,7 @@ void BoidSceneNode::applyRules(
 void BoidSceneNode::startPerching(const core::vector3df& outCollisionPoint)
 {
 	//don't perch if we perched some time ago
-	//if (this->dontperch)
-	if (this->dontPerchTimer > 0)
+	if (this->dontPerchTimer > 0.0f)
 		return;
 
 	this->perching = true;
@@ -486,7 +485,6 @@ void BoidSceneNode::stopPerching()
 	this->perchTimer = 0;
 
 	//don't perch again for 3 seconds
-//	this->dontperch = true;
 	this->dontPerchTimer = 3.0f;
 
 	//add a particle system

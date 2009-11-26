@@ -86,13 +86,17 @@ void RunningState::onEnter(Demo* const demo)
 
 
 	// add a compass
-	const irr::core::dimension2di compassSize(SX(128), SX(128));
-	const irr::core::rect<irr::s32> compassRect(SX(880), SY(10), SX(880) + compassSize.Width, SY(10) + compassSize.Height);
+	irr::video::ITexture* const compassBody = driver->getTexture("media/images/compass/compass_body.png");
+	if (compassBody)
+	{
+		const irr::core::dimension2du& compSize = compassBody->getSize();
 
-	this->pgCompass = new irr::gui::Compass(compassRect, guienv, guienv->getRootGUIElement());
-	this->pgCompass->SetCompassBodyTexture(driver->getTexture("media/images/compass/compass_body.png"));
-	this->pgCompass->SetCompassNeedleTexture(driver->getTexture("media/images/compass/compass_needle.png"));
+		const irr::core::rect<irr::s32> compassRect(SX(876), SY(10), SX(876) + compSize.Width, SY(10) + compSize.Height);
 
+		this->pgCompass = new irr::gui::Compass(compassRect, guienv, guienv->getRootGUIElement());
+		this->pgCompass->SetCompassBodyTexture(compassBody);
+		this->pgCompass->SetCompassNeedleTexture(driver->getTexture("media/images/compass/compass_needle.png"));
+	}
 
 	//load a map
 	this->map = new Map(demo);
@@ -137,23 +141,42 @@ void RunningState::onLeave(Demo* const demo)
 
 const bool RunningState::onEvent(Demo* const demo, const irr::SEvent& event)
 {
+
+	//check keyboard events
 	if (event.EventType == irr::EET_KEY_INPUT_EVENT)
 	{
 		if (!event.KeyInput.PressedDown)
 		{
 			switch (event.KeyInput.Key)
 			{
-			case irr::KEY_ESCAPE: demo->setState(demo->findGameState("menu")); return true;
+
+			case irr::KEY_ESCAPE:
+			{
+				demo->setState(demo->findGameState("menu"));
+#ifdef _SOUND
+				if (demo->getSoundEngine() && demo->getConfiguration()->isSoundEnabled())
+					demo->getSoundEngine()->play2D("media/sounds/button.wav");
+#endif
+			}
+			return true;
 
 			case irr::KEY_F1:
 			{
 				this->map->getTerrain()->setMaterialFlag(irr::video::EMF_WIREFRAME, !this->map->getTerrain()->getMaterial(0).Wireframe);
+#ifdef _SOUND
+				if (demo->getSoundEngine() && demo->getConfiguration()->isSoundEnabled())
+					demo->getSoundEngine()->play2D("media/sounds/button.wav");
+#endif
 			}
 			return true;
 
 			case irr::KEY_F2:
 			{
 				this->map->getGrass()->setVisible(!this->map->getGrass()->isVisible());
+#ifdef _SOUND
+				if (demo->getSoundEngine() && demo->getConfiguration()->isSoundEnabled())
+					demo->getSoundEngine()->play2D("media/sounds/button.wav");
+#endif
 			}
 			return true;
 
@@ -209,7 +232,15 @@ const bool RunningState::onEvent(Demo* const demo, const irr::SEvent& event)
 
 
 			case irr::KEY_PAUSE: //fall through
-			case irr::KEY_KEY_P: this->map->getFlock()->setPaused(!this->map->getFlock()->isPaused()); return true;
+			case irr::KEY_KEY_P:
+			{
+				this->map->getFlock()->setPaused(!this->map->getFlock()->isPaused());
+#ifdef _SOUND
+				if (demo->getSoundEngine() && demo->getConfiguration()->isSoundEnabled())
+					demo->getSoundEngine()->play2D("media/sounds/button.wav");
+#endif
+			}
+			return true;
 
 			case irr::KEY_KEY_I:
 			{
@@ -219,15 +250,45 @@ const bool RunningState::onEvent(Demo* const demo, const irr::SEvent& event)
 				//update camera animator
 				irr::scene::ISceneNodeAnimatorCameraFPS* const animFPS = (irr::scene::ISceneNodeAnimatorCameraFPS* const)(*demo->getSceneManager()->getActiveCamera()->getAnimators().begin());
 				animFPS->setInvertMouse(!invert);
+#ifdef _SOUND
+				if (demo->getSoundEngine() && demo->getConfiguration()->isSoundEnabled())
+					demo->getSoundEngine()->play2D("media/sounds/button.wav");
+#endif
 			}
 			return true;
 
-			case irr::KEY_PLUS: this->map->addBoid(); return true;
-			case irr::KEY_MINUS: this->map->removeBoid(this->map->getFlock()->getBoids().getLast()); return true;
+			case irr::KEY_PLUS:
+			{
+				this->map->addBoid();
+#ifdef _SOUND
+				if (demo->getSoundEngine() && demo->getConfiguration()->isSoundEnabled())
+					demo->getSoundEngine()->play2D("media/sounds/button.wav");
+#endif
+			}
+			return true;
 
-			case irr::KEY_KEY_H: this->infoText->setVisible(!this->infoText->isVisible()); return true;
+			case irr::KEY_MINUS:
+			{
+				const bool success = this->map->removeBoid(this->map->getFlock()->getBoids().getLast());
+#ifdef _SOUND
+				if (success && demo->getSoundEngine() && demo->getConfiguration()->isSoundEnabled())
+					demo->getSoundEngine()->play2D("media/sounds/button.wav");
+#endif
+			}
+			return true;
 
-			default: break;
+			case irr::KEY_KEY_H:
+			{
+				this->infoText->setVisible(!this->infoText->isVisible());
+#ifdef _SOUND
+				if (demo->getSoundEngine() && demo->getConfiguration()->isSoundEnabled())
+					demo->getSoundEngine()->play2D("media/sounds/button.wav");
+#endif
+			}
+			return true;
+
+			default:
+				break;
 			}
 		}
 
@@ -236,7 +297,7 @@ const bool RunningState::onEvent(Demo* const demo, const irr::SEvent& event)
 
 
 
-
+	//check mouse events
 	else if(irr::EET_MOUSE_INPUT_EVENT == event.EventType)
 	{
 
@@ -329,7 +390,7 @@ void RunningState::onUpdate(Demo* const demo)
 			"   SPACE - Jump\n"
 			"   Wheel - Zoom\n"
 			"           I - Invert: ");
-		t.append(config->isInvertMouse() ? L"(On)" : L"(Off)\n");
+		t.append(config->isInvertMouse() ? L"(On)\n" : L"(Off)\n");
 
 
 		t.append(L"   Position: X:");

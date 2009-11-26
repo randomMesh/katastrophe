@@ -62,7 +62,7 @@ public:
 
 	///Removes a boid from the map.
 	//\param The boid to remove.
-	void removeBoid(irr::scene::BoidSceneNode* const boid);
+	bool removeBoid(irr::scene::BoidSceneNode* const boid);
 
 #ifdef _SOUND
 	void startSounds();

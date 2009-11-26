@@ -55,7 +55,7 @@ void IntroState::onEnter(Demo* const demo)
 {
 	irr::video::IVideoDriver* const driver = demo->getVideoDriver();
 	irr::scene::ISceneManager* const smgr = demo->getSceneManager();
-	irr::gui::IGUIEnvironment* guienv = demo->getGuiEnvironment();
+	irr::gui::IGUIEnvironment* const guienv = demo->getGuiEnvironment();
 
 	this->pauseTimer = 5.0f;
 	this->wait = false;
