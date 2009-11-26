@@ -352,7 +352,7 @@ void Map::loadDefault()
 
 
 
-	//add water
+	//add 'water'
 	irr::scene::IAnimatedMesh* const waterMesh = smgr->addHillPlaneMesh("myHill",
 			irr::core::dimension2d<irr::f32>(100.0f, 100.0f),	//tile size
 			irr::core::dimension2d<irr::u32>(25, 25),			//tile count
@@ -378,10 +378,10 @@ void Map::loadDefault()
 
 	irr::scene::IParticleEmitter* const em = this->ps->createBoxEmitter(
 			irr::core::aabbox3d<irr::f32>(-250.0f, -50.0f, -50.0f, 250.0f, 50.0f, 500.0f), // emitter size
-			irr::core::vector3df(0.0f, 0.008f, 0.0f),	// initial direction
+			irr::core::vector3df(0.0f, 0.005f, 0.0f),	// initial direction
 			20, 50,										// emit rate
 			irr::video::SColor(0, 255, 255, 255),		// darkest color
-			irr::video::SColor(0, 255, 255, 255),		// brightest color
+			irr::video::SColor(0, 0, 0, 0),				// brightest color
 			1000, 3000, 0,								// min and max age, angle
 			irr::core::dimension2df(0.5f, 1.0f),		// min size
 			irr::core::dimension2df(1.0f, 2.0f));		// max size
@@ -688,15 +688,10 @@ irr::scene::BoidSceneNode* const Map::addBoid()
 	for (irr::u32 i = 0; i < numTeleporters; ++i)
 		this->teleporters[i]->addNodeToWatchList(boid);
 
-#ifdef _SOUND
-	if (demo->getSoundEngine() && demo->getConfiguration()->isSoundEnabled())
-		demo->getSoundEngine()->play2D("media/sounds/button.wav");
-#endif
-
 	return boid;
 }
 
-void Map::removeBoid(irr::scene::BoidSceneNode* const boid)
+bool Map::removeBoid(irr::scene::BoidSceneNode* const boid)
 {
 	//remove boid from all teleporters
 	const irr::u32 numTeleporters = this->teleporters.size();
@@ -704,12 +699,7 @@ void Map::removeBoid(irr::scene::BoidSceneNode* const boid)
 		this->teleporters[i]->removeNodeFromWatchList(boid);
 
 	//remove boid from flock
-	const bool success = this->flock->removeBoid(boid);
-
-#ifdef _SOUND
-	if (success && demo->getSoundEngine() && demo->getConfiguration()->isSoundEnabled())
-		demo->getSoundEngine()->play2D("media/sounds/button.wav");
-#endif
+	return this->flock->removeBoid(boid);
 }
 
 void Map::drawDebug() const

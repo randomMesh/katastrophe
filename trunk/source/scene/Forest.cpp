@@ -73,7 +73,6 @@ Forest::~Forest()
 	for (irr::u32 i = 0; i< this->trees.size(); ++i)
 	{
 		this->trees[i]->remove();
-		this->trees[i]->drop();
 	}
 }
 
@@ -83,7 +82,6 @@ void Forest::addTree(const irr::core::vector3df& position, const E_TREE_TYPE& ty
 		0, this->treePool[type].dimension, position);
 	tree->setMaterialType(irr::video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF);
 	tree->setMaterialTexture(0, this->device->getVideoDriver()->getTexture(this->treePool[type].fileName));
-	tree->grab();
 
 	this->trees.push_back(tree);
 }

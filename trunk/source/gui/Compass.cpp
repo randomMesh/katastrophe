@@ -22,7 +22,8 @@ Compass::Compass(const core::rect<s32>& rect, IGUIEnvironment* const env, IGUIEl
 //! render the compass
 void Compass::draw()
 {
-	if (!IsVisible) return;
+	if (!IsVisible)
+		return;
 
 	video::IVideoDriver* const driver = Environment->getVideoDriver();
 
@@ -30,11 +31,12 @@ void Compass::draw()
 	driver->setViewPort(AbsoluteRect);
 
 	// clear the projection matrix
-	const core::matrix4 oldProjMat = driver->getTransform(video::ETS_PROJECTION);
+	const core::matrix4& oldProjMat = driver->getTransform(video::ETS_PROJECTION);
 	driver->setTransform(video::ETS_PROJECTION, core::matrix4());
 
+
 	// clear the view matrix
-	const core::matrix4 oldViewMat = driver->getTransform(video::ETS_VIEW);
+	const core::matrix4& oldViewMat = driver->getTransform(video::ETS_VIEW);
 	driver->setTransform(video::ETS_VIEW, core::matrix4());
 	driver->setTransform(video::ETS_WORLD, Matrix);
 
@@ -54,7 +56,7 @@ void Compass::draw()
 	driver->setViewPort(oldViewPort);
 }
 
-const void Compass::SetupQuadMesh(scene::SMeshBuffer& mesh, const f32 f32Width) const
+void Compass::SetupQuadMesh(scene::SMeshBuffer& mesh, const f32 f32Width) const
 {
 	const f32 f32HalfWidth = f32Width/2.0f;
 	mesh.Vertices.set_used(4);
@@ -62,10 +64,10 @@ const void Compass::SetupQuadMesh(scene::SMeshBuffer& mesh, const f32 f32Width) 
 
 	const video::SColor white(255, 255, 255, 255);
 
-	mesh.Vertices[0] = video::S3DVertex(-f32HalfWidth, -f32HalfWidth, 0.f, 0.f, 0.f, 1.f, white, 0.f, 1.f);
-	mesh.Vertices[1] = video::S3DVertex(-f32HalfWidth,  f32HalfWidth, 0.f, 0.f, 0.f, 1.f, white, 0.f, 0.f);
-	mesh.Vertices[2] = video::S3DVertex( f32HalfWidth,  f32HalfWidth, 0.f, 0.f, 0.f, 1.f, white, 1.f, 0.f);
-	mesh.Vertices[3] = video::S3DVertex( f32HalfWidth, -f32HalfWidth, 0.f, 0.f, 0.f, 1.f, white, 1.f, 1.f);
+	mesh.Vertices[0] = video::S3DVertex(-f32HalfWidth, -f32HalfWidth, 0.0f, 0.0f, 0.0f, 1.0f, white, 0.0f, 1.0f);
+	mesh.Vertices[1] = video::S3DVertex(-f32HalfWidth,  f32HalfWidth, 0.0f, 0.0f, 0.0f, 1.0f, white, 0.0f, 0.0f);
+	mesh.Vertices[2] = video::S3DVertex( f32HalfWidth,  f32HalfWidth, 0.0f, 0.0f, 0.0f, 1.0f, white, 1.0f, 0.0f);
+	mesh.Vertices[3] = video::S3DVertex( f32HalfWidth, -f32HalfWidth, 0.0f, 0.0f, 0.0f, 1.0f, white, 1.0f, 1.0f);
 
 	mesh.Indices[0] = 0;
 	mesh.Indices[1] = 1;
