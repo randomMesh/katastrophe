@@ -11,7 +11,6 @@
 #include <ISceneNodeAnimatorCameraFPS.h>
 #include <IGUIEnvironment.h>
 #include <IGUIStaticText.h>
-#include <IGUISkin.h>
 
 #include "../core/Demo.h"
 #include "../core/Configuration.h"

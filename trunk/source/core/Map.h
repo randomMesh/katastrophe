@@ -78,6 +78,8 @@ public:
 
 	inline Forest* const getForest() const { return this->forest; }
 
+//	inline irr::scene::ISceneNodeAnimatorCollisionResponse* const getAnim() const { return this->anim; }
+
 	void drawDebug() const;
 
 private:

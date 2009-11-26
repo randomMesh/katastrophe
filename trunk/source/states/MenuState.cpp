@@ -19,7 +19,6 @@
 #endif
 
 MenuState::MenuState() :
-	sphere(0), light(0),
 	startButton(0), menuButton(0), quitButton(0)
 {
 
@@ -48,28 +47,27 @@ void MenuState::onEnter(Demo* const demo)
 
 
 	//add a sphere
-	this->sphere = smgr->addSphereSceneNode(10, 64);
-	this->sphere->setMaterialTexture(0, driver->getTexture("media/images/particle.bmp"));
-	this->sphere->setMaterialTexture(1, driver->getTexture("media/images/temporal-wake.jpg"));
-	this->sphere->setMaterialFlag(irr::video::EMF_NORMALIZE_NORMALS, true);
-	this->sphere->setMaterialType(irr::video::EMT_SOLID_2_LAYER);
-	this->sphere->getMaterial(0).Shininess = 32.0f;
-	this->sphere->getMaterial(0).getTextureMatrix(0).setScale(4.0f);
-	this->sphere->getMaterial(0).getTextureMatrix(1).setScale(2.0f);
+	irr::scene::IMeshSceneNode* sphere = smgr->addSphereSceneNode(10, 64);
+	sphere->setMaterialTexture(0, driver->getTexture("media/images/particle.bmp"));
+	sphere->setMaterialTexture(1, driver->getTexture("media/images/temporal-wake.jpg"));
+	sphere->setMaterialFlag(irr::video::EMF_NORMALIZE_NORMALS, true);
+	sphere->setMaterialType(irr::video::EMT_SOLID_2_LAYER);
+	sphere->getMaterial(0).Shininess = 32.0f;
+	sphere->getMaterial(0).getTextureMatrix(0).setScale(4.0f);
+	sphere->getMaterial(0).getTextureMatrix(1).setScale(2.0f);
 
 	irr::scene::ISceneNodeAnimator* anim = 0;
 	anim = smgr->createRotationAnimator(irr::core::vector3df(0.5f, 0.5f, 0.5f));
-	this->sphere->addAnimator(anim);
+	sphere->addAnimator(anim);
 	anim->drop();
 
 	anim = smgr->createFlyStraightAnimator(irr::core::vector3df(0.0f, 0.0f, 0.0f), irr::core::vector3df(0.0f, 0.0f, 40.0f), 4000, true, true);
-	this->sphere->addAnimator(anim);
+	sphere->addAnimator(anim);
 	anim->drop();
 
 
-	// add lights
-	this->light = smgr->addLightSceneNode(0, irr::core::vector3df(50, 50, -50), irr::video::SColorf(1.0f, 1.0f, 1.0f, 1.0f), 60.0f);
-
+	// add light
+	smgr->addLightSceneNode(0, irr::core::vector3df(50, 50, -50), irr::video::SColorf(1.0f, 1.0f, 1.0f, 1.0f), 60.0f);
 	smgr->setAmbientLight(irr::video::SColorf(0.9f, 0.9f, 0.9f));
 
 
@@ -106,8 +104,6 @@ void MenuState::onLeave(Demo* const demo)
 	//clear scenemanager
 	demo->getSceneManager()->getMeshCache()->clear();
 	demo->getSceneManager()->clear();
-	this->sphere = 0;
-	this->light = 0;
 
 	//clear gui
 	demo->getGuiEnvironment()->clear();
@@ -117,11 +113,6 @@ void MenuState::onLeave(Demo* const demo)
 
 	//remove textures
 	demo->getVideoDriver()->removeAllTextures();
-}
-
-void MenuState::onUpdate(Demo* const demo)
-{
-
 }
 
 const bool MenuState::onEvent(Demo* const demo, const irr::SEvent& event)

@@ -382,10 +382,10 @@ void BoidSceneNode::applyRules(
 		this->avoidBorders[1] = -tendencyTowardsPlace;
 
 
-	//set new velocity based upon rules and elapsed time
-	this->velocity[0] += ((scatterFlock ? -scatterFlockModifier*rule_1[0] : rule_1[0]) + rule_2[0] + rule_3[0] + seek[0] + avoid[0] + avoidBorders[0])*deltaTime;
-	this->velocity[1] += ((scatterFlock ? -scatterFlockModifier*rule_1[1] : rule_1[1]) + rule_2[1] + rule_3[1] + seek[1] + avoid[1])*deltaTime;
-	this->velocity[2] += ((scatterFlock ? -scatterFlockModifier*rule_1[2] : rule_1[2]) + rule_2[2] + rule_3[2] + seek[2] + avoid[2] + avoidBorders[1])*deltaTime;
+	//set new velocity based upon rules
+	this->velocity[0] += ((scatterFlock ? -scatterFlockModifier*rule_1[0] : rule_1[0]) + rule_2[0] + rule_3[0] + seek[0] + avoid[0] + avoidBorders[0]);
+	this->velocity[1] += ((scatterFlock ? -scatterFlockModifier*rule_1[1] : rule_1[1]) + rule_2[1] + rule_3[1] + seek[1] + avoid[1]);
+	this->velocity[2] += ((scatterFlock ? -scatterFlockModifier*rule_1[2] : rule_1[2]) + rule_2[2] + rule_3[2] + seek[2] + avoid[2] + avoidBorders[1]);
 
 
 	//Limiting the speed. It is a good idea to limit the magnitude of the boids' velocities,
@@ -403,9 +403,8 @@ void BoidSceneNode::applyRules(
 	if(absZ > speedLimit)
 		this->velocity[2] = (this->velocity[2]/absZ)*speedLimit;
 
-
-	//set new position based upon rules
-	this->RelativeTranslation += core::vector3df(this->velocity[0], this->velocity[1], this->velocity[2]);
+	//set new position based upon rules and elapsed time
+	this->RelativeTranslation += core::vector3df(this->velocity[0], this->velocity[1], this->velocity[2])*deltaTime;
 }
 
 void BoidSceneNode::startPerching(const core::vector3df& outCollisionPoint)

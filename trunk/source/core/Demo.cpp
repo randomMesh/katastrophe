@@ -4,8 +4,8 @@
 
 #include "Demo.h"
 #include <IrrlichtDevice.h>
-#include <ISceneManager.h>
 #include <IGUIEnvironment.h>
+
 #ifdef _SOUND
 #include <ik_ISoundEngine.h>
 #endif
@@ -85,7 +85,7 @@ void Demo::setFont(const irr::c8* const filename)
 
 void Demo::takeScreenshot() const
 {
-	//get video::IImage from the last rendered frame
+	//get image from the last rendered frame
 	irr::video::IImage* const image = this->videoDriver->createScreenShot();
 
 	if (image) //should always be true, but you never know. ;)
@@ -95,9 +95,7 @@ void Demo::takeScreenshot() const
 		snprintf(filename, 64, "capture/screenshot_%u.png", this->timer->getRealTime());
 
 		//write screenshot to file
-		if (this->videoDriver->writeImageToFile(image, filename))
-			this->device->getLogger()->log(L"Screenshot taken.");
-		else
+		if (!this->videoDriver->writeImageToFile(image, filename))
 			this->device->getLogger()->log(L"Failed to take screenshot. Maybe you need to create the capture folder.", irr::ELL_WARNING);
 
 		//Don't forget to drop image since we don't need it anymore.
