@@ -508,10 +508,10 @@ void Map::loadDefault()
 		for (irr::u32 numLight = 0; numLight < 5; ++numLight)
 		{
 			cylinder = smgr->addMeshSceneNode(mesh, 0, -1,
-					light[numLight]->getPosition() - irr::core::vector3df(0.0f, lightHeight, 0.0f));
+				light[numLight]->getPosition() - irr::core::vector3df(0.0f, lightHeight, 0.0f));
 			cylinder->setMaterialTexture(0, tex);
 			cylinder->setMaterialFlag(irr::video::EMF_NORMALIZE_NORMALS, true);
-			//		cylinder->setDebugDataVisible(irr::scene::EDS_BBOX);
+			//cylinder->setDebugDataVisible(irr::scene::EDS_BBOX);
 
 			sel = smgr->createTriangleSelector(mesh, cylinder);
 			cylinder->setTriangleSelector(sel);
@@ -721,7 +721,7 @@ void Map::drawDebug() const
 	irr::video::S3DVertex vertices[n_vertices];
 
 	// for each boid
-	irr::f32 velocity[3];
+	static irr::f32 velocity[3];
 	irr::u32 vIndex = 0;
 	for (irr::u32 p = 0; p < numBoids; ++p)
 	{

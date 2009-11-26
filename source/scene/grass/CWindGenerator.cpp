@@ -48,7 +48,7 @@ f32 CWindGenerator::noiseInterpolate(const f32 x) const
 
 f32 CWindGenerator::windSmoother(const s32 x) const
 {
-	return rndGenerator(x)/2  +  rndGenerator(x-1)/4  +  rndGenerator(x+1)/4;
+	return rndGenerator(x)/2 + rndGenerator(x-1)/4 + rndGenerator(x+1)/4;
 }
 
 f32 CWindGenerator::cosInterpolater(const f32 a, const f32 b, const f32 x) const

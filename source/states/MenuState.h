@@ -36,15 +36,9 @@ public:
 
 	void onLeave(Demo* const demo);
 
-	void onUpdate(Demo* const demo);
-
 	const bool onEvent(Demo* const demo, const irr::SEvent& event);
 
 private:
-
-	irr::scene::IMeshSceneNode* sphere;
-
-	irr::scene::ILightSceneNode* light;
 
 	irr::gui::IGUIButton* startButton;
 
