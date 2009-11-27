@@ -37,6 +37,9 @@ CGrassGeneratorNode::CGrassGeneratorNode(ISceneManager* const smgr, const bool a
 	this->tex1 = driver->getTexture("media/images/grass/grass.png");
 	this->tex2 = driver->getTexture("media/images/grass/grass2.bmp");
 	driver->makeColorKeyTexture(this->tex2, irr::core::position2d<irr::s32>(0, 0));
+
+	AutomaticCullingState = EAC_OFF;
+	DebugDataVisible = EDS_BBOX;
 }
 
 const bool CGrassGeneratorNode::addGrassToTerrain(
@@ -51,35 +54,39 @@ const bool CGrassGeneratorNode::addGrassToTerrain(
 	}
 
 	this->removeAllGrass();
+	this->Box.reset(0.0f, 0.0f, 0.0f);
 
 	//compute width and height
 	const irr::u32 width = ((irr::u32)(heightMap->getDimension().Width*terrain->getScale().X))/GRASS_PATCH_SIZE;
 	const irr::u32 height = ((irr::u32)(heightMap->getDimension().Height*terrain->getScale().Z))/GRASS_PATCH_SIZE;
+
+
+	video::SMaterial material;
+	material.TextureLayer[0].Texture = this->tex1;
+	material.TextureLayer[0].TextureWrapU = video::ETC_CLAMP;
+	material.TextureLayer[0].TextureWrapV = video::ETC_CLAMP;
+	material.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
+	material.MaterialTypeParam = 0.5f;
 
 	// if we are not using auto spawn, we have to add grass nodes to cover the entire terrain.
 	// if not, grass patch nodes are created and destroyed dynamically. NOT YET IMPLEMENTED
 	// see CGrassGeneratorNode::OnRegisterSceneNode().
 	if (!this->autoSpawn)
 	{
-		irr::u32 x, z;
-		for (x = 0; x < width; ++x)
-			for (z = 0; z < height; ++z)
+		for (u32 x = 0; x < width; ++x)
+			for (u32 z = 0; z < height; ++z)
 			{
 				irr::scene::CGrassPatchSceneNode* const grassNode = new irr::scene::CGrassPatchSceneNode(
 					terrain, SceneManager, 0,
-					irr::core::vector3d<irr::s32>(x, 0, z), "grass",
+					irr::core::vector3d<u32>(x, 0, z), "grass",
 					heightMap, textureMap, grassMap, wind);
+				grassNode->getMaterial(0) = material;
 
-
-				grassNode->setMaterialFlag(irr::video::EMF_LIGHTING, true);
-				//grassNode->setMaterialFlag(irr::video::EMF_FOG_ENABLE, true);
-				grassNode->setMaterialType(irr::video::EMT_TRANSPARENT_ALPHA_CHANNEL);
-				grassNode->getMaterial(0).TextureLayer[0].TextureWrapU = irr::video::ETC_CLAMP;
-				grassNode->getMaterial(0).TextureLayer[0].TextureWrapV = irr::video::ETC_CLAMP;
-				grassNode->getMaterial(0).MaterialTypeParam = 0.5f;
-				grassNode->setMaterialTexture(0, this->tex1);
 				this->grassNodes.push_back(grassNode);
 				this->addChild(grassNode);
+
+			//	core::aabbox3df box = grassNode->getTransformedBoundingBox();
+			//	this->Box.addInternalBox(box);
 				grassNode->drop();
 			}
 	}
@@ -265,7 +272,15 @@ void CGrassGeneratorNode::OnRegisterSceneNode()
 void CGrassGeneratorNode::render()
 {
 	if (DebugDataVisible & irr::scene::EDS_BBOX)
-		SceneManager->getVideoDriver()->draw3DBox(Box, irr::video::SColor(0, 255, 255, 255));
+	{
+		video::IVideoDriver* const driver = SceneManager->getVideoDriver();
+
+		video::SMaterial mat;
+		mat.Lighting = false;
+		driver->setMaterial(mat);
+		driver->setTransform(video::ETS_WORLD, AbsoluteTransformation);
+		driver->draw3DBox(Box, video::SColor(0, 0, 255, 0));
+	}
 }
 
 const irr::core::aabbox3d<irr::f32>& CGrassGeneratorNode::getBoundingBox() const

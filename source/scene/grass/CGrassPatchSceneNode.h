@@ -10,7 +10,6 @@
 
 #define GRASS_PATCH_SIZE 1024
 
-#include "IWindGenerator.h"
 #include <ISceneNode.h>
 #include <S3DVertex.h>
 
@@ -18,13 +17,14 @@ namespace irr
 {
 namespace video
 {
-class IImage;
+	class IImage;
 }
 
 namespace scene
 {
 
 class ITerrainSceneNode;
+class IWindGenerator;
 
 struct SGrassParticle
 {
@@ -43,7 +43,7 @@ public:
 
 	//! constructor
 	CGrassPatchSceneNode(
-		ITerrainSceneNode* const terrain, ISceneManager* mgr, const s32 id, const core::vector3d<s32>& gridpos,
+		ITerrainSceneNode* const terrain, ISceneManager* mgr, const s32 id, const core::vector3d<u32>& gridpos,
 		const char* filepath, const video::IImage* const heightMap, const video::IImage* const colourMap,
 		const video::IImage* const grassMap, scene::IWindGenerator* const windgen);
 
@@ -91,38 +91,37 @@ public:
 private:
 
 	void reallocateBuffers();
-	bool Load();
-	bool Save();
+
 	bool Create();
 
-	core::array<SGrassParticle>   Particles;        // list of particles
-	core::vector3d<s32>           gridpos;          // grid position
-	f32                           DrawDistanceSQ;   // maximum draw distance, squared for speed
-	u32                           MaxDensity;       // maximum blades per patch
-	core::dimension2d<u32>        imagecount;       // number of images wide and tall
-	core::dimension2d<f32>        imagesize;        // size of each image
+	core::array<SGrassParticle>		Particles;			// list of particles
+	core::vector3d<u32>				gridpos;			// grid position
+	f32								DrawDistanceSQ;		// maximum draw distance, squared for speed
+	u32								MaxDensity;			// maximum blades per patch
+	core::dimension2d<u32>			imagecount;			// number of images wide and tall
+	core::dimension2d<f32>			imagesize;			// size of each image
 
-	ITerrainSceneNode* const Terrain;
-	const video::IImage* const TerrainHeightMap;	// heightmap to get Y value
-	const video::IImage* const TerrainColourMap;	// the colour of the grass
-	const video::IImage* const TerrainGrassMap; 	// height and density of grass
-	scene::IWindGenerator* const WindGen;      		// pointer to wind generator
-	core::array<core::vector2df>  WindGrid;         // grid of last wind positions
-	u32                           windGridRes;      // grid resolution
-	u32                           fpsLock;          // how many fps it runs at.
-	u32                           lastwindtime;     // last time the wind changed
-	bool                          redrawnextloop;   // if we redo the vertex buffers next loop
-	u32                           lastdrawcount;    // last number of triangles drawn
+	ITerrainSceneNode* const		Terrain;
+	const video::IImage* const		TerrainHeightMap;	// heightmap to get Y value
+	const video::IImage* const		TerrainColourMap;	// the colour of the grass
+	const video::IImage* const		TerrainGrassMap;	// height and density of grass
+	scene::IWindGenerator* const	WindGen;			// pointer to wind generator
+	core::array<core::vector2df>	WindGrid;			// grid of last wind positions
+	u32								windGridRes;		// grid resolution
+	u32								fpsLock;			// how many fps it runs at.
+	u32								lastwindtime;		// last time the wind changed
+	bool							redrawnextloop;		// if we redo the vertex buffers next loop
+	u32								lastdrawcount;		// last number of triangles drawn
 
-	video::SMaterial              Material;         // Grass material
-	core::array<video::S3DVertex> Vertices;         // 4 vertices per particle
-	core::array<u16>              Indices;          // 12 indices per particle (2 triangles(*3) per side(*2))
-	core::aabbox3d<f32>           Box;              // bounding box
+	video::SMaterial				Material;			// Grass material
+	core::array<video::S3DVertex>	Vertices;			// 4 vertices per particle
+	core::array<u16>				Indices;			// 12 indices per particle (2 triangles(*3) per side(*2))
+	core::aabbox3d<f32>				Box;				// bounding box
 
-	core::array<f32>              v1;               // these are used for holding
-	core::array<f32>              v2;               // the tcoords instead of
-	core::array<f32>              v3;               // calculating them each loop.
-	core::array<f32>              v4;               // coords are set on setImageCount
+	core::array<f32>				v1;					// these are used for holding
+	core::array<f32>				v2;					// the tcoords instead of
+	core::array<f32>				v3;					// calculating them each loop.
+	core::array<f32>				v4;					// coords are set on setImageCount
 };
 
 } // end namespace scene

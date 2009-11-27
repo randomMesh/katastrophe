@@ -211,7 +211,7 @@ void OptionsState::onEnter(Demo* const demo)
 
 		static const irr::core::stringw about(
 				L"Boids, developed by Craig Reynolds (http://www.red3d.com/cwr/) in 1986, is an artificial life program, simulating the flocking behaviour of birds.\n\n"
-				"This demo is an implementation of the pseudocode found at the website of Conrad Parker.\n"
+				"Katastrophe: Flocking boids is an implementation of the pseudocode found at the website of Conrad Parker.\n"
 				"See http://www.vergenet.net/~conrad/boids/pseudocode.html\n\n"
 				"There are 3 rules which a boid in a flock has to follow:\n"
 				"    Separation: steer to avoid crowding local flockmates\n"
@@ -488,6 +488,7 @@ void OptionsState::onEnter(Demo* const demo)
 
 			//add near camera
 			this->nearCam = smgr->addCameraSceneNode(0, irr::core::vector3df(100.0f, 150.0f, 100.0f), irr::core::vector3df(1000.0f, 100, 1000.0f));
+			//this->nearCam->setFarValue(100.0f);
 
 			//we need to make normal camera active again
 			smgr->setActiveCamera(this->camera);
@@ -814,7 +815,7 @@ const bool OptionsState::onEvent(Demo* const demo, const irr::SEvent& event)
 
 
 void OptionsState::saveSettings(Demo* const demo) const
-		{
+{
 	irr::SIrrlichtCreationParameters params;
 	switch(this->driverSelectionBox->getSelected())
 	{
