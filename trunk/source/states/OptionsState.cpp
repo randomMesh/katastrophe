@@ -603,22 +603,44 @@ void OptionsState::onEnter(Demo* const demo)
 
 void OptionsState::onLeave(Demo* const demo)
 {
-	//clear scenemanager
-	demo->getSceneManager()->setActiveCamera(0);
-	this->camera->remove();
-	demo->getSceneManager()->getMeshCache()->clear();
-	demo->getSceneManager()->clear();
+	irr::scene::ISceneManager* const smgr = demo->getSceneManager();
 
+	//clear scenemanager
+	irr::scene::ICameraSceneNode* camera = smgr->getActiveCamera();
+	smgr->setActiveCamera(0);
+	camera->remove();
+	if (camera == this->camera)
+		this->camera = 0;
+	else
+		this->nearCam = 0;
+	camera = 0;
+
+
+	if (this->camera)
+	{
+		this->camera->remove();
+		this->camera = 0;
+	}
 
 	if (this->renderTarget)
 	{
+		if (this->nearCam)
+		{
+			this->nearCam->remove();
+			this->nearCam = 0;
+		}
+
 		demo->getVideoDriver()->removeTexture(this->renderTarget);
 		this->renderTarget = 0;
 	}
 
-//	this->grassGeneratorNode->remove();
+	this->grassGeneratorNode->remove();
 	this->grassGeneratorNode->drop();
 	this->grassGeneratorNode = 0;
+
+	smgr->getMeshCache()->clear();
+	smgr->clear();
+
 
 	this->window->remove();
 	this->window->drop();
@@ -846,7 +868,7 @@ void OptionsState::rttCallback(Demo* const demo) const
 		// set render target texture
 		driver->setRenderTarget(this->renderTarget, true, true, irr::video::SColor(0, 0, 0, 255));
 
-		smgr->setActiveCamera(nearCam);
+		smgr->setActiveCamera(this->nearCam);
 
 		// draw scene into render buffer
 		smgr->drawAll();
@@ -854,6 +876,6 @@ void OptionsState::rttCallback(Demo* const demo) const
 		// set back old render target. The buffer might have been distorted, so clear it
 		driver->setRenderTarget(0, true, true, 0);
 
-		smgr->setActiveCamera(camera);
+		smgr->setActiveCamera(this->camera);
 	}
 }
