@@ -49,14 +49,14 @@ BoidSceneNode::BoidSceneNode(
 
 	//start position should be near the target
 	this->RelativeTranslation = core::vector3df(
-		rand()%((irr::s32)target.X + 1000) + ((irr::s32)target.X - 1000),
-		rand()%((irr::s32)target.Y + 2000) + ((irr::s32)target.Y + 1000),
-		rand()%((irr::s32)target.Z + 1000) + ((irr::s32)target.Z - 1000));
+		rand()%((irr::s32)target.X + 500) + ((irr::s32)target.X - 500),
+		rand()%((irr::s32)target.Y + 1500) + ((irr::s32)target.Y + 500),
+		rand()%((irr::s32)target.Z + 500) + ((irr::s32)target.Z - 500));
+
+	this->updateAbsolutePosition();
 
 	this->groundRay.start = this->RelativeTranslation;
 	this->groundRay.end = this->RelativeTranslation - irr::core::vector3df(0.0f, mimimumAboveGround, 0.0f);
-
-	this->updateAbsolutePosition();
 
 
 	//store normals

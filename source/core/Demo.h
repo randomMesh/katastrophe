@@ -85,8 +85,13 @@ public:
 	///Takes a screenshot from the last rendered frame.
 	void takeScreenshot() const;
 
+
+	///Called from Irrlichts render loop in order to let the game render to texture.
+	void rttCallBack();
+
 	///Called from Irrlichts render loop in order to let the game draw.
 	void drawCallBack();
+
 
 	//getter
 

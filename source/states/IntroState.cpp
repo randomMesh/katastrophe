@@ -5,6 +5,7 @@
 #include "IntroState.h"
 #include <IrrlichtDevice.h>
 #include <ISceneManager.h>
+#include <IMeshCache.h>
 #include <ICameraSceneNode.h>
 #include <IBillboardTextSceneNode.h>
 #include <IParticleSystemSceneNode.h>
@@ -18,7 +19,7 @@
 #endif
 
 IntroState::IntroState() :
-	skybox(0), introText(0), copyRightText(0), anim1(0),
+	introText(0), copyRightText(0), anim1(0),
 	infoText(0), pauseTimer(5.0f), wait(false)
 {
 
@@ -26,12 +27,6 @@ IntroState::IntroState() :
 
 IntroState::~IntroState()
 {
-	if (this->skybox)
-	{
-		this->skybox->remove();
-		this->skybox->drop();
-	}
-
 	if (this->introText)
 	{
 		this->introText->remove();
@@ -71,7 +66,7 @@ void IntroState::onEnter(Demo* const demo)
 
 	//create an animated skybox
 	driver->setTextureCreationFlag(irr::video::ETCF_CREATE_MIP_MAPS, false);
-	this->skybox = smgr->addSkyBoxSceneNode(
+	irr::scene::ISceneNode* const skybox = smgr->addSkyBoxSceneNode(
 		driver->getTexture("media/images/skybox/starfield/starfield_up.png"),
 		driver->getTexture("media/images/skybox/starfield/starfield_dn.png"),
 		driver->getTexture("media/images/skybox/starfield/starfield_lf.png"),
@@ -79,10 +74,9 @@ void IntroState::onEnter(Demo* const demo)
 		driver->getTexture("media/images/skybox/starfield/starfield_ft.png"),
 		driver->getTexture("media/images/skybox/starfield/starfield_bk.png"));
 	driver->setTextureCreationFlag(irr::video::ETCF_CREATE_MIP_MAPS, true);
-	this->skybox->grab();
 
 	irr::scene::ISceneNodeAnimator* const skyAnim = smgr->createRotationAnimator(irr::core::vector3df(0.0f, 0.01f, 0.0f));
-	this->skybox->addAnimator(skyAnim);
+	skybox->addAnimator(skyAnim);
 	skyAnim->drop();
 
 
@@ -198,9 +192,8 @@ void IntroState::onLeave(Demo* const demo)
 		camera->remove();
 	}
 
-	this->skybox->remove();
-	this->skybox->drop();
-	this->skybox = 0;
+	demo->getSceneManager()->getMeshCache()->clear();
+	demo->getSceneManager()->clear();
 
 	this->introText->removeAnimators();
 	this->introText->remove();

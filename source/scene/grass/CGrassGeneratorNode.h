@@ -9,7 +9,6 @@
 
 namespace irr
 {
-class IrrlichtDevice;
 
 namespace scene
 {
@@ -23,7 +22,7 @@ public:
 	 * Constructor.
 	 * \param device A pointer to the Irrlicht device.
 	 */
-	CGrassGeneratorNode(irr::IrrlichtDevice* const device, const bool autoSpawn = false);
+	CGrassGeneratorNode(ISceneManager* const smgr, const bool autoSpawn = false);
 
 	void OnRegisterSceneNode();
 
@@ -60,7 +59,7 @@ public:
 	 * Cycle through E_MATERIAL_TYPE modes.
 	 * \param forward True if search direction is forward.
 	 */
-	const void cycleModes(const bool forward);
+	const void cycleModes(const bool forward = true);
 
 
 	//setter
@@ -135,21 +134,21 @@ public:
 private:
 
     ///An array of grass patch nodes.
-    irr::core::array<irr::scene::CGrassPatchSceneNode*> grassNodes;
+    core::array<CGrassPatchSceneNode*> grassNodes;
 
 	//material settings
-	irr::core::array<irr::video::E_MATERIAL_TYPE> modes;
-	irr::u32 currentMode;
+	core::array<video::E_MATERIAL_TYPE> modes;
+	u32 currentMode;
 
 	//texture settings
-	irr::video::ITexture* tex1;
-	irr::video::ITexture* tex2;
+	video::ITexture* tex1;
+	video::ITexture* tex2;
     bool tex; //which texture to use;
 
 
-    irr::core::aabbox3d<irr::f32> Box;
+    core::aabbox3d<f32> Box;
 
-    irr::u32 frameCount;
+    u32 frameCount;
 
     ///True if node automatically should spawn grass near the camera
     bool autoSpawn;

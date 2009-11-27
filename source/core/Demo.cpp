@@ -103,6 +103,11 @@ void Demo::takeScreenshot() const
 	}
 }
 
+void Demo::rttCallBack()
+{
+	this->getCurrentState()->rttCallback(this);
+}
+
 void Demo::drawCallBack()
 {
 	this->videoDriver->setMaterial(this->debugMat);

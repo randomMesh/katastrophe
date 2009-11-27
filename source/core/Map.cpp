@@ -230,9 +230,9 @@ void Map::loadDefault()
 	const irr::video::IImage* const textureMap = driver->createImageFromFile("media/images/terrain/terrain-grasscol.bmp");
 	const irr::video::IImage* const grassMap = driver->createImageFromFile("media/images/terrain/terrain-grassmap.png");
 
-	this->grassGeneratorNode = new irr::scene::CGrassGeneratorNode(this->demo->getDevice());
+	this->grassGeneratorNode = new irr::scene::CGrassGeneratorNode(smgr);
 	this->grassGeneratorNode->addGrassToTerrain(wind, this->terrain, heightMap, textureMap, grassMap);
-	this->grassGeneratorNode->increaseDrawDistance(1000.0f);
+	this->grassGeneratorNode->increaseDrawDistance(5000.0f);
 	this->grassGeneratorNode->setVisible(false);
 
 	heightMap->drop();

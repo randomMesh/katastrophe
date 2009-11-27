@@ -44,8 +44,6 @@ public:
 
 private:
 
-	irr::scene::ISceneNode* skybox;
-
 	irr::scene::IBillboardTextSceneNode* introText;
 
 	irr::scene::IBillboardTextSceneNode* copyRightText;

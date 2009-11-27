@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in main.cpp
 
 #include "CGrassGeneratorNode.h"
-#include <IrrlichtDevice.h>
+#include <IVideoDriver.h>
 #include <ISceneManager.h>
 #include <ITerrainSceneNode.h>
 #include <ICameraSceneNode.h>
@@ -13,8 +13,8 @@ namespace irr
 namespace scene
 {
 
-CGrassGeneratorNode::CGrassGeneratorNode(irr::IrrlichtDevice* const device, const bool autoSpawn) :
-	irr::scene::ISceneNode(device->getSceneManager()->getRootSceneNode(), device->getSceneManager(), 0),
+CGrassGeneratorNode::CGrassGeneratorNode(ISceneManager* const smgr, const bool autoSpawn) :
+	irr::scene::ISceneNode(smgr->getRootSceneNode(), smgr, 0),
 	currentMode(0),	//current material mode
 	tex1(0),		//first texture
 	tex2(0),		//second texture
@@ -36,7 +36,7 @@ CGrassGeneratorNode::CGrassGeneratorNode(irr::IrrlichtDevice* const device, cons
 
 	this->tex1 = driver->getTexture("media/images/grass/grass.png");
 	this->tex2 = driver->getTexture("media/images/grass/grass2.bmp");
-	driver->makeColorKeyTexture(this->tex2, irr::core::position2d<irr::s32>(0,0));
+	driver->makeColorKeyTexture(this->tex2, irr::core::position2d<irr::s32>(0, 0));
 }
 
 const bool CGrassGeneratorNode::addGrassToTerrain(
@@ -65,7 +65,7 @@ const bool CGrassGeneratorNode::addGrassToTerrain(
 		for (x = 0; x < width; ++x)
 			for (z = 0; z < height; ++z)
 			{
-				irr::scene::CGrassPatchSceneNode* grassNode = new irr::scene::CGrassPatchSceneNode(
+				irr::scene::CGrassPatchSceneNode* const grassNode = new irr::scene::CGrassPatchSceneNode(
 					terrain, SceneManager, 0,
 					irr::core::vector3d<irr::s32>(x, 0, z), "grass",
 					heightMap, textureMap, grassMap, wind);

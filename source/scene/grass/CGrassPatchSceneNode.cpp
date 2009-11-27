@@ -320,7 +320,6 @@ void CGrassPatchSceneNode::render()
 
 		const core::vector3df& campos = camera->getAbsolutePosition();
 		const core::aabbox3d<f32>& cbox = camera->getViewFrustum()->getBoundingBox();
-		const core::vector3df& pos = getPosition();
 
 		u32 drawcount = 0;
 		u32 max = (Particles.size() < MaxDensity) ? Particles.size() : MaxDensity;
@@ -344,12 +343,11 @@ void CGrassPatchSceneNode::render()
 		core::matrix4 m;
 
 		// create particle vertex data
-		u32 i;
-		for (i = 0; i < max; ++i)
+		for (u32 i = 0; i < max; ++i)
 		{
 			const u32 idx = drawcount*4;
 			const SGrassParticle& particle = Particles[i];
-			const core::vector3df gpos = particle.pos + pos;
+			const core::vector3df gpos = particle.pos + RelativeTranslation;
 
 			// bounding box check: 150fps to 175fps
 			if (!cbox.isPointInside(gpos))
@@ -409,11 +407,12 @@ void CGrassPatchSceneNode::render()
 			const core::vector2df& wind3 = WindGrid[ xgrid   *(windGridRes+1)+zgrid];
 			const core::vector2df& wind4 = WindGrid[(xgrid+1)*(windGridRes+1)+zgrid];
 
-			core::vector2df wind2d = wind1*(
-					1.0f-xnext)*(1.0f-znext) +
-					wind2*xnext*(1.0f-znext) +
-					wind3*(1.0f-xnext)*znext +
-					wind4*xnext*znext;
+			core::vector2df wind2d =
+				wind1*(1.0f - xnext)*(1.0f - znext) +
+				wind2*xnext*(1.0f - znext) +
+				wind3*(1.0f - xnext)*znext +
+				wind4*xnext*znext;
+
 			// flexibility of this grass strand
 			wind2d *= particle.flex;
 
