@@ -19,6 +19,17 @@ namespace irr
 		class IGUICheckBox;
 		class IGUIScrollBar;
 		class IGUIEditBox;
+		class IGUITab;
+	}
+
+	namespace scene
+	{
+		class ICameraSceneNode;
+	}
+
+	namespace video
+	{
+		class ITexture;
 	}
 }
 
@@ -39,11 +50,15 @@ public:
 
 	const bool onEvent(Demo* const demo, const irr::SEvent& event);
 
-	void onUpdate(Demo* const demo);
+	void rttCallback(Demo* const demo) const;
 
 private:
 
 	void saveSettings(Demo* const demo) const;
+
+
+	irr::scene::ICameraSceneNode* camera;
+
 
 	irr::gui::IGUIWindow* window;
 
@@ -93,6 +108,15 @@ private:
 	irr::gui::IGUIEditBox* cameraJumpSpeedBox;
 
 	irr::gui::IGUICheckBox* invertCameraBox;
+
+	//grass tab
+
+	irr::gui::IGUITab* grassTab;
+
+	///Extra camera for the renderTarget.
+	irr::scene::ICameraSceneNode* nearCam;
+
+	irr::video::ITexture* renderTarget;
 
 #ifdef _SOUND
 	//sound tab

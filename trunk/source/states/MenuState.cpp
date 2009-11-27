@@ -102,6 +102,13 @@ void MenuState::onEnter(Demo* const demo)
 void MenuState::onLeave(Demo* const demo)
 {
 	//clear scenemanager
+	irr::scene::ICameraSceneNode* const camera = demo->getSceneManager()->getActiveCamera();
+	if (camera)
+	{
+		demo->getSceneManager()->setActiveCamera(0);
+		camera->remove();
+	}
+
 	demo->getSceneManager()->getMeshCache()->clear();
 	demo->getSceneManager()->clear();
 

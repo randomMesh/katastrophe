@@ -66,6 +66,16 @@ public:
 		return false;
 	}
 
+	/*! Render to texture
+	 *
+	 * Called by the state machine between driver->beginScene() and smgr->drawAll().
+	 *
+	 * \param entity The entity that should draw.
+	 */
+	virtual void rttCallback(T* const entity) const
+	{
+	}
+
 	/*! Draw to Irrlicht scene
 	 *
 	 * Called by the state machine between smgr->drawAll() and guienv->drawAll().

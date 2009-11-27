@@ -35,6 +35,7 @@ void GlobalState::onUpdate(Demo* const demo)
 	{
 		// render the scene
 		driver->beginScene(true, true, irr::video::SColor(255, 0, 0, 0));
+		demo->rttCallBack();
 		demo->getSceneManager()->drawAll();
 		demo->drawCallBack();
 		demo->getGuiEnvironment()->drawAll();

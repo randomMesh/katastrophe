@@ -128,6 +128,14 @@ void RunningState::onLeave(Demo* const demo)
 	delete this->map;
 	this->map = 0;
 
+
+	irr::scene::ICameraSceneNode* const camera = demo->getSceneManager()->getActiveCamera();
+	if (camera)
+	{
+		demo->getSceneManager()->setActiveCamera(0);
+		camera->remove();
+	}
+
 	//clear gui environment
 	demo->getGuiEnvironment()->clear();
 
@@ -285,6 +293,17 @@ const bool RunningState::onEvent(Demo* const demo, const irr::SEvent& event)
 #endif
 			}
 			return true;
+
+			case irr::KEY_KEY_N:
+			{
+				this->map->getGrass()->cycleModes();
+#ifdef _SOUND
+				if (demo->getSoundEngine() && demo->getConfiguration()->isSoundEnabled())
+					demo->getSoundEngine()->play2D("media/sounds/button.wav");
+#endif
+			}
+			return true;
+
 
 			default:
 				break;
