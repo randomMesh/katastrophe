@@ -62,5 +62,19 @@ void GlobalState::onUpdate(Demo* const demo)
 
 const bool GlobalState::onEvent(Demo* const demo, const irr::SEvent& event)
 {
+	//check keyboard events
+	if (event.EventType == irr::EET_KEY_INPUT_EVENT)
+	{
+		if (!event.KeyInput.PressedDown)
+		{
+			switch (event.KeyInput.Key)
+			{
+				case irr::KEY_F6: demo->takeScreenshot(); return true;
+				default:
+					return false;
+			}
+		}
+	}
+
 	return false;
 }
