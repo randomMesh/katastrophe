@@ -146,10 +146,8 @@ void Configuration::readFromFile(const irr::c8* const fileName)
 	device->drop();
 }
 
-void Configuration::writeToFile(const irr::c8* const fileName) const
+void Configuration::writeToFile(irr::IrrlichtDevice* const device, const irr::c8* const fileName) const
 {
-	irr::IrrlichtDevice* device = irr::createDevice(irr::video::EDT_NULL);
-
 	irr::io::IXMLWriter* xmlw = 0;
 	if (device->getFileSystem()->existFile(fileName))
 		xmlw = device->getFileSystem()->createXMLWriter(fileName);
@@ -158,7 +156,6 @@ void Configuration::writeToFile(const irr::c8* const fileName) const
 
 	if (xmlw == 0)
 	{	//could not open file for writing
-		device->drop();
 		return;
 	}
 
@@ -282,5 +279,4 @@ void Configuration::writeToFile(const irr::c8* const fileName) const
 
 	//clean up writer
 	xmlw->drop();
-	device->drop();
 }

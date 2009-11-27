@@ -217,7 +217,7 @@ void OptionsState::onEnter(Demo* const demo)
 
 	const irr::u32 textWidth = 160;
 	const irr::u32 spacer = 20;
-	const irr::u32 horizontalBorder = 50;
+	const irr::u32 horizontalBorder = 40;
 	const irr::u32 posX = horizontalBorder + textWidth;
 	const irr::u32 posX2 = tabControlWidth - horizontalBorder;
 	const irr::u32 depp = posX + spacer;
@@ -472,7 +472,7 @@ void OptionsState::onEnter(Demo* const demo)
 		text->setOverrideColor(titleColor);
 
 
-		if (!driver->queryFeature(irr::video::EVDF_RENDER_TO_TARGET))
+		if (driver->queryFeature(irr::video::EVDF_RENDER_TO_TARGET))
 		{
 			//add preview
 			this->renderTarget = driver->addRenderTargetTexture(irr::core::dimension2d<irr::u32>(256, 256), "RTT1");
@@ -509,7 +509,8 @@ void OptionsState::onEnter(Demo* const demo)
 			image->setUseAlphaChannel(true);
 			image->setImage(texture1);
 
-			irr::gui::IGUICheckBox* ch = guienv->addCheckBox(true, irr::core::rect<irr::s32>(meep + fixedImageSize.Width + 10, 80, meep + fixedImageSize.Width + 10 + 20, 100), grassTab);
+			irr::gui::IGUICheckBox* ch = guienv->addCheckBox(true,
+				irr::core::rect<irr::s32>(meep + fixedImageSize.Width + 10, 80, meep + fixedImageSize.Width + 10 + 20, 100), grassTab);
 
 		}
 
@@ -520,10 +521,17 @@ void OptionsState::onEnter(Demo* const demo)
 		{
 			driver->makeColorKeyTexture(texture2, irr::core::position2d<irr::s32>(0, 0));
 
-			irr::gui::IGUIImage* const image = guienv->addImage(irr::core::rect<irr::s32>(meep + fixedImageSize.Width + 50, 80, meep + 64  + 64 + 50, 80 + 64), grassTab);
+			irr::gui::IGUIImage* const image = guienv->addImage(irr::core::rect<irr::s32>(
+				meep + fixedImageSize.Width + 20 + 20, 80,
+				meep + fixedImageSize.Width + 20 + 20 + fixedImageSize.Width, 80 + 64), grassTab);
 			image->setScaleImage(true);
 			image->setUseAlphaChannel(true);
 			image->setImage(texture2);
+
+			irr::gui::IGUICheckBox* ch = guienv->addCheckBox(false,
+				irr::core::rect<irr::s32>(
+					meep + fixedImageSize.Width + 20 + 20 + fixedImageSize.Width + 10, 80,
+					meep + fixedImageSize.Width + 20 + 20 + fixedImageSize.Width + 10 + 20, 100), grassTab);
 		}
 
 
@@ -802,8 +810,8 @@ void OptionsState::saveSettings(Demo* const demo) const
 	config->setCameraJumpSpeed(atof(irr::core::stringc(this->cameraJumpSpeedBox->getText()).c_str()));
 	config->setInvertMouse(this->invertCameraBox->isChecked());
 
-	config->writeToFile("config.xml");
-		}
+	config->writeToFile(demo->getDevice(), "config.xml");
+}
 
 void OptionsState::rttCallback(Demo* const demo) const
 		{
