@@ -233,7 +233,8 @@ void Map::loadDefault()
 	this->grassGeneratorNode = new irr::scene::CGrassGeneratorNode(smgr);
 	this->grassGeneratorNode->addGrassToTerrain(wind, this->terrain, heightMap, textureMap, grassMap);
 	this->grassGeneratorNode->increaseDrawDistance(5000.0f);
-	this->grassGeneratorNode->setVisible(false);
+	this->grassGeneratorNode->setVisible(config->getShowGrass());
+
 
 	heightMap->drop();
 	textureMap->drop();

@@ -179,7 +179,9 @@ const bool RunningState::onEvent(Demo* const demo, const irr::SEvent& event)
 
 			case irr::KEY_F2:
 			{
-				this->map->getGrass()->setVisible(!this->map->getGrass()->isVisible());
+				const bool visible = this->map->getGrass()->isVisible();
+				this->map->getGrass()->setVisible(!visible);
+				demo->getConfiguration()->setGrassVisible(!visible);
 #ifdef _SOUND
 				if (demo->getSoundEngine() && demo->getConfiguration()->isSoundEnabled())
 					demo->getSoundEngine()->play2D("media/sounds/button.wav");

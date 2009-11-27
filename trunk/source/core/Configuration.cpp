@@ -32,7 +32,12 @@ Configuration::Configuration() :
 	tendencyTowardsPlace(30.0f),
 	tendencyAvoidPlace(15.0f),
 	minimumAboveGround(200.0f),
-	speedLimit(20.0f)
+	speedLimit(20.0f),
+
+	//grass
+	showGrass(false),
+	grassTextureNum(0),
+	grassMaterialType(0)
 {
 	//setup sane default values for irrlicht device in case of invalid / not readable configuration file
 	this->params.DriverType = irr::video::EDT_OPENGL;
@@ -139,6 +144,19 @@ void Configuration::readFromFile(const irr::c8* const fileName)
 			this->speedLimit = xml->getAttributeValueAsFloat(L"speedLimit");
 
 			//todo check for sane values
+		}
+
+		else if (irr::core::stringw(L"grass") == xml->getNodeName())
+		{
+			this->showGrass = xml->getAttributeValueAsInt(L"show");
+			this->grassTextureNum = xml->getAttributeValueAsInt(L"texture");
+			this->grassMaterialType = xml->getAttributeValueAsInt(L"material");
+
+			if (this->grassTextureNum < 0 || this->grassTextureNum > 1)
+				this->grassTextureNum = 0;
+
+			if (this->grassMaterialType < 0 || this->grassMaterialType > 3)
+				this->grassMaterialType = 0;
 		}
 	}
 
@@ -272,6 +290,19 @@ void Configuration::writeToFile(irr::IrrlichtDevice* const device, const irr::c8
 
 	xmlw->writeLineBreak();
 	xmlw->writeLineBreak();
+
+
+	//write grass settings
+	xmlw->writeComment(L"Grass settings: todo");
+	xmlw->writeLineBreak();
+	xmlw->writeElement(L"grass", true,
+		L"show", irr::core::stringw(this->showGrass).c_str(),
+		L"texture", irr::core::stringw(this->grassTextureNum).c_str(),
+		L"material", irr::core::stringw(this->grassMaterialType).c_str());
+
+	xmlw->writeLineBreak();
+	xmlw->writeLineBreak();
+
 
 	xmlw->writeClosingTag(L"configuration");
 
