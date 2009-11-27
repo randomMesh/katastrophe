@@ -90,6 +90,15 @@ public:
 	{ return this->speedLimit; }
 
 
+
+	inline const bool getShowGrass() const { return this->showGrass; }
+
+	inline const irr::u32 getGrassTextureNum() const { return this->grassTextureNum; }
+
+	inline const irr::u32 getGrassMaterialType() const { return this->grassMaterialType; }
+
+
+
 	//setter
 
 	inline void setIrrlichtParams(const irr::SIrrlichtCreationParameters& irrLichtParams)
@@ -143,6 +152,9 @@ public:
 	inline void setInvertMouse(const bool invert)
 	{ this->invertMouse = invert; }
 
+
+	inline void setGrassVisible(const bool visible) { this->showGrass = visible; }
+
 private:
 
 	///Holds the name of the game.
@@ -194,6 +206,15 @@ private:
 	irr::f32 minimumAboveGround;
 
 	irr::f32 speedLimit;
+
+
+	//grass
+
+	bool showGrass;
+
+	irr::u32 grassTextureNum;
+
+	irr::u32 grassMaterialType;
 };
 
 #endif /*CONFIGURATION_H_*/

@@ -143,8 +143,9 @@ void OptionsState::onEnter(Demo* const demo)
 	const irr::video::IImage* const textureMap = driver->createImageFromFile("media/images/terrain/terrain-grasscol.bmp");
 	const irr::video::IImage* const grassMap = driver->createImageFromFile("media/images/terrain/terrain-grassmap.png");
 
-	grassGeneratorNode = new irr::scene::CGrassGeneratorNode(smgr);
-	grassGeneratorNode->addGrassToTerrain(wind, terrain, heightMap, textureMap, grassMap);
+	this->grassGeneratorNode = new irr::scene::CGrassGeneratorNode(smgr);
+	this->grassGeneratorNode->addGrassToTerrain(wind, terrain, heightMap, textureMap, grassMap);
+
 
 	heightMap->drop();
 	textureMap->drop();
