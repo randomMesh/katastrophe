@@ -25,6 +25,7 @@ namespace irr
 	namespace scene
 	{
 		class ICameraSceneNode;
+		class CGrassGeneratorNode;
 	}
 
 	namespace video
@@ -58,6 +59,8 @@ private:
 
 
 	irr::scene::ICameraSceneNode* camera;
+
+	irr::scene::CGrassGeneratorNode* grassGeneratorNode;
 
 
 	irr::gui::IGUIWindow* window;
@@ -117,6 +120,10 @@ private:
 	irr::scene::ICameraSceneNode* nearCam;
 
 	irr::video::ITexture* renderTarget;
+
+	irr::gui::IGUICheckBox* grassTexture1Box;
+
+	irr::gui::IGUICheckBox* grassTexture2Box;
 
 #ifdef _SOUND
 	//sound tab

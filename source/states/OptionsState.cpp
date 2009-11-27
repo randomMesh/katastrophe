@@ -32,7 +32,7 @@
 
 OptionsState::OptionsState() :
 
-camera(0), nearCam(0),
+camera(0), grassGeneratorNode(0),
 
 window(0), backButton(0), saveButton(0),
 
@@ -47,7 +47,7 @@ driverSelectionBox(0), resolutionSelectionBox(0), fullscreenBox(0), stencilbuffe
 cameraRotateSpeedBox(0), cameraMoveSpeedBox(0), cameraJumpSpeedBox(0), invertCameraBox(0),
 
 //grass tab
-grassTab(0), renderTarget(0)
+grassTab(0), nearCam(0), renderTarget(0), grassTexture1Box(0), grassTexture2Box(0)
 
 #ifdef _SOUND
 //sound tab
@@ -75,6 +75,12 @@ OptionsState::~OptionsState()
 	{
 		this->saveButton->remove();
 		this->saveButton->drop();
+	}
+
+	if (grassGeneratorNode)
+	{
+		grassGeneratorNode->remove();
+		grassGeneratorNode->drop();
 	}
 }
 
@@ -137,7 +143,7 @@ void OptionsState::onEnter(Demo* const demo)
 	const irr::video::IImage* const textureMap = driver->createImageFromFile("media/images/terrain/terrain-grasscol.bmp");
 	const irr::video::IImage* const grassMap = driver->createImageFromFile("media/images/terrain/terrain-grassmap.png");
 
-	irr::scene::CGrassGeneratorNode* const grassGeneratorNode = new irr::scene::CGrassGeneratorNode(smgr);
+	grassGeneratorNode = new irr::scene::CGrassGeneratorNode(smgr);
 	grassGeneratorNode->addGrassToTerrain(wind, terrain, heightMap, textureMap, grassMap);
 
 	heightMap->drop();
@@ -509,7 +515,7 @@ void OptionsState::onEnter(Demo* const demo)
 			image->setUseAlphaChannel(true);
 			image->setImage(texture1);
 
-			irr::gui::IGUICheckBox* ch = guienv->addCheckBox(true,
+			this->grassTexture1Box = guienv->addCheckBox(true,
 				irr::core::rect<irr::s32>(meep + fixedImageSize.Width + 10, 80, meep + fixedImageSize.Width + 10 + 20, 100), grassTab);
 
 		}
@@ -528,7 +534,7 @@ void OptionsState::onEnter(Demo* const demo)
 			image->setUseAlphaChannel(true);
 			image->setImage(texture2);
 
-			irr::gui::IGUICheckBox* ch = guienv->addCheckBox(false,
+			this->grassTexture2Box = guienv->addCheckBox(false,
 				irr::core::rect<irr::s32>(
 					meep + fixedImageSize.Width + 20 + 20 + fixedImageSize.Width + 10, 80,
 					meep + fixedImageSize.Width + 20 + 20 + fixedImageSize.Width + 10 + 20, 100), grassTab);
@@ -609,6 +615,10 @@ void OptionsState::onLeave(Demo* const demo)
 		demo->getVideoDriver()->removeTexture(this->renderTarget);
 		this->renderTarget = 0;
 	}
+
+//	this->grassGeneratorNode->remove();
+	this->grassGeneratorNode->drop();
+	this->grassGeneratorNode = 0;
 
 	this->window->remove();
 	this->window->drop();
@@ -742,6 +752,18 @@ const bool OptionsState::onEvent(Demo* const demo, const irr::SEvent& event)
 		else if(event.GUIEvent.EventType == irr::gui::EGET_CHECKBOX_CHANGED)
 		{
 			irr::gui::IGUICheckBox* const box = (irr::gui::IGUICheckBox* const)event.GUIEvent.Caller;
+
+
+			if (box == this->grassTexture1Box)
+			{
+				this->grassGeneratorNode->swapTextures();
+				this->grassTexture2Box->setChecked(!this->grassTexture2Box->isChecked());
+			}
+			else if (box == this->grassTexture2Box)
+			{
+				this->grassGeneratorNode->swapTextures();
+				this->grassTexture1Box->setChecked(!this->grassTexture1Box->isChecked());
+			}
 
 #ifdef _SOUND
 			if (box == this->soundBox)
