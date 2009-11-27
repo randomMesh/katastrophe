@@ -814,7 +814,7 @@ void OptionsState::saveSettings(Demo* const demo) const
 }
 
 void OptionsState::rttCallback(Demo* const demo) const
-		{
+{
 	//render to rtt
 	if (this->renderTarget && this->grassTab->isVisible())
 	{
@@ -834,4 +834,4 @@ void OptionsState::rttCallback(Demo* const demo) const
 
 		smgr->setActiveCamera(camera);
 	}
-		}
+}

@@ -235,9 +235,6 @@ const bool RunningState::onEvent(Demo* const demo, const irr::SEvent& event)
 			return true;
 #endif
 
-			case irr::KEY_F6: demo->takeScreenshot(); return true;
-
-
 			case irr::KEY_PAUSE: //fall through
 			case irr::KEY_KEY_P:
 			{
