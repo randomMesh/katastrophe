@@ -8,6 +8,11 @@
 #include <irrString.h>
 #include <SIrrCreationParameters.h>
 
+namespace irr
+{
+	class IrrlichtDevice;
+}
+
 /**
  * An object of this class holds all the variables the user may edit plus
  * some basic stuff like the name and version of the game.
@@ -24,7 +29,7 @@ public:
 	void readFromFile(const irr::c8* const fileName);
 
 	///Writes the configuration to an xml file.
-	void writeToFile(const irr::c8* const fileName) const;
+	void writeToFile(irr::IrrlichtDevice* const device, const irr::c8* const fileName) const;
 
 	//\return Returns the project name.
 	inline const irr::core::stringw& getProjectName() const
