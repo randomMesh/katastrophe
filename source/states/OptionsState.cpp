@@ -31,6 +31,9 @@
 #endif
 
 OptionsState::OptionsState() :
+
+camera(0), nearCam(0),
+
 window(0), backButton(0), saveButton(0),
 
 //flock rules tab
@@ -87,7 +90,7 @@ void OptionsState::onEnter(Demo* const demo)
 
 	smgr->setAmbientLight(irr::video::SColorf(0.9f, 0.9f, 0.9f));
 
-	camera = smgr->addCameraSceneNode(0, irr::core::vector3df(1000.0f, 200.0f, 1000.0f), irr::core::vector3df(-500.0f, 100, 500.0f));
+	this->camera = smgr->addCameraSceneNode(0, irr::core::vector3df(1000.0f, 200.0f, 1000.0f), irr::core::vector3df(-500.0f, 100, 500.0f));
 
 	//create an animated skybox
 	driver->setTextureCreationFlag(irr::video::ETCF_CREATE_MIP_MAPS, false);
@@ -460,7 +463,7 @@ void OptionsState::onEnter(Demo* const demo)
 
 	//grass tab
 	{
-		grassTab = tabControl->addTab(L"Grass", -1);
+		this->grassTab = tabControl->addTab(L"Grass", -1);
 
 
 		//title text
@@ -469,7 +472,7 @@ void OptionsState::onEnter(Demo* const demo)
 		text->setOverrideColor(titleColor);
 
 
-		if (driver->queryFeature(irr::video::EVDF_RENDER_TO_TARGET))
+		if (!driver->queryFeature(irr::video::EVDF_RENDER_TO_TARGET))
 		{
 			//add preview
 			this->renderTarget = driver->addRenderTargetTexture(irr::core::dimension2d<irr::u32>(256, 256), "RTT1");
@@ -477,14 +480,14 @@ void OptionsState::onEnter(Demo* const demo)
 			guienv->addImage(this->renderTarget, irr::core::vector2d<irr::s32>(horizontalBorder, 50), false, grassTab);
 
 			//add near camera
-			nearCam = smgr->addCameraSceneNode(0, irr::core::vector3df(100.0f, 150.0f, 100.0f), irr::core::vector3df(1000.0f, 100, 1000.0f));
+			this->nearCam = smgr->addCameraSceneNode(0, irr::core::vector3df(100.0f, 150.0f, 100.0f), irr::core::vector3df(1000.0f, 100, 1000.0f));
 
 			//we need to make normal camera active again
-			smgr->setActiveCamera(camera);
+			smgr->setActiveCamera(this->camera);
 		}
 		else
 		{
-			text = guienv->addStaticText(L"Your hardware or this renderer is not able to use the render\nto texture feature. RTT Disabled.",
+			text = guienv->addStaticText(L"Your hardware or this renderer is not able to use the render to texture feature.\n\nPreview disabled.",
 				irr::core::rect<irr::s32>(horizontalBorder, 50, horizontalBorder + 256, 50 + 256), true, true, grassTab);
 			text->setOverrideColor(irr::video::SColor(255, 255, 0, 0));
 		}
@@ -589,13 +592,15 @@ void OptionsState::onLeave(Demo* const demo)
 	//clear scenemanager
 	demo->getSceneManager()->setActiveCamera(0);
 	this->camera->remove();
-	this->nearCam->remove();
 	demo->getSceneManager()->getMeshCache()->clear();
 	demo->getSceneManager()->clear();
 
 
-	demo->getVideoDriver()->removeTexture(this->renderTarget);
-	this->renderTarget = 0;
+	if (this->renderTarget)
+	{
+		demo->getVideoDriver()->removeTexture(this->renderTarget);
+		this->renderTarget = 0;
+	}
 
 	this->window->remove();
 	this->window->drop();
