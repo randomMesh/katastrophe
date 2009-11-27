@@ -9,8 +9,8 @@
 #include <ISceneManager.h>
 #include <ITerrainSceneNode.h>
 #include <ICameraSceneNode.h>
-#include <IVideoDriver.h>
 #include <SViewFrustum.h>
+#include "IWindGenerator.h"
 
 namespace irr
 {
@@ -19,11 +19,12 @@ namespace scene
 
 //! constructor
 CGrassPatchSceneNode::CGrassPatchSceneNode(
-	ITerrainSceneNode* const terrain, ISceneManager* mgr, const s32 id, const core::vector3d<s32>& gridpos,
+	ITerrainSceneNode* const terrain, ISceneManager* mgr, const s32 id, const core::vector3d<u32>& gridpos,
 	const char* filepath, const video::IImage* const heightMap, const video::IImage* const colourMap,
 	const video::IImage* const grassMap, scene::IWindGenerator* const windgen) :
 
 	ISceneNode(terrain, mgr, -1),
+	gridpos(gridpos),
 	DrawDistanceSQ(GRASS_PATCH_SIZE*1.5*GRASS_PATCH_SIZE*1.5),
 	MaxDensity(800),
 	Terrain(terrain),
@@ -45,7 +46,7 @@ CGrassPatchSceneNode::CGrassPatchSceneNode(
 		windgen->grab();
 
 	// set position
-	RelativeTranslation = core::vector3df((f32)(gridpos.X*GRASS_PATCH_SIZE),0 , (f32)(gridpos.Z*GRASS_PATCH_SIZE));
+	RelativeTranslation = core::vector3df((f32)(gridpos.X*GRASS_PATCH_SIZE),0.0f , (f32)(gridpos.Z*GRASS_PATCH_SIZE));
 
 	setWindRes(5);
 
@@ -54,6 +55,8 @@ CGrassPatchSceneNode::CGrassPatchSceneNode(
 
 	// create grass
 	Create();
+
+	updateAbsolutePosition();
 }
 
 //! destructor
@@ -95,11 +98,9 @@ void CGrassPatchSceneNode::setImageCount(const core::dimension2d<u32>& ic)
 	v3.set_used(imagecount.Width*imagecount.Height);
 	v4.set_used(imagecount.Width*imagecount.Height);
 
-	u32 x;
-	for (x = 0; x < imagecount.Width; ++x)
+	for (u32 x = 0; x < imagecount.Width; ++x)
 	{
-		u32 y;
-		for (y = 0; y <imagecount.Height; ++y)
+		for (u32 y = 0; y <imagecount.Height; ++y)
 		{
 			v1[(imagecount.Width*y) + x] = imagesize.Width*x;
 			v2[(imagecount.Width*y) + x] = imagesize.Height*(y + 1);
@@ -126,19 +127,23 @@ bool CGrassPatchSceneNode::Create()
 {
 	srand((100 * gridpos.X) + gridpos.Z);
 	// particle count
-	s32 count = 3000; // lots. we dont need them all
+	u32 count = 3000; // lots. we dont need them all
 
 	// create them
 	Particles.set_used(count);
 
-	Box.reset(0,0,0);
+	Box.reset(0.0f, 0.0f, 0.0f);
 	core::matrix4 m;
 	m.setRotationDegrees(Terrain->getRotation());
 	m.setTranslation(Terrain->getAbsolutePosition());
 	m.makeInverse();
 
-	s32 i;
-	for(i = 0; i < count; ++i)
+	const core::vector3df& terrainScale = Terrain->getScale();
+	const core::dimension2d<u32>& heightMapDimensiom = TerrainHeightMap->getDimension();
+	const core::dimension2d<u32>& grassMapDimensiom = TerrainGrassMap->getDimension();
+	const core::dimension2d<u32>& colorMapDimensiom = TerrainColourMap->getDimension();
+
+	for(u32 i = 0; i < count; ++i)
 	{
 		// get random x and z axis
 		f32 x = (rand()%(GRASS_PATCH_SIZE*10))/10.0f;
@@ -160,18 +165,18 @@ bool CGrassPatchSceneNode::Create()
 		m.transformVect(Particles[i].pos);
 
 		// patch position + particle position - terrain position = position in terrain
-		const core::vector3df p = getPosition()  + Particles[i].pos; //  - Terrain->getPosition();
+		const core::vector3df p = RelativeTranslation  + Particles[i].pos; //  - Terrain->getPosition();
 
 		core::dimension2d<f32> size;
 
-		const core::vector3df xz(p.X/Terrain->getScale().X, 0.0f, p.Z/Terrain->getScale().Z);
+		const core::vector3df xz(p.X/terrainScale.X, 0.0f, p.Z/terrainScale.Z);
 		const u32 x1 = (u32)floorf(xz.X);
 		const u32 z1 = (u32)floorf(xz.Z);
 
 		f32 height;
 
 		// drop blades that are outside the terrain
-		if (x1 < 1 || z1 < 1 || x1 > TerrainHeightMap->getDimension().Width - 1 || z1 > TerrainHeightMap->getDimension().Height - 1 )
+		if (x1 < 1 || z1 < 1 || x1 > heightMapDimensiom.Width - 1 || z1 > heightMapDimensiom.Height - 1 )
 		{
 			--count; --i;
 			Particles.set_used(count);
@@ -179,7 +184,7 @@ bool CGrassPatchSceneNode::Create()
 		}
 
 		// drop blades that aren't so dense
-		const video::SColor& cDensity  = TerrainGrassMap->getPixel(TerrainGrassMap->getDimension().Width - x1, z1);
+		const video::SColor& cDensity  = TerrainGrassMap->getPixel(grassMapDimensiom.Width - x1, z1);
 		if ((u32)(rand() % 255) > cDensity.getAlpha() || cDensity.getAlpha() < 1 )
 		{
 			--count; --i;
@@ -194,8 +199,8 @@ bool CGrassPatchSceneNode::Create()
 
 		Particles[i].flex = size.Height/120.0f;
 		Particles[i].pos.Y = height + (size.Height*0.5f);
-		Particles[i].color = TerrainColourMap->getPixel(TerrainColourMap->getDimension().Width - x1,z1);
-		Particles[i].startColor = TerrainColourMap->getPixel(TerrainColourMap->getDimension().Width - x1,z1);
+		Particles[i].color = TerrainColourMap->getPixel(colorMapDimensiom.Width - x1, z1);
+		Particles[i].startColor = TerrainColourMap->getPixel(colorMapDimensiom.Width - x1, z1);
 
 		Box.addInternalPoint(Particles[i].pos);
 
@@ -216,6 +221,7 @@ bool CGrassPatchSceneNode::Create()
 		Particles[i].points[1] = Particles[i].pos + core::vector3df(dimensions.X,-dimensions.Y,dimensions.Z);
 		Particles[i].points[2] = Particles[i].pos - core::vector3df(dimensions.X,dimensions.Y,dimensions.Z);
 		Particles[i].points[3] = Particles[i].pos - core::vector3df(dimensions.X,-dimensions.Y,dimensions.Z);
+
 		/*
 		core::vector3d<f32> xz1(Particles[i].points[0].X/Terrain->getScale().X,0.0f,Particles[i].points[0].Z/Terrain->getScale().Z);
 		x1 = (s32) xz1.X;
@@ -249,7 +255,7 @@ void CGrassPatchSceneNode::OnRegisterSceneNode()
 	{
 		if (Particles.size() != 0)
 		{
-			if ((Box.getCenter() + getPosition()).getDistanceFromSQ(
+			if ((Box.getCenter() + RelativeTranslation).getDistanceFromSQ(
 					SceneManager->getActiveCamera()->getPosition()) < DrawDistanceSQ*1.5)
 			{
 				SceneManager->registerNodeForRendering(this);
@@ -269,21 +275,19 @@ void CGrassPatchSceneNode::OnAnimate(u32 timeMs)
 		redrawnextloop = true;
 
 		// populate wind grid
-		const f32 dist = (Box.getCenter() + getPosition()).getDistanceFromSQ(SceneManager->getActiveCamera()->getPosition()) + 1;
+		const f32 dist = (Box.getCenter() + RelativeTranslation).getDistanceFromSQ(SceneManager->getActiveCamera()->getPosition()) + 1;
 
 		if (WindGen && dist < DrawDistanceSQ*1.5)
 		{
-			u32 x;
-			for (x = 0; x < windGridRes+1; ++x)
+			for (u32 x = 0; x < windGridRes+1; ++x)
 			{
-				u32 z;
-				for (z = 0; z < windGridRes+1; ++z)
+				for (u32 z = 0; z < windGridRes+1; ++z)
 				{
 					WindGrid[x*windGridRes + z] = WindGen->getWind(
 						core::vector3df(
 							( (f32)(gridpos.X*GRASS_PATCH_SIZE) + (f32)x*((f32)GRASS_PATCH_SIZE/(f32)windGridRes) - (GRASS_PATCH_SIZE/2.0f) ),
 							0.0f,
-							( (f32)(gridpos.X*GRASS_PATCH_SIZE) + (f32)x*((f32)GRASS_PATCH_SIZE/(f32)windGridRes) - (GRASS_PATCH_SIZE/2.0f) )),
+							( (f32)(gridpos.Z*GRASS_PATCH_SIZE) + (f32)x*((f32)GRASS_PATCH_SIZE/(f32)windGridRes) - (GRASS_PATCH_SIZE/2.0f) )),
 							timeMs);
 				}
 			}
@@ -302,9 +306,6 @@ void CGrassPatchSceneNode::render()
 {
 	video::IVideoDriver* const driver = SceneManager->getVideoDriver();
 	const ICameraSceneNode* const camera = SceneManager->getActiveCamera();
-
-	if (!camera || !driver)
-		return;
 
 	if (!redrawnextloop)
 	{
@@ -326,7 +327,7 @@ void CGrassPatchSceneNode::render()
 
 		// in far boxes we dont loop so deep
 		// 175 to 255 fps
-		const f32 d = getPosition().getDistanceFromSQ(campos)/(f32)(GRASS_PATCH_SIZE*GRASS_PATCH_SIZE);
+		const f32 d = RelativeTranslation.getDistanceFromSQ(campos)/(f32)(GRASS_PATCH_SIZE*GRASS_PATCH_SIZE);
 		if (d > 1.0)
 		{
 			//printf("max = %d, %d\n", max, (int)(max/d));
@@ -360,18 +361,18 @@ void CGrassPatchSceneNode::render()
 			{
 				continue;
 			}
-			else if (dist > DrawDistanceSQ * 0.5) // if we're fading in
+			else if (dist > DrawDistanceSQ*0.5) // if we're fading in
 			{
-				const f32 i1 = f32(i)/f32(max);
-				const f32 i2 = (dist/DrawDistanceSQ)/2;
-
 				if (particle.sprite.Height) // first row is boring grass, the rest doesnt fade
 				{
 					//particle.color = video::SColor(255,255,255,255);
 				}
 				else
 				{
-					if ( i1 < i2)
+					const f32 i1 = f32(i)/f32(max);
+					const f32 i2 = (dist/DrawDistanceSQ)/2;
+
+					if (i1 < i2)
 					{
 						continue;
 					}
