@@ -86,7 +86,7 @@ public:
 
 	inline const f32* getVelocity() const { return this->velocity; }
 
-	inline const irr::core::line3d<irr::f32>& getGroundRay() const { return this->groundRay; }
+	inline const irr::core::line3d<f32>& getGroundRay() const { return this->groundRay; }
 
 private:
 
@@ -154,7 +154,7 @@ private:
 
 
 	///The ray to test for terrain collision.
-	irr::core::line3d<irr::f32> groundRay;
+	core::line3d<f32> groundRay;
 };
 
 }

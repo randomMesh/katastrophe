@@ -82,6 +82,7 @@ BoidSceneNode::BoidSceneNode(
 			v = (const video::S3DVertex*) ( (u8*) v + vSize );
 		}
 	}
+
 }
 
 BoidSceneNode::~BoidSceneNode()
@@ -132,6 +133,7 @@ void BoidSceneNode::OnAnimate(u32 timeMs)
 			this->RelativeScale = irr::core::vector3df(al, al, al);
 			lastScaleTime = 0;
 		}
+
 	}
 
 	ISceneNode::OnAnimate(timeMs);
