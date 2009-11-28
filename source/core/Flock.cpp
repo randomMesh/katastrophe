@@ -7,7 +7,7 @@
 #include "Configuration.h"
 #include "Demo.h"
 #include "../scene/BoidSceneNode.h"
-
+#include "MersenneTwister.h"
 
 Flock::Flock(const Demo* const demo, const irr::core::vector3df& target, const irr::f32 borders[4]) :
 	demo(demo), paused(false), target(target),
@@ -80,8 +80,18 @@ void Flock::update(irr::scene::ITriangleSelector* const selector, const bool sca
 
 irr::scene::BoidSceneNode* const Flock::addBoid(irr::scene::IMesh* const boidMesh)
 {
+	const irr::f32 posX = (float)demo->getRandomNumberGenerator().randInt(1500) + 500;
+	const irr::f32 posY = (float)demo->getRandomNumberGenerator().randInt(1500) + 500;
+	const irr::f32 posZ = (float)demo->getRandomNumberGenerator().randInt(1500) + 500;
+	const irr::f64 percent = demo->getRandomNumberGenerator().rand();
+
+	bool w = percent < 0.5 ? true : false;
+
+
+	printf("%u %u %u %f\n", posX, posY, posZ, percent);
+
 	irr::scene::BoidSceneNode* const boid = new irr::scene::BoidSceneNode(boidMesh,
-		this->target, this->borders, this->demo->getConfiguration()->getMimimumAboveGround(),
+		target + irr::core::vector3df(w ? posX : -posX, posY, w ? -posZ : posZ), this->borders, this->demo->getConfiguration()->getMimimumAboveGround(),
 		demo->getSceneManager());
 
 	this->boids.push_back(boid);

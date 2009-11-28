@@ -22,8 +22,9 @@ u32 BoidSceneNode::boidID = 0;
 
 BoidSceneNode::BoidSceneNode(
 	irr::scene::IMesh* const boidMesh,
-	const core::vector3df& target, const irr::f32 borders[4], const f32 mimimumAboveGround, ISceneManager* const mgr) :
-	IMeshSceneNode(mgr->getRootSceneNode(), mgr, boidID), Mesh(boidMesh),
+	const core::vector3df& position, const irr::f32 borders[4], const f32 mimimumAboveGround, ISceneManager* const mgr) :
+	IMeshSceneNode(mgr->getRootSceneNode(), mgr, boidID, position),
+	Mesh(boidMesh),
 	perching(false), perchTimer(0.0f), dontPerchTimer(0.0f),
 	mimimumAboveGround(mimimumAboveGround)
 {
@@ -48,13 +49,10 @@ BoidSceneNode::BoidSceneNode(
 	//set velocity to 0
 	memset(this->velocity, 0, sizeof(irr::f32)*3);
 
-	//start position should be near the target
-	this->RelativeTranslation = core::vector3df(
-		rand()%((irr::s32)target.X + 500) + ((irr::s32)target.X - 500),
-		rand()%((irr::s32)target.Y + 1500) + ((irr::s32)target.Y + 500),
-		rand()%((irr::s32)target.Z + 500) + ((irr::s32)target.Z - 500));
+//	this->RelativeTranslation = position;
 
-	this->updateAbsolutePosition();
+
+//	this->updateAbsolutePosition();
 
 	this->groundRay.start = this->RelativeTranslation;
 	this->groundRay.end = this->RelativeTranslation - irr::core::vector3df(0.0f, mimimumAboveGround, 0.0f);
@@ -265,40 +263,42 @@ void BoidSceneNode::applyRules(
 	const u32 numBoids = boids.size();
 	u32 boidsPerching = 0;
 
-	u32 other;
-	for (other = 0; other < numBoids; ++other)
+	BoidSceneNode* otherBoid = 0;
+	for (u32 other = 0; other < numBoids; ++other)
 	{
-		if (*boids[other] != *this)
+		otherBoid = boids[other];
+
+		if (*otherBoid != *this)
 		{
-			if (boids[other]->perching) // don't take perching boids into account
+			if (otherBoid->perching) // don't take perching boids into account
 			{
 				++boidsPerching;
 				continue;
 			}
 
 			//rule 1
-			this->rule_1[0] += boids[other]->RelativeTranslation.X;
-			this->rule_1[1] += boids[other]->RelativeTranslation.Y;
-			this->rule_1[2] += boids[other]->RelativeTranslation.Z;
+			this->rule_1[0] += otherBoid->RelativeTranslation.X;
+			this->rule_1[1] += otherBoid->RelativeTranslation.Y;
+			this->rule_1[2] += otherBoid->RelativeTranslation.Z;
 
 			//rule 2
-			if (fabs(boids[other]->RelativeTranslation.X - this->RelativeTranslation.X) < distanceToOtherBoids)
+			if (fabs(otherBoid->RelativeTranslation.X - this->RelativeTranslation.X) < distanceToOtherBoids)
 			{
-				this->rule_2[0] -= boids[other]->RelativeTranslation.X - this->RelativeTranslation.X;
+				this->rule_2[0] -= otherBoid->RelativeTranslation.X - this->RelativeTranslation.X;
 			}
-			if (fabs(boids[other]->RelativeTranslation.Y - this->RelativeTranslation.Y) < distanceToOtherBoids)
+			if (fabs(otherBoid->RelativeTranslation.Y - this->RelativeTranslation.Y) < distanceToOtherBoids)
 			{
-				this->rule_2[1] -= boids[other]->RelativeTranslation.Y - this->RelativeTranslation.Y;
+				this->rule_2[1] -= otherBoid->RelativeTranslation.Y - this->RelativeTranslation.Y;
 			}
-			if (fabs(boids[other]->RelativeTranslation.Z - this->RelativeTranslation.Z) < distanceToOtherBoids)
+			if (fabs(otherBoid->RelativeTranslation.Z - this->RelativeTranslation.Z) < distanceToOtherBoids)
 			{
-				this->rule_2[2] -= boids[other]->RelativeTranslation.Z - this->RelativeTranslation.Z;
+				this->rule_2[2] -= otherBoid->RelativeTranslation.Z - this->RelativeTranslation.Z;
 			}
 
 			//rule 3
-			this->rule_3[0] += boids[other]->velocity[0];
-			this->rule_3[1] += boids[other]->velocity[1];
-			this->rule_3[2] += boids[other]->velocity[2];
+			this->rule_3[0] += otherBoid->velocity[0];
+			this->rule_3[1] += otherBoid->velocity[1];
+			this->rule_3[2] += otherBoid->velocity[2];
 		}
 	}
 

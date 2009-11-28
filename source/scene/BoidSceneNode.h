@@ -34,7 +34,7 @@ public:
 
 	BoidSceneNode(
 		irr::scene::IMesh* const boidMesh,
-		const core::vector3df& target,
+		const core::vector3df& position,
 		const irr::f32 borders[4],
 		const f32 mimimumAboveGround,
 		ISceneManager* const mgr);

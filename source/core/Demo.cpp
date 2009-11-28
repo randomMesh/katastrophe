@@ -11,6 +11,9 @@
 #include <ik_ISoundEngine.h>
 #endif
 
+#include "MersenneTwister.h"
+#include <ctime>
+
 Demo::Demo(Configuration* const configuration, irr::IrrlichtDevice* const device
 #ifdef _SOUND
 		, irrklang::ISoundEngine* const soundEngine
@@ -47,6 +50,8 @@ elapsed(0.0f)
 
 	//setup material for debugging
 	this->debugMat.Lighting = false;
+
+	this->rng = new MTRand(time(NULL));
 }
 
 Demo::~Demo()
@@ -56,6 +61,8 @@ Demo::~Demo()
 #ifdef _SOUND
 	this->soundEngine->drop();
 #endif
+
+	delete this->rng;
 }
 
 void Demo::addGameState(const char* const name, State<Demo, irr::SEvent>* const state)

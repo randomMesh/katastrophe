@@ -84,7 +84,7 @@ void Map::loadDefault()
 
 	//setup 'player'
 	this->playerStartPosition = irr::core::vector3df(7950.0f, 550.0f, 6050.0f);
-	this->playerStartTarget = irr::core::vector3df(-1.0f, 550.0f, 6050.0f);
+	this->playerStartTarget = irr::core::vector3df(5000.0f, 550.0f, 6050.0f);
 
 	irr::scene::IMesh* const startMesh = smgr->getGeometryCreator()->createCylinderMesh(150.0f, 100.0f, 5);
 	startMesh->setHardwareMappingHint(irr::scene::EHM_STATIC);
@@ -105,6 +105,7 @@ void Map::loadDefault()
 	startEmitter->setMaterialFlag(irr::video::EMF_LIGHTING, false);
 	startEmitter->setMaterialTexture(0, driver->getTexture("media/images/button.png"));
 	startEmitter->setMaterialType(irr::video::EMT_TRANSPARENT_VERTEX_ALPHA);
+	startEmitter->setMaterialFlag(irr::video::EMF_ZWRITE_ENABLE, false);
 	irr::scene::IParticleRingEmitter* const re = startEmitter->createRingEmitter(
 			irr::core::vector3df(0.0f, startNode->getBoundingBox().getExtent().Y, 0.0f), 100.0f, 10.0f, irr::core::vector3df(0.0f, 0.1f, 0.0f),
 			100,
@@ -173,9 +174,9 @@ void Map::loadDefault()
 	const irr::core::aabbox3df& tb = this->terrain->getBoundingBox();
 	const irr::f32 borders[4] = { 0.0f, tb.getExtent().X, 0.0f, tb.getExtent().Z }; //Xmin, Xmax, Zmin, Zmax
 
-	const irr::core::vector3df flockTarget(3000.0f, 700.0f, 4000.0f);
+//	const irr::core::vector3df flockTarget(3000.0f, 700.0f, 4000.0f);
 
-	this->flock = new Flock(this->demo, flockTarget, borders);
+	this->flock = new Flock(this->demo, playerStartTarget, borders);
 
 	boidSelector = smgr->createMetaTriangleSelector();
 
@@ -289,7 +290,7 @@ void Map::loadDefault()
 			32,										// Subdivisions on V axis
 			irr::video::SColor(51, 0, 230, 180),	// foot color
 			irr::video::SColor(0, 0, 0, 0));		// tail color
-	this->cursor->setPosition(flockTarget);
+	this->cursor->setPosition(playerStartTarget);
 	this->cursor->setScale(irr::core::vector3df(50.0f, 60.0f, 50.0f));
 	this->cursor->setMaterialFlag(irr::video::EMF_LIGHTING, false);
 	this->cursor->addAnimator(glow);
@@ -722,6 +723,8 @@ irr::scene::BoidSceneNode* const Map::addBoid()
 
 bool Map::removeBoid(irr::scene::BoidSceneNode* const boid)
 {
+	//if (numBoids > 2)
+
 	//remove boid from all teleporters
 	const irr::u32 numTeleporters = this->teleporters.size();
 	for (irr::u32 i = 0; i < numTeleporters; ++i)

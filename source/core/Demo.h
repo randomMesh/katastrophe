@@ -41,6 +41,7 @@ namespace irrklang
 #endif
 
 class Configuration;
+class MTRand;
 
 // these macros will return the scaled value based on current screen size
 // (i assume 1024x768 is the normal res) to provide a resolution independent gui.
@@ -124,6 +125,8 @@ public:
 	///\return The elapsed time.
 	inline const irr::f32 getElapsed() const { return this->elapsed; }
 
+	inline MTRand& getRandomNumberGenerator() const { return *this->rng; }
+
 private:
 
 	///Set the default font of the demo.
@@ -179,6 +182,9 @@ private:
 
 	//Material for debug drawing.
 	irr::video::SMaterial debugMat;
+
+	///Mersenne twister.
+	MTRand* rng;
 };
 
 #endif /* DEMO_H_ */

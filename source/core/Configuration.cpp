@@ -7,7 +7,7 @@
 
 Configuration::Configuration() :
 	//setup name and versioning
-	projectName(L"Katastrophe 0.01"),
+	projectName(L"Katastrophe 0.02"),
 
 #ifdef _SOUND
 	//sound
