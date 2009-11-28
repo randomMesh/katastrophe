@@ -92,11 +92,11 @@ public:
 	///Called from Irrlichts render loop in order to let the game draw.
 	void drawCallBack();
 
-	///Enable texture filtering.
+	///Enable texture filtering. //TODO: doesn't apply for newly created nodes. should use global configuration
 	void setTextureFiltering(
 		const bool bilinear = true,
 		const bool trilinear = false,
-		const irr::u16 anisotropic = 16) const;
+		const irr::u16 anisotropic = 0) const;
 
 	//getter
 

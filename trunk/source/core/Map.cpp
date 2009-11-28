@@ -298,7 +298,7 @@ void Map::loadDefault()
 	this->cursor->setScale(irr::core::vector3df(50.0f, 60.0f, 50.0f));
 	this->cursor->setMaterialFlag(irr::video::EMF_LIGHTING, false);
 	this->cursor->addAnimator(glow);
-	this->cursor->setMaterialType(irr::video::EMT_NORMAL_MAP_TRANSPARENT_ADD_COLOR);
+	this->cursor->setMaterialType(irr::video::EMT_TRANSPARENT_ADD_COLOR);
 	//this->cursor->setMaterialFlag(irr::video::EMF_NORMALIZE_NORMALS, true);
 
 
@@ -472,7 +472,7 @@ void Map::loadDefault()
 
 		lightBillboard[numLight] = smgr->addBillboardSceneNode(light[numLight], irr::core::dimension2d<irr::f32>(200.0f, 200.0f));
 		lightBillboard[numLight]->setMaterialFlag(irr::video::EMF_LIGHTING, false);
-		lightBillboard[numLight]->setMaterialFlag(irr::video::EMF_FOG_ENABLE, false);
+//		lightBillboard[numLight]->setMaterialFlag(irr::video::EMF_FOG_ENABLE, false);
 		lightBillboard[numLight]->setMaterialType(irr::video::EMT_TRANSPARENT_ADD_COLOR);
 		lightBillboard[numLight]->addAnimator(glow);
 
