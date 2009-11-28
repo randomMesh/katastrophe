@@ -116,7 +116,7 @@ void Demo::drawCallBack()
 	this->getCurrentState()->drawCallback(this);
 }
 
-void Demo::setTextureFiltering(const bool bilinear, const bool trilinear, const bool anisotrophic) const
+void Demo::setTextureFiltering(const bool bilinear, const bool trilinear, const irr::u16 anisotropic) const
 {
 	// find all nodes
 	irr::core::array<irr::scene::ISceneNode*> nodes;
@@ -134,6 +134,6 @@ void Demo::setTextureFiltering(const bool bilinear, const bool trilinear, const 
 
 		node->setMaterialFlag(irr::video::EMF_BILINEAR_FILTER, bilinear);
 		node->setMaterialFlag(irr::video::EMF_TRILINEAR_FILTER, trilinear);
-		node->setMaterialFlag(irr::video::EMF_ANISOTROPIC_FILTER, anisotrophic);
+		node->setMaterialFlag(irr::video::EMF_ANISOTROPIC_FILTER, anisotropic);
 	}
 }

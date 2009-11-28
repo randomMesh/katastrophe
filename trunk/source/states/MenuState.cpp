@@ -98,8 +98,8 @@ void MenuState::onEnter(Demo* const demo)
 		demo->getDevice()->getLogger()->log("Error: Missing texture.", irr::ELL_ERROR);
 	}
 
-	//enable trilinear and anisotrophic filtering
-	demo->setTextureFiltering(false, true, true);
+	//enable trilinear and anisotropic filtering
+	demo->setTextureFiltering(false, true, 16);
 }
 
 void MenuState::onLeave(Demo* const demo)

@@ -102,8 +102,8 @@ void RunningState::onEnter(Demo* const demo)
 	this->map->load("");	//load default map
 
 
-	//enable trilinear and anisotrophic filtering
-	demo->setTextureFiltering(false, true, true);
+	//enable trilinear and anisotropic filtering
+	demo->setTextureFiltering(false, true, 16);
 
 
 #ifdef _SOUND

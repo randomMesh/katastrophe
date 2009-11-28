@@ -177,8 +177,8 @@ void IntroState::onEnter(Demo* const demo)
 	this->infoText->setOverrideColor(irr::video::SColor(255, 0, 255, 255));
 
 
-	//enable trilinear and anisotrophic filtering
-	demo->setTextureFiltering(false, true, true);
+	//enable trilinear and anisotropic filtering
+	demo->setTextureFiltering(false, true, 16);
 
 #ifdef _SOUND
 	if (demo->getSoundEngine() && demo->getConfiguration()->isSoundEnabled())
