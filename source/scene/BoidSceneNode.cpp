@@ -18,11 +18,12 @@ namespace irr
 namespace scene
 {
 
+u32 BoidSceneNode::boidID = 0;
 
 BoidSceneNode::BoidSceneNode(
 	irr::scene::IMesh* const boidMesh,
-	const core::vector3df& target, const irr::f32 borders[4], const f32 mimimumAboveGround, ISceneManager* const mgr, const s32 id) :
-	IMeshSceneNode(mgr->getRootSceneNode(), mgr, id), Mesh(boidMesh),
+	const core::vector3df& target, const irr::f32 borders[4], const f32 mimimumAboveGround, ISceneManager* const mgr) :
+	IMeshSceneNode(mgr->getRootSceneNode(), mgr, boidID), Mesh(boidMesh),
 	perching(false), perchTimer(0.0f), dontPerchTimer(0.0f),
 	mimimumAboveGround(mimimumAboveGround)
 {
@@ -77,12 +78,13 @@ BoidSceneNode::BoidSceneNode(
 			if (normalize)
 				normalizedNormal.normalize();
 
-			normals.push_back(core::line3df(v->Pos, v->Pos + (normalizedNormal*DebugNormalLength)));
+			this->normals.push_back(core::line3df(v->Pos, v->Pos + (normalizedNormal*DebugNormalLength)));
 
-			v = (const video::S3DVertex*) ( (u8*) v + vSize );
+			v = (const video::S3DVertex*)((u8*)v + vSize);
 		}
 	}
 
+	++boidID;
 }
 
 BoidSceneNode::~BoidSceneNode()
@@ -168,7 +170,8 @@ void BoidSceneNode::render()
 
 		const u32 numNormals = this->normals.size();
 		for (u32 i = 0; i < numNormals; ++i)
-			driver->draw3DLine(normals[i].start, normals[i].end, video::SColor(255, 128, 128, 0)); //TODO: make VertexPrimitiveList
+			driver->draw3DLine(
+				normals[i].start, normals[i].end, video::SColor(255, 128, 128, 0)); //TODO: make VertexPrimitiveList
 	}
 
 	//draw oabb
@@ -301,9 +304,9 @@ void BoidSceneNode::applyRules(
 
 	const irr::u32 numBoidsNotPerchingExceptThis = numBoids - boidsPerching - 1;
 
-	this->rule_1[0] /= (numBoidsNotPerchingExceptThis);
-	this->rule_1[1] /= (numBoidsNotPerchingExceptThis);
-	this->rule_1[2] /= (numBoidsNotPerchingExceptThis);
+	this->rule_1[0] /= numBoidsNotPerchingExceptThis;
+	this->rule_1[1] /= numBoidsNotPerchingExceptThis;
+	this->rule_1[2] /= numBoidsNotPerchingExceptThis;
 
 	this->rule_1[0] = (this->rule_1[0] - this->RelativeTranslation.X)/seekCenterOfMass;
 	this->rule_1[1] = (this->rule_1[1] - this->RelativeTranslation.Y)/seekCenterOfMass;
@@ -322,7 +325,7 @@ void BoidSceneNode::applyRules(
 	//own rules
 
 	//seek : Tendency towards a particular place
-//	if (!scatterFlock)
+	if (!scatterFlock)
 	{
 		//Makes the boids in the flock fly towards the target.
 		//Especially for distant goals, one may want to limit the magnitude of the returned vector.
@@ -400,7 +403,6 @@ void BoidSceneNode::applyRules(
 	//Limiting the speed. It is a good idea to limit the magnitude of the boids' velocities,
 	//this way they don't go too fast. Without such limitations, their speed will actually
 	//fluctuate with a flocking-like tendency, and it is possible for them to momentarily go very fast.
-	//irr::core::vector3df vel = this->velocity;
 	const f32 absX = fabs(this->velocity[0]);
 	const f32 absY = fabs(this->velocity[1]);
 	const f32 absZ = fabs(this->velocity[2]);
@@ -493,8 +495,8 @@ void BoidSceneNode::stopPerching()
 	//reset perchTimer
 	this->perchTimer = 0;
 
-	//don't perch again for 3 seconds
-	this->dontPerchTimer = 3.0f;
+	//don't perch again for 5 seconds
+	this->dontPerchTimer = 5.0f;
 
 	//add a particle system
 	irr::scene::IParticleSystemSceneNode* const ps = this->SceneManager->addParticleSystemSceneNode(false, this);

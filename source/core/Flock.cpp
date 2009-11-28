@@ -82,7 +82,7 @@ irr::scene::BoidSceneNode* const Flock::addBoid(irr::scene::IMesh* const boidMes
 {
 	irr::scene::BoidSceneNode* const boid = new irr::scene::BoidSceneNode(boidMesh,
 		this->target, this->borders, this->demo->getConfiguration()->getMimimumAboveGround(),
-		demo->getSceneManager(), this->boids.size());
+		demo->getSceneManager());
 
 	this->boids.push_back(boid);
 

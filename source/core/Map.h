@@ -106,6 +106,9 @@ private:
 
 	irr::scene::IMetaTriangleSelector* selector;
 
+	irr::scene::IMetaTriangleSelector* boidSelector;
+
+
 	irr::scene::ISceneNodeAnimatorCollisionResponse* anim;
 
 
