@@ -23,8 +23,7 @@ WhirlSceneNode::WhirlSceneNode(const u32 num, ISceneNode* const parent, ISceneMa
 
 	this->stars.set_used(this->num);
 
-	u32 i;
-	for(i = 0; i < num; ++i)
+	for(u32 i = 0; i < num; ++i)
 	{
 		this->stars[i].color = video::SColor(255, rand()%256, rand()%256, rand()%256);
 		this->stars[i].angle = 0.0f;
@@ -95,6 +94,7 @@ void WhirlSceneNode::OnAnimate(irr::u32 timeMs)
 void WhirlSceneNode::render()
 {
 	irr::video::IVideoDriver* const driver = this->SceneManager->getVideoDriver();
+	driver->setMaterial(this->Material);
 
 	irr::core::matrix4 rot, pos, world;
 
@@ -106,22 +106,18 @@ void WhirlSceneNode::render()
 		this->vertices[2].Color = this->stars[i].color;
 		this->vertices[3].Color = this->stars[i].color;
 
-		this->stars[i].angle += irr::f32(i)/(this->num*25); //TODO: make frame rate independent
+		this->stars[i].angle += ((irr::f32)i)/(this->num*25); //TODO: make frame rate independent
 
 		pos.setTranslation(irr::core::vector3df(this->stars[i].dist, 0.0f, 0.0f));
 		rot.setRotationRadians(irr::core::vector3df(0.0f, 0.0f, this->stars[i].angle));
 		world = this->AbsoluteTransformation*rot*pos*rot;
 
-		driver->setMaterial(this->Material);
 		driver->setTransform(irr::video::ETS_WORLD, world);
 		driver->drawIndexedTriangleList(&this->vertices[0], 4, &this->indices[0], 2);
 	}
 
 	if (DebugDataVisible & scene::EDS_BBOX)
-	{
-		driver->setMaterial(this->Material);
 		driver->draw3DBox(this->Box, video::SColor(255, 255, 255, 255));
-	}
 }
 
 } // end namespace scene

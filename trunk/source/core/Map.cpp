@@ -529,25 +529,9 @@ void Map::loadDefault()
 		mesh->drop();
 	}
 
-
 //	driver->getOverrideMaterial().Material.ColorMask = irr::video::ECP_RED;
 //	driver->getOverrideMaterial().EnableFlags = irr::video::EMF_COLOR_MASK;
 //	driver->getOverrideMaterial().EnablePasses = irr::scene::ESNRP_SKY_BOX | irr::scene::ESNRP_SOLID | irr::scene::ESNRP_TRANSPARENT | irr::scene::ESNRP_TRANSPARENT_EFFECT | irr::scene::ESNRP_SHADOW;
-/*
-	irr::scene::ISceneNode* root = smgr->getRootSceneNode();
-	irr::core::list<irr::scene::ISceneNode*> children = root->getChildren();
-
-	irr::core::list<irr::scene::ISceneNode*>::Iterator it = children.begin();
-	const irr::core::list<irr::scene::ISceneNode*>::Iterator& end = children.end();
-
-	for (; it != end; ++it)
-	{
-		//(*it)->setAutomaticCulling(irr::scene::EAC_FRUSTUM_SPHERE);
-		(*it)->setMaterialFlag(irr::video::EMF_TRILINEAR_FILTER, true);
-		(*it)->setMaterialFlag(irr::video::EMF_ANISOTROPIC_FILTER, true);
-		(*it)->setMaterialFlag(irr::video::EMF_COLOR_MASK, true);
-	}
-*/
 }
 
 void Map::clear()

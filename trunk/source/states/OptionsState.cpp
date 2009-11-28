@@ -600,6 +600,10 @@ void OptionsState::onEnter(Demo* const demo)
 #endif
 
 
+	//enable trilinear and anisotrophic filtering
+	demo->setTextureFiltering(false, true, true);
+
+
 	guienv->setFocus(tabControl);
 }
 

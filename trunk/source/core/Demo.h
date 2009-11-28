@@ -93,6 +93,11 @@ public:
 	void drawCallBack();
 
 
+	void setTextureFiltering(
+		const bool bilinear = true,
+		const bool trilinear = false,
+		const bool anisotrophic = false) const;
+
 	//getter
 
 	inline Configuration* const getConfiguration() const { return this->configuration; }

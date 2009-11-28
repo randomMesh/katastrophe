@@ -177,6 +177,9 @@ void IntroState::onEnter(Demo* const demo)
 	this->infoText->setOverrideColor(irr::video::SColor(255, 0, 255, 255));
 
 
+	//enable trilinear and anisotrophic filtering
+	demo->setTextureFiltering(false, true, true);
+
 #ifdef _SOUND
 	if (demo->getSoundEngine() && demo->getConfiguration()->isSoundEnabled())
 		demo->getSoundEngine()->play2D("media/sounds/runwithme.ogg", true);
