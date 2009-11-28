@@ -85,7 +85,7 @@ void Demo::setFont(const irr::c8* const filename)
 }
 
 void Demo::takeScreenshot() const
-		{
+{
 	//get image from the last rendered frame
 	irr::video::IImage* const image = this->videoDriver->createScreenShot();
 
@@ -102,18 +102,18 @@ void Demo::takeScreenshot() const
 		//Don't forget to drop image since we don't need it anymore.
 		image->drop();
 	}
-		}
+}
 
 void Demo::rttCallBack()
 {
-	this->getCurrentState()->rttCallback(this);
+	this->currentState->rttCallback(this);
 }
 
 void Demo::drawCallBack()
 {
 	this->videoDriver->setMaterial(this->debugMat);
 	this->videoDriver->setTransform(irr::video::ETS_WORLD, irr::core::matrix4());
-	this->getCurrentState()->drawCallback(this);
+	this->currentState->drawCallback(this);
 }
 
 void Demo::setTextureFiltering(const bool bilinear, const bool trilinear, const irr::u16 anisotropic) const
@@ -124,16 +124,26 @@ void Demo::setTextureFiltering(const bool bilinear, const bool trilinear, const 
 
 	const irr::u32 numNodes = nodes.size();
 
-	for (irr::u32 i = 0; i < numNodes; ++i)
+	for (irr::u32 n = 0; n < numNodes; ++n)
 	{
-		irr::scene::ISceneNode* const node = nodes[i];
+		irr::scene::ISceneNode* const node = nodes[n];
 
 //		const irr::scene::ESCENE_NODE_TYPE& type = node->getType();
 //		const irr::s32 id = node->getID();
 //		const irr::c8* name = node->getName();
 
-		node->setMaterialFlag(irr::video::EMF_BILINEAR_FILTER, bilinear);
-		node->setMaterialFlag(irr::video::EMF_TRILINEAR_FILTER, trilinear);
-		node->setMaterialFlag(irr::video::EMF_ANISOTROPIC_FILTER, anisotropic);
+		const irr::u32 numMaterial = node->getMaterialCount();
+		for (irr::u32 m = 0; m < numMaterial; ++m)
+		{
+			irr::video::SMaterial& mat = node->getMaterial(m);
+
+			for (irr::u32 t = 0; t < irr::video::MATERIAL_MAX_TEXTURES; ++t)
+			{
+				mat.TextureLayer[t].BilinearFilter = bilinear;
+				mat.TextureLayer[t].TrilinearFilter = trilinear;
+				mat.TextureLayer[t].AnisotropicFilter = anisotropic;
+			}
+		}
+
 	}
 }

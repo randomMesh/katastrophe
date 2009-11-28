@@ -22,8 +22,8 @@ class StateManager
 public:
 
 	StateManager(T* const owner) :
-		owner(owner),
-		currentState(0), previousState(0), globalState(0)
+		currentState(0), previousState(0), globalState(0),
+		owner(owner)
 	{
 
 	}
@@ -146,6 +146,17 @@ protected:
 		return false;
 	}
 
+protected:
+
+	//! Current state of the state machine.
+	State<T, E>* currentState;
+
+	//! Previous state of the state machine.
+	State<T, E>* previousState;
+
+	//! Global state
+	State<T, E>* globalState;
+
 private:
 
 	/*! Set the current state.
@@ -160,15 +171,6 @@ private:
 
 	//! Owner of this state machine instance.
 	T* const owner;
-
-	//! Current state of the state machine.
-	State<T, E>* currentState;
-
-	//! Previous state of the state machine.
-	State<T, E>* previousState;
-
-	//! Global state
-	State<T, E>* globalState;
 };
 
 #endif // _T_GRAPH_H_INCLUDED__
