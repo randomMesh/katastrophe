@@ -249,7 +249,7 @@ void Map::loadDefault()
 
 
 	this->crosshair = smgr->addBillboardSceneNode(
-			camera, irr::core::dimension2df(5.0f, 5.0f), irr::core::vector3df(0.0f, 0.0f, 70.0f));
+			camera, irr::core::dimension2df(4.0f, 4.0f), irr::core::vector3df(0.0f, 0.0f, 70.0f));
 	this->crosshair->setMaterialType(irr::video::EMT_TRANSPARENT_ADD_COLOR);
 	this->crosshair->setMaterialTexture(0, driver->getTexture("media/images/crosshair/cross.bmp"));
 	this->crosshair->setMaterialFlag(irr::video::EMF_LIGHTING, false);

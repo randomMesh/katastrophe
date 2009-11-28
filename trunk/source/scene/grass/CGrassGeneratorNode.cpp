@@ -102,9 +102,8 @@ const bool CGrassGeneratorNode::addGrassToTerrain(
 		}
 	}
 
-//	demo->getSceneManager()->getParameters()->setAttribute(irr::scene::ALLOW_ZWRITE_ON_TRANSPARENT, true);
-
-	SceneManager->getParameters()->setAttribute(irr::scene::ALLOW_ZWRITE_ON_TRANSPARENT, true);
+	//grass looks better with, but could break rendering of other nodes. be sure you use the proper ZWriteEnable flag
+	this->SceneManager->getParameters()->setAttribute(irr::scene::ALLOW_ZWRITE_ON_TRANSPARENT, true);
 
 	return true;
 }
@@ -291,7 +290,7 @@ void CGrassGeneratorNode::render()
 		video::SMaterial mat;
 		mat.Lighting = false;
 		driver->setMaterial(mat);
-		driver->setTransform(video::ETS_WORLD, AbsoluteTransformation);
+		driver->setTransform(video::ETS_WORLD, core::matrix4());
 		driver->draw3DBox(Box, video::SColor(0, 0, 255, 0));
 	}
 }
