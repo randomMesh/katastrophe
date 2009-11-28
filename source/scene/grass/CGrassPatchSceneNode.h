@@ -31,7 +31,7 @@ struct SGrassParticle
 	video::SColor          color;      // current colour of this blade
 	video::SColor          startColor; // colour it starts off at
 	core::vector3df        pos;        // its position
-	core::dimension2d<s32> sprite;     // the sprite number (x and y)
+	core::dimension2d<u32> sprite;     // the sprite number (x and y)
 	core::vector3df        points[4];  // position of points
 	f32                    flex;       // how flexible this node is 0 (stiff) to 1 (bendy)
 };
@@ -48,7 +48,7 @@ public:
 		const video::IImage* const grassMap, scene::IWindGenerator* const windgen);
 
 	//! destructor
-	virtual ~CGrassPatchSceneNode();
+	~CGrassPatchSceneNode();
 
 	//! Returns the material based on the zero based index i.
 	video::SMaterial& getMaterial(u32 i);

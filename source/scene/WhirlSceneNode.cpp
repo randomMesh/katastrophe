@@ -36,6 +36,7 @@ WhirlSceneNode::WhirlSceneNode(const u32 num, ISceneNode* const parent, ISceneMa
 	this->Material.Lighting = false;
 	this->Material.MaterialType = video::EMT_TRANSPARENT_ADD_COLOR;
 	this->Material.TextureLayer[0].Texture = texture;
+	this->Material.ZWriteEnable = false;
 
 	this->vertices[0] = irr::video::S3DVertex(-0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, irr::video::SColor(), 0.0f, 0.0f); //top left
 	this->vertices[1] = irr::video::S3DVertex( 0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, irr::video::SColor(), 1.0f, 0.0f); //top right

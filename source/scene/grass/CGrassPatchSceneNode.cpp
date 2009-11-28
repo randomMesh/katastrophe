@@ -57,6 +57,8 @@ CGrassPatchSceneNode::CGrassPatchSceneNode(
 	Create();
 
 	updateAbsolutePosition();
+
+//	DebugDataVisible = EDS_BBOX;
 }
 
 //! destructor
@@ -391,16 +393,16 @@ void CGrassPatchSceneNode::render()
 
 			// wind
 
-			const u32 igridsize = GRASS_PATCH_SIZE/(windGridRes-1);
-			const u32 ihalfres  = (windGridRes-1)/2;
+			const u32 igridsize = GRASS_PATCH_SIZE/(windGridRes - 1);
+			const u32 ihalfres  = (windGridRes - 1)/2;
 
 			// get wind modifier from wind grid
-			const u32 xgrid = u32((particle.pos.X/(f32)igridsize) +(f32)ihalfres);
-			const u32 zgrid = u32((particle.pos.Z/(f32)igridsize) +(f32)ihalfres);
+			const u32 xgrid = u32((particle.pos.X/(f32)igridsize) + (f32)ihalfres);
+			const u32 zgrid = u32((particle.pos.Z/(f32)igridsize) + (f32)ihalfres);
 
 			// get fraction to next grid pos
-			const f32 xnext = particle.pos.X/((f32)GRASS_PATCH_SIZE/(f32)windGridRes)+ (windGridRes/2.0f) - xgrid;
-			const f32 znext = particle.pos.Z/((f32)GRASS_PATCH_SIZE/(f32)windGridRes)+ (windGridRes/2.0f) - zgrid;
+			const f32 xnext = particle.pos.X/((f32)GRASS_PATCH_SIZE/(f32)windGridRes) + (windGridRes/2.0f) - xgrid;
+			const f32 znext = particle.pos.Z/((f32)GRASS_PATCH_SIZE/(f32)windGridRes) + (windGridRes/2.0f) - zgrid;
 
 			// get wind positions
 			const core::vector2df& wind1 = WindGrid[ xgrid   * windGridRes   +zgrid];
