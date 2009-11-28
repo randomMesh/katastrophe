@@ -4,6 +4,7 @@
 
 #include "Demo.h"
 #include <IrrlichtDevice.h>
+#include <ISceneManager.h>
 #include <IGUIEnvironment.h>
 
 #ifdef _SOUND
@@ -113,4 +114,23 @@ void Demo::drawCallBack()
 	this->videoDriver->setMaterial(this->debugMat);
 	this->videoDriver->setTransform(irr::video::ETS_WORLD, irr::core::matrix4());
 	this->getCurrentState()->drawCallback(this);
+}
+
+void Demo::setTextureFiltering(const bool bilinear, const bool trilinear, const bool anisotrophic) const
+{
+	irr::scene::ISceneNode* const root = this->sceneManager->getRootSceneNode();
+	const irr::core::list<irr::scene::ISceneNode*>& children = root->getChildren();
+
+	irr::core::list<irr::scene::ISceneNode*>::ConstIterator it = children.begin();
+	const irr::core::list<irr::scene::ISceneNode*>::ConstIterator& end = children.end();
+
+	for (; it != end; ++it)
+	{
+		irr::scene::ISceneNode* const node = (*it);
+
+		node->setMaterialFlag(irr::video::EMF_BILINEAR_FILTER, bilinear);
+		node->setMaterialFlag(irr::video::EMF_TRILINEAR_FILTER, trilinear);
+		node->setMaterialFlag(irr::video::EMF_ANISOTROPIC_FILTER, anisotrophic);
+	}
+
 }

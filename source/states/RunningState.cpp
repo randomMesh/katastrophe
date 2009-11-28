@@ -102,6 +102,10 @@ void RunningState::onEnter(Demo* const demo)
 	this->map->load("");	//load default map
 
 
+	//enable trilinear and anisotrophic filtering
+	demo->setTextureFiltering(false, true, true);
+
+
 #ifdef _SOUND
 	irrklang::ISoundEngine* const soundEngine = demo->getSoundEngine();
 
