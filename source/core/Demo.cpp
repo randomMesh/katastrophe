@@ -13,25 +13,25 @@
 
 Demo::Demo(Configuration* const configuration, irr::IrrlichtDevice* const device
 #ifdef _SOUND
-	, irrklang::ISoundEngine* const soundEngine
+		, irrklang::ISoundEngine* const soundEngine
 #endif
 ) :
-	StateManager<Demo, irr::SEvent>(this),
+StateManager<Demo, irr::SEvent>(this),
 
-	configuration(configuration), device(device),
+configuration(configuration), device(device),
 #ifdef _SOUND
-	soundEngine(soundEngine),
+soundEngine(soundEngine),
 #endif
-	sceneManager(device->getSceneManager()),
-	videoDriver(device->getVideoDriver()),
-	guiEnvironment(device->getGUIEnvironment()),
+sceneManager(device->getSceneManager()),
+videoDriver(device->getVideoDriver()),
+guiEnvironment(device->getGUIEnvironment()),
 
-	font(0),
+font(0),
 
-	timer(device->getTimer()),
-	then(timer->getTime()),
-	now(0),
-	elapsed(0.0f)
+timer(device->getTimer()),
+then(timer->getTime()),
+now(0),
+elapsed(0.0f)
 {
 	//grab pointers to engines
 	device->grab();
@@ -85,7 +85,7 @@ void Demo::setFont(const irr::c8* const filename)
 }
 
 void Demo::takeScreenshot() const
-{
+		{
 	//get image from the last rendered frame
 	irr::video::IImage* const image = this->videoDriver->createScreenShot();
 
@@ -102,7 +102,7 @@ void Demo::takeScreenshot() const
 		//Don't forget to drop image since we don't need it anymore.
 		image->drop();
 	}
-}
+		}
 
 void Demo::rttCallBack()
 {
@@ -118,19 +118,22 @@ void Demo::drawCallBack()
 
 void Demo::setTextureFiltering(const bool bilinear, const bool trilinear, const bool anisotrophic) const
 {
-	irr::scene::ISceneNode* const root = this->sceneManager->getRootSceneNode();
-	const irr::core::list<irr::scene::ISceneNode*>& children = root->getChildren();
+	// find all nodes
+	irr::core::array<irr::scene::ISceneNode*> nodes;
+	this->sceneManager->getSceneNodesFromType(irr::scene::ESNT_ANY, nodes);
 
-	irr::core::list<irr::scene::ISceneNode*>::ConstIterator it = children.begin();
-	const irr::core::list<irr::scene::ISceneNode*>::ConstIterator& end = children.end();
+	const irr::u32 numNodes = nodes.size();
 
-	for (; it != end; ++it)
+	for (irr::u32 i = 0; i < numNodes; ++i)
 	{
-		irr::scene::ISceneNode* const node = (*it);
+		irr::scene::ISceneNode* const node = nodes[i];
+
+//		const irr::scene::ESCENE_NODE_TYPE& type = node->getType();
+//		const irr::s32 id = node->getID();
+//		const irr::c8* name = node->getName();
 
 		node->setMaterialFlag(irr::video::EMF_BILINEAR_FILTER, bilinear);
 		node->setMaterialFlag(irr::video::EMF_TRILINEAR_FILTER, trilinear);
 		node->setMaterialFlag(irr::video::EMF_ANISOTROPIC_FILTER, anisotrophic);
 	}
-
 }
