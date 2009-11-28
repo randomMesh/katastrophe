@@ -92,11 +92,11 @@ public:
 	///Called from Irrlichts render loop in order to let the game draw.
 	void drawCallBack();
 
-
+	///Enable texture filtering.
 	void setTextureFiltering(
 		const bool bilinear = true,
 		const bool trilinear = false,
-		const bool anisotrophic = false) const;
+		const irr::u16 anisotropic = 16) const;
 
 	//getter
 
