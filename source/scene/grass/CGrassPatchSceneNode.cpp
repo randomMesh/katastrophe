@@ -125,7 +125,7 @@ u32 CGrassPatchSceneNode::getMaxDensity() const { return MaxDensity; }
 // creates random grass,
 bool CGrassPatchSceneNode::Create()
 {
-	srand((100 * gridpos.X) + gridpos.Z);
+	srand((100*gridpos.X) + gridpos.Z);
 	// particle count
 	u32 count = 3000; // lots. we dont need them all
 

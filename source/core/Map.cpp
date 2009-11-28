@@ -33,6 +33,8 @@
 #include <ik_ISoundEngine.h>
 #endif
 
+#include <IrrlichtDevice.h>
+
 Map::Map(Demo* const demo) :
 	demo(demo), flock(0),
 	collmgr(demo->getSceneManager()->getSceneCollisionManager()), selector(0), anim(0), ps(0),
@@ -174,7 +176,7 @@ void Map::loadDefault()
 			irr::core::vector3df(0.0f, 0.0f, 0.0f),		// rotation
 			irr::core::vector3df(40.0f, 2.0f, 40.0f),	// scale
 			irr::video::SColor(255, 255, 255, 255),		// vertexColor
-			5,											// maxLOD
+			16,											// maxLOD
 			irr::scene::ETPS_17,						// patchSize
 			4);											// smoothFactor
 	this->terrain->setMaterialTexture(0, driver->getTexture("media/images/terrain/terrain-texture.jpg"));
@@ -182,6 +184,8 @@ void Map::loadDefault()
 	this->terrain->setMaterialType(irr::video::EMT_DETAIL_MAP);
 	this->terrain->setMaterialFlag(irr::video::EMF_NORMALIZE_NORMALS, true);
 	this->terrain->scaleTexture(1.0f, 50.0f);
+
+
 
 
 	// create triangle selector for the terrain
@@ -233,6 +237,7 @@ void Map::loadDefault()
 	this->grassGeneratorNode = new irr::scene::CGrassGeneratorNode(smgr);
 	this->grassGeneratorNode->addGrassToTerrain(wind, this->terrain, heightMap, textureMap, grassMap);
 	this->grassGeneratorNode->increaseDrawDistance(5000.0f);
+//	this->grassGeneratorNode->increaseMaxDensity(2950.0f);
 	this->grassGeneratorNode->setVisible(config->getShowGrass());
 
 
@@ -255,16 +260,15 @@ void Map::loadDefault()
 	camera->setPosition(this->playerStartPosition);
 	camera->setTarget(this->playerStartTarget);
 	camera->setFarValue(12000.0f);
-	//camera->setFOV(60.0f*irr::core::DEGTORAD);
+	camera->setFOV(60.0f*irr::core::DEGTORAD);
 	//camera->setNearValue(0.5f);
 
 	// create collision response animator and attach it to the camera
 	this->anim = smgr->createCollisionResponseAnimator(this->selector,
 			camera, irr::core::vector3df(60.0f, 100.0f, 60.0f),
-			irr::core::vector3df(0.0f, -9.81f, 0.0f), //gravity
-			irr::core::vector3df(0.0f, 50.0f, 0.0f));
+			irr::core::vector3df(0.0f, -9.80665f, 0.0f), //gravity
+			irr::core::vector3df(0.0f, 0.0f, 0.0f));
 	camera->addAnimator(this->anim);
-
 
 
 	// load textures for animation
@@ -451,6 +455,8 @@ void Map::loadDefault()
 
 
 
+
+
 	// add lights (one for each corner and the center of the terrain)
 	irr::scene::ILightSceneNode* light[5];
 	irr::scene::IBillboardSceneNode* lightBillboard[5];
@@ -522,6 +528,26 @@ void Map::loadDefault()
 
 		mesh->drop();
 	}
+
+
+//	driver->getOverrideMaterial().Material.ColorMask = irr::video::ECP_RED;
+//	driver->getOverrideMaterial().EnableFlags = irr::video::EMF_COLOR_MASK;
+//	driver->getOverrideMaterial().EnablePasses = irr::scene::ESNRP_SKY_BOX | irr::scene::ESNRP_SOLID | irr::scene::ESNRP_TRANSPARENT | irr::scene::ESNRP_TRANSPARENT_EFFECT | irr::scene::ESNRP_SHADOW;
+/*
+	irr::scene::ISceneNode* root = smgr->getRootSceneNode();
+	irr::core::list<irr::scene::ISceneNode*> children = root->getChildren();
+
+	irr::core::list<irr::scene::ISceneNode*>::Iterator it = children.begin();
+	const irr::core::list<irr::scene::ISceneNode*>::Iterator& end = children.end();
+
+	for (; it != end; ++it)
+	{
+		//(*it)->setAutomaticCulling(irr::scene::EAC_FRUSTUM_SPHERE);
+		(*it)->setMaterialFlag(irr::video::EMF_TRILINEAR_FILTER, true);
+		(*it)->setMaterialFlag(irr::video::EMF_ANISOTROPIC_FILTER, true);
+		(*it)->setMaterialFlag(irr::video::EMF_COLOR_MASK, true);
+	}
+*/
 }
 
 void Map::clear()
@@ -721,7 +747,7 @@ void Map::drawDebug() const
 	// create a vertex buffer for all of the line segments
 	irr::video::S3DVertex vertices[n_vertices];
 
-	// for each boid
+	// add vertices for each boid
 	static irr::f32 velocity[3];
 	irr::u32 vIndex = 0;
 	for (irr::u32 p = 0; p < numBoids; ++p)

@@ -20,7 +20,7 @@ public:
 
 	/**
 	 * Constructor.
-	 * \param device A pointer to the Irrlicht device.
+	 * \param smgr A pointer to the scene manager.
 	 */
 	CGrassGeneratorNode(ISceneManager* const smgr, const bool autoSpawn = false);
 
