@@ -444,6 +444,7 @@ void BoidSceneNode::startPerching(const core::vector3df& outCollisionPoint)
 	ps->setMaterialFlag(video::EMF_LIGHTING, false);
 	ps->setMaterialTexture(0, this->SceneManager->getVideoDriver()->getTexture("media/images/particle.bmp"));
 	ps->setMaterialType(video::EMT_TRANSPARENT_VERTEX_ALPHA);
+	ps->setMaterialFlag(irr::video::EMF_ZWRITE_ENABLE, false);
 	ps->setScale(core::vector3df(50.0f, 50.0f, 50.0f));
 
 	IParticleEmitter* const em = ps->createPointEmitter(
@@ -500,6 +501,7 @@ void BoidSceneNode::stopPerching()
 	ps->setMaterialFlag(irr::video::EMF_LIGHTING, false);
 	ps->setMaterialTexture(0, this->SceneManager->getVideoDriver()->getTexture("media/images/particle.bmp"));
 	ps->setMaterialType(irr::video::EMT_TRANSPARENT_VERTEX_ALPHA);
+	ps->setMaterialFlag(irr::video::EMF_ZWRITE_ENABLE, false);
 	ps->setScale(irr::core::vector3df(50.0f, 50.0f, 50.0f));
 
 	irr::scene::IParticleEmitter* const em = ps->createPointEmitter(

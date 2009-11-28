@@ -122,33 +122,6 @@ void Map::loadDefault()
 	spaf->drop();
 
 
-	//add a camera
-	irr::SKeyMap keyMap[10];
-	keyMap[0].Action = irr::EKA_MOVE_FORWARD;
-	keyMap[0].KeyCode = irr::KEY_UP;
-	keyMap[1].Action = irr::EKA_MOVE_FORWARD;
-	keyMap[1].KeyCode = irr::KEY_KEY_W;
-	keyMap[2].Action = irr::EKA_MOVE_BACKWARD;
-	keyMap[2].KeyCode = irr::KEY_DOWN;
-	keyMap[3].Action = irr::EKA_MOVE_BACKWARD;
-	keyMap[3].KeyCode = irr::KEY_KEY_S;
-	keyMap[4].Action = irr::EKA_STRAFE_LEFT;
-	keyMap[4].KeyCode = irr::KEY_LEFT;
-	keyMap[5].Action = irr::EKA_STRAFE_LEFT;
-	keyMap[5].KeyCode = irr::KEY_KEY_A;
-	keyMap[6].Action = irr::EKA_STRAFE_RIGHT;
-	keyMap[6].KeyCode = irr::KEY_RIGHT;
-	keyMap[7].Action = irr::EKA_STRAFE_RIGHT;
-	keyMap[7].KeyCode = irr::KEY_KEY_D;
-	keyMap[8].Action = irr::EKA_JUMP_UP;
-	keyMap[8].KeyCode = irr::KEY_SPACE;
-	keyMap[9].Action = irr::EKA_CROUCH;
-	keyMap[9].KeyCode = irr::KEY_KEY_C;
-
-	irr::scene::ICameraSceneNode* const camera = smgr->addCameraSceneNodeFPS(0, config->getCameraRotateSpeed(), config->getCameraMoveSpeed(),
-			-1, keyMap, 10, true, config->getCameraJumpSpeed(), config->isInvertMouse());
-
-
 
 	//add animated skybox
 	driver->setTextureCreationFlag(irr::video::ETCF_CREATE_MIP_MAPS, false);
@@ -248,6 +221,45 @@ void Map::loadDefault()
 	wind->drop();
 
 
+	//add a camera
+	irr::SKeyMap keyMap[10];
+	keyMap[0].Action = irr::EKA_MOVE_FORWARD;
+	keyMap[0].KeyCode = irr::KEY_UP;
+	keyMap[1].Action = irr::EKA_MOVE_FORWARD;
+	keyMap[1].KeyCode = irr::KEY_KEY_W;
+	keyMap[2].Action = irr::EKA_MOVE_BACKWARD;
+	keyMap[2].KeyCode = irr::KEY_DOWN;
+	keyMap[3].Action = irr::EKA_MOVE_BACKWARD;
+	keyMap[3].KeyCode = irr::KEY_KEY_S;
+	keyMap[4].Action = irr::EKA_STRAFE_LEFT;
+	keyMap[4].KeyCode = irr::KEY_LEFT;
+	keyMap[5].Action = irr::EKA_STRAFE_LEFT;
+	keyMap[5].KeyCode = irr::KEY_KEY_A;
+	keyMap[6].Action = irr::EKA_STRAFE_RIGHT;
+	keyMap[6].KeyCode = irr::KEY_RIGHT;
+	keyMap[7].Action = irr::EKA_STRAFE_RIGHT;
+	keyMap[7].KeyCode = irr::KEY_KEY_D;
+	keyMap[8].Action = irr::EKA_JUMP_UP;
+	keyMap[8].KeyCode = irr::KEY_SPACE;
+	keyMap[9].Action = irr::EKA_CROUCH;
+	keyMap[9].KeyCode = irr::KEY_KEY_C;
+
+	irr::scene::ICameraSceneNode* const camera = smgr->addCameraSceneNodeFPS(0, config->getCameraRotateSpeed(), config->getCameraMoveSpeed(),
+			-1, keyMap, 10, true, config->getCameraJumpSpeed(), config->isInvertMouse());
+	camera->setPosition(this->playerStartPosition);
+	camera->setTarget(this->playerStartTarget);
+	camera->setFarValue(12000.0f);
+	camera->setFOV(60.0f*irr::core::DEGTORAD);
+	camera->setNearValue(5.0f);
+
+	// create collision response animator and attach it to the camera
+	this->anim = smgr->createCollisionResponseAnimator(this->selector,
+			camera, irr::core::vector3df(60.0f, 100.0f, 60.0f),
+			irr::core::vector3df(0.0f, -9.80665f, 0.0f), //gravity
+			irr::core::vector3df(0.0f, 100.0f, 0.0f));
+	camera->addAnimator(this->anim);
+
+
 	this->crosshair = smgr->addBillboardSceneNode(
 			camera, irr::core::dimension2df(4.0f, 4.0f), irr::core::vector3df(0.0f, 0.0f, 70.0f));
 	this->crosshair->setMaterialType(irr::video::EMT_TRANSPARENT_ADD_COLOR);
@@ -255,20 +267,6 @@ void Map::loadDefault()
 	this->crosshair->setMaterialFlag(irr::video::EMF_LIGHTING, false);
 	this->crosshair->setMaterialFlag(irr::video::EMF_ZBUFFER, false);
 
-
-	//position camera
-	camera->setPosition(this->playerStartPosition);
-	camera->setTarget(this->playerStartTarget);
-	camera->setFarValue(12000.0f);
-	camera->setFOV(60.0f*irr::core::DEGTORAD);
-	//camera->setNearValue(0.5f);
-
-	// create collision response animator and attach it to the camera
-	this->anim = smgr->createCollisionResponseAnimator(this->selector,
-			camera, irr::core::vector3df(60.0f, 100.0f, 60.0f),
-			irr::core::vector3df(0.0f, -9.80665f, 0.0f), //gravity
-			irr::core::vector3df(0.0f, 0.0f, 0.0f));
-	camera->addAnimator(this->anim);
 
 
 	// load textures for animation

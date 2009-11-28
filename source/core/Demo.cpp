@@ -128,6 +128,9 @@ void Demo::setTextureFiltering(const bool bilinear, const bool trilinear, const 
 	{
 		irr::scene::ISceneNode* const node = nodes[n];
 
+//		node->setAutomaticCulling(irr::scene::EAC_OFF);
+
+
 //		const irr::scene::ESCENE_NODE_TYPE& type = node->getType();
 //		const irr::s32 id = node->getID();
 //		const irr::c8* name = node->getName();

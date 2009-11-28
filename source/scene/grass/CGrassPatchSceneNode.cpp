@@ -56,8 +56,6 @@ CGrassPatchSceneNode::CGrassPatchSceneNode(
 	// create grass
 	Create();
 
-	updateAbsolutePosition();
-
 //	DebugDataVisible = EDS_BBOX;
 }
 
@@ -459,18 +457,12 @@ void CGrassPatchSceneNode::render()
 	}
 
 	// for debug purposes only:
-	if (DebugDataVisible)
+	if (DebugDataVisible & EDS_BBOX)
 	{
-		driver->setTransform(video::ETS_WORLD, AbsoluteTransformation);
 		video::SMaterial m;
 		m.Lighting = false;
 		driver->setMaterial(m);
-		driver->draw3DBox(Box, video::SColor(0,255,255,255));
-		core::aabbox3d<f32> b2;
-		b2.reset(core::vector3df(0,0,0));
-
-		b2.addInternalPoint(Box.MaxEdge*0.01f);
-		driver->draw3DBox(b2, video::SColor(0,255,255,255));
+		driver->draw3DBox(Box, video::SColor(0, 0, 255, 0));
 	}
 }
 
