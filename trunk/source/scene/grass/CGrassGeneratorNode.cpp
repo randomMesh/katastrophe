@@ -86,6 +86,7 @@ const bool CGrassGeneratorNode::addGrassToTerrain(
 
 				this->grassNodes.push_back(grassNode);
 				this->addChild(grassNode);
+				grassNode->updateAbsolutePosition();
 				grassNode->drop();
 			}
 		}
@@ -124,18 +125,21 @@ const void CGrassGeneratorNode::removeAllGrass()
 
 const void CGrassGeneratorNode::swapTextures()
 {
-	if (this->grassNodes.size() == 0) return;
+	if (this->grassNodes.size() == 0)
+		return;
 
 	this->tex = !this->tex;
 
-	irr::u32 n;
-	for (n = 0; n < this->grassNodes.size(); ++n)
+	for (irr::u32 n = 0; n < this->grassNodes.size(); ++n)
 		this->grassNodes[n]->setMaterialTexture(0, this->tex ? this->tex2 : this->tex1);
 }
 
 const void CGrassGeneratorNode::cycleModes(const bool forward)
 {
-	if (this->grassNodes.size() == 0) return;
+	const irr::u32 numGrass = this->grassNodes.size();
+
+	if (numGrass == 0)
+		return;
 
 	if (forward)
 	{
@@ -150,17 +154,13 @@ const void CGrassGeneratorNode::cycleModes(const bool forward)
 		else this->currentMode = this->modes.size() - 1;
 	}
 
-	irr::u32 n;
-	for (n = 0; n < this->grassNodes.size(); ++n)
+	for (irr::u32 n = 0; n < numGrass; ++n)
 		this->grassNodes[n]->setMaterialType(this->modes[this->currentMode]);
 }
 
 const void CGrassGeneratorNode::decreaseDrawDistance(const irr::f32 dist) const
 {
-	if (this->grassNodes.size() == 0) return;
-
-	irr::u32 n;
-	for (n = 0; n < this->grassNodes.size(); ++n)
+	for (irr::u32 n = 0; n < this->grassNodes.size(); ++n)
 	{
 		if (this->grassNodes[n]->getDrawDistance() > GRASS_PATCH_SIZE + dist)
 			this->grassNodes[n]->setDrawDistance(this->grassNodes[n]->getDrawDistance() - dist);
@@ -169,10 +169,7 @@ const void CGrassGeneratorNode::decreaseDrawDistance(const irr::f32 dist) const
 
 const void CGrassGeneratorNode::increaseDrawDistance(const irr::f32 dist) const
 {
-	if (this->grassNodes.size() == 0) return;
-
-	irr::u32 n;
-	for (n = 0; n < this->grassNodes.size(); ++n)
+	for (irr::u32 n = 0; n < this->grassNodes.size(); ++n)
 	{
 		grassNodes[n]->setDrawDistance(grassNodes[n]->getDrawDistance() + dist);
 	}
@@ -180,12 +177,12 @@ const void CGrassGeneratorNode::increaseDrawDistance(const irr::f32 dist) const
 
 const void CGrassGeneratorNode::decreaseWindResolution(const irr::u32 delta) const
 {
-	if (this->grassNodes.size() == 0) return;
+	if (this->grassNodes.size() == 0)
+		return;
 
 	if (this->grassNodes[0]->getWindRes() > delta)
 	{
-		irr::u32 n;
-		for (n = 0; n < this->grassNodes.size(); ++n)
+		for (irr::u32 n = 0; n < this->grassNodes.size(); ++n)
 		{
 			this->grassNodes[n]->setWindRes(this->grassNodes[n]->getWindRes() - delta);
 		}
@@ -268,9 +265,7 @@ void CGrassGeneratorNode::OnRegisterSceneNode()
 			irr::core::vector3df cameraPos = camera->getAbsolutePosition();
 			irr::core::vector3df cameraTarget = camera->getTarget();
 
-
 			//spawning and destroying grass nodes
-
 
 			this->frameCount = 0;
 		}
@@ -291,7 +286,7 @@ void CGrassGeneratorNode::render()
 		mat.Lighting = false;
 		driver->setMaterial(mat);
 		driver->setTransform(video::ETS_WORLD, core::matrix4());
-		driver->draw3DBox(Box, video::SColor(0, 0, 255, 0));
+		driver->draw3DBox(Box, video::SColor(0, 126, 255, 50));
 	}
 }
 

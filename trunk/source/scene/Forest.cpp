@@ -30,17 +30,17 @@ Forest::Forest(irr::IrrlichtDevice* const device, const irr::scene::ITerrainScen
 	Tree jubaea;
 	jubaea.type = ETT_JUBAEA;
 	jubaea.fileName = "media/images/trees/Greenhouse-Palm-jubaea01.png";
-	jubaea.dimension.Width = 1024;
-	jubaea.dimension.Height = 1024;
-	jubaea.yOffset = 500.0f;
+	jubaea.dimension.Width = 512;
+	jubaea.dimension.Height = 512;
+	jubaea.yOffset = 250.0f;
 	this->treePool.push_back(jubaea);
 
 	Tree bugainvillier;
 	bugainvillier.type = ETT_BUGAINVILLIER;
 	bugainvillier.fileName = "media/images/trees/Bougainvillier.png";
-	bugainvillier.dimension.Width = 1024;
-	bugainvillier.dimension.Height = 1024;
-	bugainvillier.yOffset = 480.0f;
+	bugainvillier.dimension.Width = 512;
+	bugainvillier.dimension.Height = 512;
+	bugainvillier.yOffset = 250.0f;
 	this->treePool.push_back(bugainvillier);
 
 	Tree flamboyant;
@@ -54,9 +54,9 @@ Forest::Forest(irr::IrrlichtDevice* const device, const irr::scene::ITerrainScen
 	Tree taxus;
 	taxus.type = ETT_TAXUS;
 	taxus.fileName = "media/images/trees/taxus.png";
-	taxus.dimension.Width = 512;
-	taxus.dimension.Height = 1024;
-	taxus.yOffset = 512.0f;
+	taxus.dimension.Width = 256;
+	taxus.dimension.Height = 512;
+	taxus.yOffset = 0.0f;
 	this->treePool.push_back(taxus);
 
 	Tree cycas;
@@ -149,19 +149,17 @@ void Forest::removeTree()
 
 bool Forest::isLegalPlace(const irr::core::vector3df& pos) const
 {
-	bool legal = true;
+	const irr::u32 numExceptions = exceptions.size();
 
-	irr::u32 i;
-	for (i = 0; i < exceptions.size(); ++i)
+	for (irr::u32 i = 0; i < numExceptions; ++i)
 	{
 		if (exceptions[i].isPointInside(pos))
 		{
-			legal = false;
-			break;
+			return false;
 		}
 	}
 
-	return legal;
+	return true;
 }
 
 const irr::core::vector3df Forest::makeRandomPos(const E_TREE_TYPE& type) const
