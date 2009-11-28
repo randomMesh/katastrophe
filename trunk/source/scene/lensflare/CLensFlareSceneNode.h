@@ -26,10 +26,13 @@ Extends functionality to ILensFlareSceneNode
 
 class CLensFlareSceneNode : public ILensFlareSceneNode
 {
+
 public:
+
 	// constructor
-	CLensFlareSceneNode(ISceneNode* parent, scene::ISceneManager* mgr,
-			s32 id=-1, const core::vector3df& position = core::vector3df());
+	CLensFlareSceneNode(
+		ISceneNode* parent, ISceneManager* mgr, s32 id=-1,
+		const core::vector3df& position = core::vector3df());
 
 	u32 getMaterialCount() const { return 1; }
 
@@ -49,6 +52,7 @@ public:
 	void setScreenSize(const core::dimension2d<s32> &);
 
 private:
+
 	// Size of screen in pixels
 	core::dimension2d<s32> Screensize;
 

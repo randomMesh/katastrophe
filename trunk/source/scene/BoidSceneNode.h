@@ -37,11 +37,11 @@ public:
 		const core::vector3df& target,
 		const irr::f32 borders[4],
 		const f32 mimimumAboveGround,
-		ISceneManager* const mgr, const s32 id = -1);
+		ISceneManager* const mgr);
 
 	~BoidSceneNode();
 
-	//To compare boids
+	//To compare boids ID is set to static u32 boidID;
 	bool operator==(const BoidSceneNode& other) const { return (this->ID == other.ID); }
 	bool operator!=(const BoidSceneNode& other) const { return !(*this == other); }
 
@@ -89,6 +89,8 @@ public:
 	inline const irr::core::line3d<f32>& getGroundRay() const { return this->groundRay; }
 
 private:
+
+	static u32 boidID;
 
 	void startPerching(const core::vector3df& outCollisionPoint);
 

@@ -37,7 +37,7 @@
 
 Map::Map(Demo* const demo) :
 	demo(demo), flock(0),
-	collmgr(demo->getSceneManager()->getSceneCollisionManager()), selector(0), anim(0), ps(0),
+	collmgr(demo->getSceneManager()->getSceneCollisionManager()), selector(0), boidSelector(0), anim(0), ps(0),
 	terrain(0), forest(0), grassGeneratorNode(0), cursor(0), crosshair(0)
 #ifdef _SOUND
 	, wind(0)
@@ -177,14 +177,11 @@ void Map::loadDefault()
 
 	this->flock = new Flock(this->demo, flockTarget, borders);
 
+	boidSelector = smgr->createMetaTriangleSelector();
 
 	//add boids to flock
-	irr::scene::IMesh* const boidMesh = smgr->getGeometryCreator()->createSphereMesh(25.0f, 32, 32);
-
 	for (irr::u32 i = 0; i < 20; ++i)
-		this->flock->addBoid(boidMesh);
-
-	boidMesh->drop();
+		this->addBoid();
 
 
 
@@ -332,14 +329,14 @@ void Map::loadDefault()
 
 	//add scene nodes which are effected by the teleporter
 	teleporter->addNodeToWatchList(camera);
-
+/*
 	//add boids to teleporter watch list
 	const irr::core::array<irr::scene::BoidSceneNode*>& boids = this->flock->getBoids();
 	for(irr::u32 i = 0; i < boids.size(); ++i)
 	{
 		teleporter->addNodeToWatchList(boids[i]);
 	}
-
+*/
 
 
 
@@ -570,6 +567,13 @@ void Map::clear()
 		this->selector = 0;
 	}
 
+	if (this->boidSelector)
+	{
+		this->boidSelector->removeAllTriangleSelectors(); //?
+		this->boidSelector->drop();
+		this->boidSelector = 0;
+	}
+
 	this->demo->getSceneManager()->getMeshCache()->clear();
 	this->demo->getSceneManager()->clear();
 
@@ -583,14 +587,22 @@ void Map::clear()
 
 void Map::update(const bool freezeTarget, const irr::core::vector3df& camPos, const irr::core::vector3df& camTarget, const bool rightMouseButton)
 {
+	const irr::core::line3d<irr::f32> line(camPos, camPos + (camTarget - camPos).normalize()*12000.0f);
+	const irr::scene::ISceneNode* node = 0;
 
 	irr::core::vector3df intersection;
 	irr::core::triangle3df tri;
 
-	const irr::core::line3d<irr::f32> line(camPos, camPos + (camTarget - camPos).normalize()*12000.0f);
 
-	const irr::scene::ISceneNode* node = 0;
-	if (this->collmgr->getCollisionPoint(line, this->selector, intersection, tri, node))
+	//check if we target a boid
+	if (this->collmgr->getCollisionPoint(line, this->boidSelector, intersection, tri, node))
+	{
+		irr::scene::BoidSceneNode* const boid = (irr::scene::BoidSceneNode* const)node;
+		this->removeBoid(boid);
+	}
+
+	//check rest
+	else if (this->collmgr->getCollisionPoint(line, this->selector, intersection, tri, node))
 	{
 		if (!freezeTarget)
 		{
@@ -690,12 +702,20 @@ irr::scene::BoidSceneNode* const Map::addBoid()
 	irr::scene::IMesh* const boidMesh = demo->getSceneManager()->getGeometryCreator()->createSphereMesh(25.0f, 32, 32);
 
 	irr::scene::BoidSceneNode* const boid = this->flock->addBoid(boidMesh);
+
+	irr::scene::ITriangleSelector* const boidsel = demo->getSceneManager()->createTriangleSelector(boidMesh, boid);
+	boid->setTriangleSelector(boidsel);
+	boidSelector->addTriangleSelector(boidsel);
+	boidsel->drop();
+
 	boidMesh->drop();
+
 
 	//add boid to all teleporters
 	const irr::u32 numTeleporters = this->teleporters.size();
 	for (irr::u32 i = 0; i < numTeleporters; ++i)
 		this->teleporters[i]->addNodeToWatchList(boid);
+
 
 	return boid;
 }
@@ -706,6 +726,8 @@ bool Map::removeBoid(irr::scene::BoidSceneNode* const boid)
 	const irr::u32 numTeleporters = this->teleporters.size();
 	for (irr::u32 i = 0; i < numTeleporters; ++i)
 		this->teleporters[i]->removeNodeFromWatchList(boid);
+
+	this->boidSelector->removeTriangleSelector(boid->getTriangleSelector());
 
 	//remove boid from flock
 	return this->flock->removeBoid(boid);

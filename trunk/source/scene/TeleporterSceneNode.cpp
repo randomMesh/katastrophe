@@ -42,12 +42,12 @@ TeleporterSceneNode::TeleporterSceneNode(
 
 	irr::scene::ISceneManager* const smgr = demo->getSceneManager();
 
-	this->whirl[0] = new WhirlSceneNode(100, smgr->getRootSceneNode(), smgr, 0);
+	this->whirl[0] = new WhirlSceneNode(100, smgr->getRootSceneNode(), smgr, id);
 	this->whirl[0]->setPosition(placeA.getCenter());
 	this->whirl[0]->setScale(irr::core::vector3df(30.0f, 30.0f, 30.0f));
 	//this->whirl[0]->setDebugDataVisible(irr::scene::EDS_BBOX);
 
-	this->whirl[1] = new WhirlSceneNode(100, smgr->getRootSceneNode(), smgr, 0);
+	this->whirl[1] = new WhirlSceneNode(100, smgr->getRootSceneNode(), smgr, id);
 	this->whirl[1]->setPosition(placeB.getCenter());
 	this->whirl[1]->setScale(irr::core::vector3df(30.0f, 30.0f, 30.0f));
 	//this->whirl[1]->setDebugDataVisible(irr::scene::EDS_BBOX);
@@ -57,12 +57,13 @@ TeleporterSceneNode::TeleporterSceneNode(
 
 
 	smgr->addBillboardTextSceneNode(demo->getFont(), L"Teleporter", this->whirl[0],
-		irr::core::dimension2df(120.0f, 100.0f), irr::core::vector3df(0.0f, 5.0f, 0.0f), 0);
+		core::dimension2df(120.0f, 100.0f), core::vector3df(0.0f, 5.0f, 0.0f), 0);
 
 	smgr->addBillboardTextSceneNode(demo->getFont(), L"Teleporter", this->whirl[1],
-		irr::core::dimension2df(120.0f, 100.0f), irr::core::vector3df(0.0f, 5.0f, 0.0f), 0);
+		core::dimension2df(120.0f, 100.0f), core::vector3df(0.0f, 5.0f, 0.0f), 0);
 
-	this->setAutomaticCulling(irr::scene::EAC_OFF);
+
+	this->AutomaticCullingState = EAC_OFF;
 }
 
 TeleporterSceneNode::~TeleporterSceneNode()
@@ -82,7 +83,7 @@ void TeleporterSceneNode::OnRegisterSceneNode()
 	ISceneNode::OnRegisterSceneNode();
 }
 
-const irr::core::aabbox3d<irr::f32>& TeleporterSceneNode::getBoundingBox() const
+const core::aabbox3d<f32>& TeleporterSceneNode::getBoundingBox() const
 {
 	return this->Box;
 }
@@ -139,54 +140,33 @@ void TeleporterSceneNode::OnAnimate(irr::u32 timeMs)
 
 void TeleporterSceneNode::render()
 {
-	if (DebugDataVisible & scene::EDS_BBOX)
+	if (DebugDataVisible & EDS_BBOX)
 	{
-		irr::video::SColor color(255, 255, 255, 0);
+		video::SColor color(255, 255, 255, 0);
 		if (this->dontTeleport)
 			color.setGreen(0);
 
-
-		irr::core::vector3df edges[8];
-
-		irr::video::IVideoDriver* const driver = this->SceneManager->getVideoDriver();
+		video::IVideoDriver* const driver = this->SceneManager->getVideoDriver();
 		driver->setMaterial(this->Material);
 		driver->setTransform(irr::video::ETS_WORLD, core::matrix4());
 
 		//draw placeA
 		driver->draw3DBox(this->placeA, color);
 
-		this->placeA.getEdges(edges);
-
-		const irr::core::vector3df& frontLeftA = edges[2];
-		const irr::core::vector3df& frontRightA = edges[6];
-		const irr::core::vector3df& rearLeftA = edges[0];
-		const irr::core::vector3df& rearRightA = edges[4];
-		driver->draw3DLine(frontLeftA, rearRightA, color);
-		driver->draw3DLine(rearLeftA, frontRightA, color);
-
 		//draw placeB
 		driver->draw3DBox(this->placeB, color);
-
-		this->placeB.getEdges(edges);
-
-		const irr::core::vector3df& frontLeft = edges[2];
-		const irr::core::vector3df& frontRight = edges[6];
-		const irr::core::vector3df& rearLeft = edges[0];
-		const irr::core::vector3df& rearRight = edges[4];
-		driver->draw3DLine(frontLeft, rearRight, color);
-		driver->draw3DLine(rearLeft, frontRight, color);
 	}
 }
 
-void TeleporterSceneNode::addNodeToWatchList(irr::scene::ISceneNode* const node)
+void TeleporterSceneNode::addNodeToWatchList(ISceneNode* const node)
 {
 	this->nodesToWatch.push_back(node);
 }
 
-void TeleporterSceneNode::removeNodeFromWatchList(const irr::scene::ISceneNode* const node)
+void TeleporterSceneNode::removeNodeFromWatchList(const ISceneNode* const node)
 {
-	irr::core::list<irr::scene::ISceneNode* const>::Iterator it = this->nodesToWatch.begin();
-	const irr::core::list<irr::scene::ISceneNode* const>::Iterator& end = this->nodesToWatch.end();
+	core::list<ISceneNode* const>::Iterator it = this->nodesToWatch.begin();
+	const core::list<ISceneNode* const>::Iterator& end = this->nodesToWatch.end();
 	for(; it != end; ++it)
 	{
 		if (node == (*it))
@@ -202,8 +182,8 @@ void TeleporterSceneNode::teleport(ISceneNode* const node, const bool fromAToB)
 	//'teleport' the node
 	node->setPosition(fromAToB ? this->placeB.getCenter() : this->placeA.getCenter());
 
-	//if it's a camera, set teleporter target
-	if (node == demo->getSceneManager()->getActiveCamera())
+	//if it's a camera, set animator target
+	if (node == SceneManager->getActiveCamera())
 	{
 		if (this->useLookDirB && fromAToB)
 		{
@@ -219,13 +199,13 @@ void TeleporterSceneNode::teleport(ISceneNode* const node, const bool fromAToB)
 	}
 
 	//now the interesting stuff: update animators if any
-	const irr::core::list<irr::scene::ISceneNodeAnimator*> anims = node->getAnimators();
+	const core::list<ISceneNodeAnimator*> anims = node->getAnimators();
 
-	irr::core::list<irr::scene::ISceneNodeAnimator*>::ConstIterator it = anims.begin();
-	const irr::core::list<irr::scene::ISceneNodeAnimator*>::ConstIterator& end = anims.end();
+	core::list<ISceneNodeAnimator*>::ConstIterator it = anims.begin();
+	const core::list<ISceneNodeAnimator*>::ConstIterator& end = anims.end();
 	for(; it != end; ++it)
 	{
-		irr::scene::ISceneNodeAnimator* const anim = (*it);
+		ISceneNodeAnimator* const anim = (*it);
 		const irr::scene::ESCENE_NODE_ANIMATOR_TYPE& type = anim->getType();
 
 		switch (type)
