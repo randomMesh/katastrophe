@@ -21,13 +21,13 @@ Configuration::Configuration() :
 	//camera
 	cameraRotateSpeed(100.0f),
 	cameraMoveSpeed(0.5f),
-	cameraJumpSpeed(10.0f),
+	cameraJumpSpeed(15.0f),
 	invertMouse(false),
 
 	//flock
 	scatterFlockModifier(2.0f),
 	seekCenterOfMass(80.0f),
-	distanceToOtherBoids(100.0f),
+	distanceToOtherBoids(50.0f),
 	matchVelocity(80.0f),
 	tendencyTowardsPlace(80.0f),
 	tendencyAvoidPlace(100.0f),

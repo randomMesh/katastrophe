@@ -298,6 +298,10 @@ void BoidSceneNode::applyRules(
 	const u32 numBoids = boids.size();
 	u32 boidsPerching = 0;
 
+
+	//what's larger: radius or distanceToOtherBoids?
+	const u32 minDistance = this->radius < distanceToOtherBoids ? distanceToOtherBoids : this->radius;
+
 	const BoidSceneNode* otherBoid = 0;
 	for (u32 other = 0; other < numBoids; ++other)
 	{
@@ -317,15 +321,15 @@ void BoidSceneNode::applyRules(
 			this->rule_1[2] += otherBoid->RelativeTranslation.Z;
 
 			//rule 2
-			if (fabs(otherBoid->RelativeTranslation.X - this->RelativeTranslation.X) < distanceToOtherBoids)
+			if (fabs(otherBoid->RelativeTranslation.X - this->RelativeTranslation.X) < minDistance)
 			{
 				this->rule_2[0] -= otherBoid->RelativeTranslation.X - this->RelativeTranslation.X;
 			}
-			if (fabs(otherBoid->RelativeTranslation.Y - this->RelativeTranslation.Y) < distanceToOtherBoids)
+			if (fabs(otherBoid->RelativeTranslation.Y - this->RelativeTranslation.Y) < minDistance)
 			{
 				this->rule_2[1] -= otherBoid->RelativeTranslation.Y - this->RelativeTranslation.Y;
 			}
-			if (fabs(otherBoid->RelativeTranslation.Z - this->RelativeTranslation.Z) < distanceToOtherBoids)
+			if (fabs(otherBoid->RelativeTranslation.Z - this->RelativeTranslation.Z) < minDistance)
 			{
 				this->rule_2[2] -= otherBoid->RelativeTranslation.Z - this->RelativeTranslation.Z;
 			}
