@@ -733,7 +733,7 @@ void Map::drawDebug() const
 	const irr::u32 numBoids = boids.size();
 
 
-	//this is for a line list with 2 line per boid for rendering velocity and the ground ray
+	//this is for a line list with 2 lines per boid for rendering velocity and the ground ray
 	const irr::u32 n_indices = numBoids*4;
 	const irr::u32 n_vertices = numBoids*4;
 
@@ -760,7 +760,7 @@ void Map::drawDebug() const
 		//line 1 (velocity)
 		vertices[vIndex].Pos = boidPos;
 		vertices[vIndex].Color.set(255, 0, 255, 0);
-		vertices[vIndex + 1].Pos.set(boidPos + irr::core::vector3df(velocity[0], velocity[1], velocity[2]).normalize()*100.0f);
+		vertices[vIndex + 1].Pos.set(boidPos + irr::core::vector3df(velocity[0], velocity[1], velocity[2]));
 		vertices[vIndex + 1].Color.set(255, 255, 0, 0);
 
 		//line 2 (ground ray)

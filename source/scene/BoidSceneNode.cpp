@@ -7,7 +7,6 @@
 #include <IVideoDriver.h>
 #include <ISceneCollisionManager.h>
 #include <IParticleSystemSceneNode.h>
-#include <IMeshManipulator.h>
 
 #ifdef _SOUND
 #include <ik_ISoundEngine.h>
@@ -21,15 +20,15 @@ namespace scene
 u32 BoidSceneNode::boidID = 0;
 
 BoidSceneNode::BoidSceneNode(
-	irr::scene::IMesh* const boidMesh,
-	const core::vector3df& position, const irr::f32 borders[4], const f32 mimimumAboveGround, ISceneManager* const mgr) :
-	IMeshSceneNode(mgr->getRootSceneNode(), mgr, boidID, position),
-	Mesh(boidMesh),
-	perching(false), perchTimer(0.0f), dontPerchTimer(0.0f),
-	mimimumAboveGround(mimimumAboveGround)
-{
+		irr::scene::IMesh* const boidMesh,
+		const core::vector3df& position, const irr::f32 borders[4], const f32 mimimumAboveGround, ISceneManager* const mgr) :
+		IMeshSceneNode(mgr->getRootSceneNode(), mgr, boidID, position),
+		Mesh(boidMesh),
+		perching(false), perchTimer(0.0f), dontPerchTimer(0.0f),
+		mimimumAboveGround(mimimumAboveGround)
+		{
 #ifdef _DEBUG
-		setDebugName("BoidSceneNode");
+	setDebugName("BoidSceneNode");
 #endif
 
 	boidMesh->grab();
@@ -49,16 +48,16 @@ BoidSceneNode::BoidSceneNode(
 	//set velocity to 0
 	memset(this->velocity, 0, sizeof(irr::f32)*3);
 
-//	this->RelativeTranslation = position;
-
-
-//	this->updateAbsolutePosition();
-
+	//init ground ray
 	this->groundRay.start = this->RelativeTranslation;
 	this->groundRay.end = this->RelativeTranslation - irr::core::vector3df(0.0f, mimimumAboveGround, 0.0f);
 
 
+
+
 	//store normals
+	core::array<core::line3df> normals;
+
 	core::vector3df normalizedNormal;
 	static const f32 DebugNormalLength = 3.0f;
 
@@ -76,11 +75,53 @@ BoidSceneNode::BoidSceneNode(
 			if (normalize)
 				normalizedNormal.normalize();
 
-			this->normals.push_back(core::line3df(v->Pos, v->Pos + (normalizedNormal*DebugNormalLength)));
+			normals.push_back(core::line3df(v->Pos, v->Pos + (normalizedNormal*DebugNormalLength)));
 
 			v = (const video::S3DVertex*)((u8*)v + vSize);
 		}
 	}
+
+
+	//make list
+
+	const irr::u32 numNormals = normals.size();
+
+	//this is for a line list with 2 lines per normal for rendering velocity and the ground ray
+	this->numIndices = numNormals*2;
+	this->numVertices = numNormals*2;
+
+	// create an index buffer for rendering line segments
+	this->indices = new irr::u16[this->numIndices];
+	for (irr::u32 i = 0; i < this->numIndices; ++i)
+		this->indices[i] = i;
+
+	// create a vertex buffer for all of the line segments
+	this->vertices = new video::S3DVertex[this->numVertices];
+
+	// add vertices for each normal
+	irr::u32 vIndex = 0;
+	for (irr::u32 n = 0; n < numNormals; ++n)
+	{
+		const irr::core::line3df& normal = normals[n];
+
+		//normal
+		vertices[vIndex].Pos = normal.start;
+		vertices[vIndex].Color.set(255, 128, 128, 0);
+		vertices[vIndex + 1].Pos = normal.end;
+		vertices[vIndex + 1].Color.set(255, 128, 128, 0);
+
+		vIndex += 2;
+	}
+
+
+
+
+
+
+
+
+
+
 
 
 	this->al = 1.0f;
@@ -93,12 +134,14 @@ BoidSceneNode::BoidSceneNode(
 BoidSceneNode::~BoidSceneNode()
 {
 	this->Mesh->drop();
+	delete[] this->vertices;
+	delete[] this->indices;
 }
 
 const core::aabbox3d<float>& BoidSceneNode::getBoundingBox() const
-{
+		{
 	return Mesh ? Mesh->getBoundingBox() : Box;
-}
+		}
 
 
 
@@ -140,6 +183,7 @@ void BoidSceneNode::OnAnimate(u32 timeMs)
 
 	}
 
+
 	ISceneNode::OnAnimate(timeMs);
 }
 
@@ -169,11 +213,8 @@ void BoidSceneNode::render()
 		mat.Lighting = false;
 
 		driver->setMaterial(mat);
-
-		const u32 numNormals = this->normals.size();
-		for (u32 i = 0; i < numNormals; ++i)
-			driver->draw3DLine(
-				normals[i].start, normals[i].end, video::SColor(255, 128, 128, 0)); //TODO: make VertexPrimitiveList
+		driver->drawVertexPrimitiveList(this->vertices, this->numVertices, this->indices, this->numIndices/2,
+			irr::video::EVT_STANDARD, irr::scene::EPT_LINES, irr::video::EIT_16BIT);
 	}
 
 	//draw oabb
@@ -192,9 +233,9 @@ void BoidSceneNode::setMesh(IMesh*)
 }
 
 bool BoidSceneNode::isReadOnlyMaterials() const
-{
+		{
 	return false;
-}
+		}
 
 void BoidSceneNode::setReadOnlyMaterials(bool)
 {
@@ -207,28 +248,28 @@ video::SMaterial& BoidSceneNode::getMaterial(u32 i)
 }
 
 void BoidSceneNode::applyRules(
-	scene::ITriangleSelector* const selector,
-	const core::array<BoidSceneNode*>& boids,
-	const f32 distanceToOtherBoids,
-	const f32 seekCenterOfMass,
-	const f32 matchVelocity,
-	const core::vector3df& target,
-	const f32 tendencyTowardsPlace,
-	const f32 tendencyAvoidPlace,
-	const bool scatterFlock,
-	const f32 scatterFlockModifier,
-	const f32 deltaTime,
-	const f32 speedLimit
+		scene::ITriangleSelector* const selector,
+		const core::array<BoidSceneNode*>& boids,
+		const f32 distanceToOtherBoids,
+		const f32 seekCenterOfMass,
+		const f32 matchVelocity,
+		const core::vector3df& target,
+		const f32 tendencyTowardsPlace,
+		const f32 tendencyAvoidPlace,
+		const bool scatterFlock,
+		const f32 scatterFlockModifier,
+		const f32 deltaTime,
+		const f32 speedLimit
 #ifdef _SOUND
-	, irrklang::ISoundEngine* const soundEngine, const bool soundEnabled
+		, irrklang::ISoundEngine* const soundEngine, const bool soundEnabled
 #endif
-	)
+)
 {
 	if (this->perching)
 	{
 		this->perchTimer -= deltaTime;
 
-		if (this->perchTimer > 0)
+		if (this->perchTimer > 0.0f)
 		{
 			//dont apply rules if boid is perching
 			return;
@@ -341,7 +382,7 @@ void BoidSceneNode::applyRules(
 
 	//avoid: Avoid ground and check if a boid wants to perch (if boid is touching the terrain already)
 	this->groundRay = core::line3d<irr::f32>(
-		this->RelativeTranslation, this->RelativeTranslation - irr::core::vector3df(0.0f, mimimumAboveGround, 0.0f));
+			this->RelativeTranslation, this->RelativeTranslation - irr::core::vector3df(0.0f, mimimumAboveGround, 0.0f));
 
 	//cast ray downwards to see if boid touches the terrain
 	core::vector3df outCollisionPoint;
@@ -350,25 +391,36 @@ void BoidSceneNode::applyRules(
 	if (this->SceneManager->getSceneCollisionManager()->getCollisionPoint(
 			this->groundRay, selector, outCollisionPoint, outTriangle, node))
 	{
-		//terrain is this->mimimumAboveGround or less below, go away or land if boid touches the terrain
+		//terrain is this->mimimumAboveGround or less below, go away or perch if boid touches the terrain
 		if (outCollisionPoint.Y >= this->RelativeTranslation.Y - this->radius)
 		{
-			//too late, we are already on the ground. start perching routine
-			this->startPerching(outCollisionPoint);
+			//too late, we are already on the ground. start perching routine or go away if we perched some time ago
+
+			if (this->dontPerchTimer > 0.0f)
+			{
+				//we were perching before, so use the avoid vector to stay away from the ground
+				this->avoid[0] = -tendencyAvoidPlace*(outCollisionPoint.X - this->RelativeTranslation.X)/tendencyTowardsPlace;
+				this->avoid[1] = -tendencyAvoidPlace*(outCollisionPoint.Y - this->RelativeTranslation.Y)/tendencyTowardsPlace;
+				this->avoid[2] = -tendencyAvoidPlace*(outCollisionPoint.Z - this->RelativeTranslation.Z)/tendencyTowardsPlace;
+			}
+			else
+			{
+				this->startPerching(outCollisionPoint);
 
 #ifdef _SOUND
-			//play landing sound
-			if (soundEngine && soundEnabled)
-			{
-				irrklang::ISound* const snd = soundEngine->play3D("media/sounds/mechanical_1.wav", this->RelativeTranslation, false, true);
-				if (snd)
+				//play landing sound
+				if (soundEngine && soundEnabled)
 				{
-					snd->setMinDistance(800.0f);
-					snd->setIsPaused(false);
-					snd->drop();
+					irrklang::ISound* const snd = soundEngine->play3D("media/sounds/mechanical_1.wav", this->RelativeTranslation, false, true);
+					if (snd)
+					{
+						snd->setMinDistance(800.0f);
+						snd->setIsPaused(false);
+						snd->drop();
+					}
 				}
-			}
 #endif
+			}
 		}
 		else //outCollisionPoint.Y < currentBoidPos.Y - radius
 		{
@@ -424,10 +476,6 @@ void BoidSceneNode::applyRules(
 
 void BoidSceneNode::startPerching(const core::vector3df& outCollisionPoint)
 {
-	//don't perch if we perched some time ago
-	if (this->dontPerchTimer > 0.0f)
-		return;
-
 	this->perching = true;
 
 	//land on ground
@@ -495,13 +543,13 @@ void BoidSceneNode::stopPerching()
 	this->setScale(core::vector3df(1.0f, 1.0f, 1.0f));
 
 	//a little help with takeoff ;)
-	this->velocity[1] = radius*5.0f;//?
+//	this->velocity[1] = radius*5.0f;//?
 
 	//change color
 	this->material.EmissiveColor.set(255, 255, 255, 0);
 
 	//reset perchTimer
-	this->perchTimer = 0;
+	this->perchTimer = 0.0f;
 
 	//don't perch again for 5 seconds
 	this->dontPerchTimer = 5.0f;
