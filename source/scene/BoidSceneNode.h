@@ -62,6 +62,9 @@ public:
 
 	u32 getMaterialCount() const;
 
+	/// The ID is currently abused in order for operator== to work. No changes allowed.
+	void setID(s32 id) { }
+
 	void setMesh(IMesh*);
 
 	//! Returns the current mesh
@@ -101,8 +104,14 @@ private:
 
 	void stopPerching();
 
+
+
 	///The mesh of the boid.
 	IMesh* const Mesh;
+
+	///Material to draw the mesh.
+	video::SMaterial material;
+
 
 	///The normals of the mesh
 	irr::video::S3DVertex* vertices;
@@ -110,9 +119,9 @@ private:
 	irr::u16* indices;
 	u32 numIndices;
 
+	///Material to draw the normals.
+	video::SMaterial normalsMaterial;
 
-	///Material to draw the mesh.
-	video::SMaterial material;
 
 
 	///only Y for now

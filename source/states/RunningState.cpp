@@ -11,6 +11,7 @@
 #include <ISceneNodeAnimatorCameraFPS.h>
 #include <IGUIEnvironment.h>
 #include <IGUIStaticText.h>
+#include <ISceneNodeAnimatorCollisionResponse.h>
 
 #include "../core/Demo.h"
 #include "../core/Configuration.h"
@@ -118,6 +119,8 @@ void RunningState::onEnter(Demo* const demo)
 	}
 #endif
 }
+
+bool crouch = false;
 
 void RunningState::onLeave(Demo* const demo)
 {
@@ -308,10 +311,35 @@ const bool RunningState::onEvent(Demo* const demo, const irr::SEvent& event)
 			return true;
 
 
+			case irr::KEY_KEY_C:
+			{
+				irr::scene::ISceneNodeAnimatorCollisionResponse* const anim = this->map->getAnim();
+				if (!anim->isFalling())
+				{
+					if (crouch)
+					{
+						irr::scene::ICameraSceneNode* const camera = demo->getSceneManager()->getActiveCamera();
+
+						anim->setEllipsoidTranslation(irr::core::vector3df(0.0f, 100.0f, 0.0f));
+						camera->setPosition(camera->getPosition() + irr::core::vector3df(0.0, 100.0f, 0.0f));
+						anim->setTargetNode(camera);
+						crouch = false;
+					}
+					else
+					{
+						anim->setEllipsoidTranslation(irr::core::vector3df(0.0f, 0.0f, 0.0f));
+						crouch = true;
+					}
+				}
+			}
+			return true;
+
+
 			default:
 				break;
 			}
 		}
+
 
 		keys[event.KeyInput.Key] = event.KeyInput.PressedDown;
 	}
@@ -383,16 +411,22 @@ void RunningState::onUpdate(Demo* const demo)
 	const irr::core::vector3df& camPos = camera->getPosition();
 	const irr::core::vector3df& camTarget = camera->getTarget();
 
+
+
 #ifdef _SOUND
 	//update sound listener
 	if (demo->getSoundEngine() && config->isSoundEnabled())
 		demo->getSoundEngine()->setListenerPosition(camPos, (camTarget - camPos));//.normalize());
 #endif
 
+
+
 	//update compass
 	irr::core::vector3df vec(0.0f, 0.0f, 1.0f);
 	camera->getAbsoluteTransformation().rotateVect(vec);
 	this->pgCompass->SetCompassHeading(vec.getHorizontalAngle().Y);
+
+
 
 	//update map
 	this->map->update(this->freezeTarget, camPos, camTarget, this->rightMouseButton);
@@ -409,6 +443,7 @@ void RunningState::onUpdate(Demo* const demo)
 			" Player:\n"
 			"   WASD / Arrows - Move\n"
 			"   SPACE - Jump\n"
+			"           C - Crouch\n"
 			"   Wheel - Zoom\n"
 			"           I - Invert: ");
 		t.append(config->isInvertMouse() ? L"(On)\n" : L"(Off)\n");

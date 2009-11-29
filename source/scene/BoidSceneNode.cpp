@@ -114,6 +114,8 @@ BoidSceneNode::BoidSceneNode(
 	}
 
 
+	this->normalsMaterial.Lighting = false;
+
 
 
 	this->al = 1.0f;
@@ -199,10 +201,7 @@ void BoidSceneNode::render()
 	//draw normals
 	if (DebugDataVisible & scene::EDS_NORMALS)
 	{
-		video::SMaterial mat;
-		mat.Lighting = false;
-
-		driver->setMaterial(mat);
+		driver->setMaterial(this->normalsMaterial);
 		driver->drawVertexPrimitiveList(this->vertices, this->numVertices, this->indices, this->numIndices/2,
 			irr::video::EVT_STANDARD, irr::scene::EPT_LINES, irr::video::EIT_16BIT);
 	}
@@ -267,6 +266,7 @@ void BoidSceneNode::applyRules(
 		else
 		{
 			this->stopPerching();
+			return;
 		}
 	}
 	else
@@ -422,9 +422,9 @@ void BoidSceneNode::applyRules(
 			//place, implemented above as 'seek' all that is required is a negative multiplier:
 
 			//avoid = -tendencyAvoidPlace*(outCollisionPoint - currentBoidPos)/tendencyTowardsPlace;
-			this->avoid[0] = -tendencyAvoidPlace*(outCollisionPoint.X - this->RelativeTranslation.X)/tendencyTowardsPlace;
-			this->avoid[1] = -tendencyAvoidPlace*(outCollisionPoint.Y - this->RelativeTranslation.Y)/tendencyTowardsPlace;
-			this->avoid[2] = -tendencyAvoidPlace*(outCollisionPoint.Z - this->RelativeTranslation.Z)/tendencyTowardsPlace;
+			this->avoid[0] = -tendencyAvoidPlace* ((outCollisionPoint.X - this->RelativeTranslation.X)/tendencyTowardsPlace);
+			this->avoid[1] = -tendencyAvoidPlace* ((outCollisionPoint.Y - this->RelativeTranslation.Y)/tendencyTowardsPlace);
+			this->avoid[2] = -tendencyAvoidPlace* ((outCollisionPoint.Z - this->RelativeTranslation.Z)/tendencyTowardsPlace);
 		}
 	}
 

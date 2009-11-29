@@ -455,6 +455,10 @@ void Map::loadDefault()
 	for (irr::u32 numLight = 0; numLight < 5; ++numLight)
 	{
 		light[numLight] = smgr->addLightSceneNode();
+
+	//	irr::video::SLight& lightData = light[numLight]->getLightData();
+	//	lightData.DiffuseColor = irr::video::SColorf(0.0f, 0.0f, 0.5f);
+
 		light[numLight]->setRadius(3000.0f);
 
 		lightBillboard[numLight] = smgr->addBillboardSceneNode(light[numLight], irr::core::dimension2d<irr::f32>(200.0f, 200.0f));
@@ -469,10 +473,10 @@ void Map::loadDefault()
 		lightSel->drop();
 
 		smgr->addBillboardTextSceneNode(
-				demo->getFont(), L"Light", lightBillboard[numLight],
-				irr::core::dimension2df(120.0f, 100.0f),
-				irr::core::vector3df(0.0f, 100.0f, 0.0f), -1,
-				irr::video::SColor(255, 255, 0, 255), irr::video::SColor(255, 255, 255, 255));
+			demo->getFont(), L"Light", lightBillboard[numLight],
+			irr::core::dimension2df(120.0f, 100.0f),
+			irr::core::vector3df(0.0f, 100.0f, 0.0f), -1,
+			irr::video::SColor(255, 255, 0, 255), irr::video::SColor(255, 255, 255, 255));
 	}
 
 	glow->drop();
