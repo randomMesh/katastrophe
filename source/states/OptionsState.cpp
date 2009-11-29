@@ -729,22 +729,11 @@ const bool OptionsState::onEvent(Demo* const demo, const irr::SEvent& event)
 				this->speedLimitBox->setText(L"400.0");
 				this->scatterFlockBox->setText(L"2.0");
 				this->seekCenterBox->setText(L"80.0");
-				this->distanceBox->setText(L"100.0");
+				this->distanceBox->setText(L"50.0");
 				this->matchVelocityBox->setText(L"80.0");
 				this->tendencyTowardsBox->setText(L"80.0");
 				this->tendencyAvoidBox->setText(L"100.0");
 				this->aboveGroundBox->setText(L"200.0");
-
-
-				Configuration* const config = demo->getConfiguration();
-				config->setSpeedLimit(atof(irr::core::stringc(this->speedLimitBox->getText()).c_str()));
-				config->setScatterFlockModifier(atof(irr::core::stringc(this->scatterFlockBox->getText()).c_str()));
-				config->setSeekCenterOfMass(atof(irr::core::stringc(this->seekCenterBox->getText()).c_str()));
-				config->setDistanceToOtherBoids(atof(irr::core::stringc(this->distanceBox->getText()).c_str()));
-				config->setMatchVelocity(atof(irr::core::stringc(this->matchVelocityBox->getText()).c_str()));
-				config->setTendencyTowardsPlace(atof(irr::core::stringc(this->tendencyTowardsBox->getText()).c_str()));
-				config->setTendencyAvoidPlace(atof(irr::core::stringc(this->tendencyAvoidBox->getText()).c_str()));
-				config->setMinimumAboveGround(atof(irr::core::stringc(this->aboveGroundBox->getText()).c_str()));
 
 				return true;
 			}
