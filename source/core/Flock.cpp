@@ -80,15 +80,13 @@ void Flock::update(irr::scene::ITriangleSelector* const selector, const bool sca
 
 irr::scene::BoidSceneNode* const Flock::addBoid(irr::scene::IMesh* const boidMesh)
 {
-	const irr::f32 posX = (float)demo->getRandomNumberGenerator().randInt(1500) + 500;
-	const irr::f32 posY = (float)demo->getRandomNumberGenerator().randInt(1500) + 500;
-	const irr::f32 posZ = (float)demo->getRandomNumberGenerator().randInt(1500) + 500;
-	const irr::f64 percent = demo->getRandomNumberGenerator().rand();
+	MTRand& rng = demo->getRandomNumberGenerator();
 
-	bool w = percent < 0.5 ? true : false;
-
-
-	printf("%u %u %u %f\n", posX, posY, posZ, percent);
+	const irr::f32 posX = (float)rng.randInt(1500) + 1500;
+	const irr::f32 posY = (float)rng.randInt(1500) + 1500;
+	const irr::f32 posZ = (float)rng.randInt(1500) + 1500;
+	const irr::f64 percent = rng.rand();
+	const bool w = percent < 0.5 ? true : false;
 
 	irr::scene::BoidSceneNode* const boid = new irr::scene::BoidSceneNode(boidMesh,
 		target + irr::core::vector3df(w ? posX : -posX, posY, w ? -posZ : posZ), this->borders, this->demo->getConfiguration()->getMimimumAboveGround(),

@@ -41,7 +41,7 @@ public:
 
 	~BoidSceneNode();
 
-	//To compare boids ID is set to static u32 boidID;
+	//To compare boids. ID is set to ++boidID, do not change!
 	bool operator==(const BoidSceneNode& other) const { return (this->ID == other.ID); }
 	bool operator!=(const BoidSceneNode& other) const { return !(*this == other); }
 
