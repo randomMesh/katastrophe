@@ -82,44 +82,36 @@ BoidSceneNode::BoidSceneNode(
 	}
 
 
-	//make list
+	//make vertex primitive list
 
-	const irr::u32 numNormals = normals.size();
+	const u32 numNormals = normals.size();
 
 	//this is for a line list with 2 lines per normal for rendering velocity and the ground ray
 	this->numIndices = numNormals*2;
 	this->numVertices = numNormals*2;
 
 	// create an index buffer for rendering line segments
-	this->indices = new irr::u16[this->numIndices];
-	for (irr::u32 i = 0; i < this->numIndices; ++i)
+	this->indices = new u16[this->numIndices];
+	for (u32 i = 0; i < this->numIndices; ++i)
 		this->indices[i] = i;
 
 	// create a vertex buffer for all of the line segments
 	this->vertices = new video::S3DVertex[this->numVertices];
 
 	// add vertices for each normal
-	irr::u32 vIndex = 0;
-	for (irr::u32 n = 0; n < numNormals; ++n)
+	u32 vIndex = 0;
+	for (u32 n = 0; n < numNormals; ++n)
 	{
-		const irr::core::line3df& normal = normals[n];
+		const core::line3df& normal = normals[n];
 
 		//normal
-		vertices[vIndex].Pos = normal.start;
-		vertices[vIndex].Color.set(255, 128, 128, 0);
-		vertices[vIndex + 1].Pos = normal.end;
-		vertices[vIndex + 1].Color.set(255, 128, 128, 0);
+		this->vertices[vIndex].Pos = normal.start;
+		this->vertices[vIndex].Color.set(255, 255, 255, 0);
+		this->vertices[vIndex + 1].Pos = normal.end;
+		this->vertices[vIndex + 1].Color.set(255, 128, 128, 0);
 
 		vIndex += 2;
 	}
-
-
-
-
-
-
-
-
 
 
 
@@ -139,11 +131,9 @@ BoidSceneNode::~BoidSceneNode()
 }
 
 const core::aabbox3d<float>& BoidSceneNode::getBoundingBox() const
-		{
-	return Mesh ? Mesh->getBoundingBox() : Box;
-		}
-
-
+{
+	return Mesh->getBoundingBox();
+}
 
 void BoidSceneNode::OnAnimate(u32 timeMs)
 {
@@ -233,9 +223,9 @@ void BoidSceneNode::setMesh(IMesh*)
 }
 
 bool BoidSceneNode::isReadOnlyMaterials() const
-		{
+{
 	return false;
-		}
+}
 
 void BoidSceneNode::setReadOnlyMaterials(bool)
 {
