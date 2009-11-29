@@ -366,6 +366,7 @@ void Map::loadDefault()
 	this->ps->setMaterialFlag(irr::video::EMF_LIGHTING, false);
 	this->ps->setMaterialTexture(0, driver->getTexture("media/images/omg.png"));
 	this->ps->setMaterialType(irr::video::EMT_TRANSPARENT_VERTEX_ALPHA);
+	this->ps->setMaterialFlag(irr::video::EMF_ZWRITE_ENABLE, false);
 
 	irr::scene::IParticleEmitter* const em = this->ps->createBoxEmitter(
 			irr::core::aabbox3d<irr::f32>(-250.0f, -50.0f, -50.0f, 250.0f, 50.0f, 500.0f), // emitter size

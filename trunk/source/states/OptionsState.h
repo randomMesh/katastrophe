@@ -89,6 +89,8 @@ private:
 
 	irr::gui::IGUIEditBox* aboveGroundBox;
 
+	irr::gui::IGUIButton* resetButton;
+
 	//video tab
 
 	irr::gui::IGUIComboBox* driverSelectionBox;

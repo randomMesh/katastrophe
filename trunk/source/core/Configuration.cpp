@@ -26,13 +26,13 @@ Configuration::Configuration() :
 
 	//flock
 	scatterFlockModifier(2.0f),
-	seekCenterOfMass(30.0f),
-	distanceToOtherBoids(20.0f),
+	seekCenterOfMass(80.0f),
+	distanceToOtherBoids(100.0f),
 	matchVelocity(80.0f),
-	tendencyTowardsPlace(30.0f),
-	tendencyAvoidPlace(15.0f),
+	tendencyTowardsPlace(80.0f),
+	tendencyAvoidPlace(100.0f),
 	minimumAboveGround(200.0f),
-	speedLimit(20.0f),
+	speedLimit(400.0f),
 
 	//grass
 	showGrass(false),

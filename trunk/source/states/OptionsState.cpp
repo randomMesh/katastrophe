@@ -39,6 +39,7 @@ window(0), backButton(0), saveButton(0),
 //flock rules tab
 speedLimitBox(0), scatterFlockBox(0), seekCenterBox(0), distanceBox(0),
 matchVelocityBox(0), tendencyTowardsBox(0), tendencyAvoidBox(0), aboveGroundBox(0),
+resetButton(0),
 
 //video tab
 driverSelectionBox(0), resolutionSelectionBox(0), fullscreenBox(0), stencilbufferBox(0), vsyncBox(0),
@@ -68,13 +69,11 @@ OptionsState::~OptionsState()
 	if (this->backButton)
 	{
 		this->backButton->remove();
-		this->backButton->drop();
 	}
 
 	if (this->saveButton)
 	{
 		this->saveButton->remove();
-		this->saveButton->drop();
 	}
 
 	if (grassGeneratorNode)
@@ -160,7 +159,7 @@ void OptionsState::onEnter(Demo* const demo)
 
 
 
-	//add back button
+	//add buttons
 	irr::video::ITexture* const buttonTexture = driver->getTexture("media/images/button.png");
 	if (buttonTexture)
 	{
@@ -170,14 +169,11 @@ void OptionsState::onEnter(Demo* const demo)
 		this->backButton->setImage(buttonTexture);
 		this->backButton->setUseAlphaChannel(true);
 		this->backButton->setDrawBorder(false);
-		this->backButton->grab();
-
 
 		this->saveButton = guienv->addButton(irr::core::rect<irr::s32>(SX(20), SY(280), SX(20) + buttonSize.Width, SY(280) + buttonSize.Height), 0, -1, L"[S]ave");
 		this->saveButton->setImage(buttonTexture);
 		this->saveButton->setUseAlphaChannel(true);
 		this->saveButton->setDrawBorder(false);
-		this->saveButton->grab();
 	}
 
 
@@ -239,9 +235,9 @@ void OptionsState::onEnter(Demo* const demo)
 
 		//title text
 		text = guienv->addStaticText(
-				L"You are going to edit the rules of the flock. Be careful!",
+				L"Edit the rules of the flock.",
 				irr::core::rect<irr::s32>(horizontalBorder, 20, posX2, 40), false, false, rulesTab);
-		text->setOverrideColor(irr::video::SColor(255, 255, 0, 0));
+		text->setOverrideColor(titleColor);
 
 
 		text = guienv->addStaticText(L"Speed limit",
@@ -317,6 +313,18 @@ void OptionsState::onEnter(Demo* const demo)
 		this->aboveGroundBox = guienv->addEditBox(
 				irr::core::stringw(config->getMimimumAboveGround()).c_str(),
 				irr::core::rect<irr::s32>(depp, 260, posX2, 280), true, rulesTab);
+
+		//add reset button
+		if (buttonTexture)
+		{
+			const irr::core::dimension2du& buttonSize = buttonTexture->getSize();
+			const irr::u32 buttonX = (tabControlWidth - buttonSize.Width)/2;
+			this->resetButton = guienv->addButton(
+				irr::core::rect<irr::s32>(buttonX, 290, buttonX + buttonSize.Width, 290 + buttonSize.Height), rulesTab, -1, L"Reset", L"Resets the flock rules to the default values");
+			this->resetButton->setImage(buttonTexture);
+			this->resetButton->setUseAlphaChannel(true);
+			this->resetButton->setDrawBorder(false);
+		}
 	}
 
 	//video tab
@@ -652,11 +660,9 @@ void OptionsState::onLeave(Demo* const demo)
 	this->window = 0;
 
 	this->backButton->remove();
-	this->backButton->drop();
 	this->backButton = 0;
 
 	this->saveButton->remove();
-	this->saveButton->drop();
 	this->saveButton = 0;
 }
 
@@ -712,6 +718,37 @@ const bool OptionsState::onEvent(Demo* const demo, const irr::SEvent& event)
 				this->saveSettings(demo);
 				return true;
 			}
+
+			else if (event.GUIEvent.Caller == this->resetButton)
+			{
+#ifdef _SOUND
+				if (demo->getSoundEngine() && demo->getConfiguration()->isSoundEnabled())
+					demo->getSoundEngine()->play2D("media/sounds/button.wav");
+#endif
+				//reset flock rules to default
+				this->speedLimitBox->setText(L"400.0");
+				this->scatterFlockBox->setText(L"2.0");
+				this->seekCenterBox->setText(L"80.0");
+				this->distanceBox->setText(L"100.0");
+				this->matchVelocityBox->setText(L"80.0");
+				this->tendencyTowardsBox->setText(L"80.0");
+				this->tendencyAvoidBox->setText(L"100.0");
+				this->aboveGroundBox->setText(L"200.0");
+
+
+				Configuration* const config = demo->getConfiguration();
+				config->setSpeedLimit(atof(irr::core::stringc(this->speedLimitBox->getText()).c_str()));
+				config->setScatterFlockModifier(atof(irr::core::stringc(this->scatterFlockBox->getText()).c_str()));
+				config->setSeekCenterOfMass(atof(irr::core::stringc(this->seekCenterBox->getText()).c_str()));
+				config->setDistanceToOtherBoids(atof(irr::core::stringc(this->distanceBox->getText()).c_str()));
+				config->setMatchVelocity(atof(irr::core::stringc(this->matchVelocityBox->getText()).c_str()));
+				config->setTendencyTowardsPlace(atof(irr::core::stringc(this->tendencyTowardsBox->getText()).c_str()));
+				config->setTendencyAvoidPlace(atof(irr::core::stringc(this->tendencyAvoidBox->getText()).c_str()));
+				config->setMinimumAboveGround(atof(irr::core::stringc(this->aboveGroundBox->getText()).c_str()));
+
+				return true;
+			}
+
 		}
 
 

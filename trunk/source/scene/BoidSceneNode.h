@@ -89,7 +89,7 @@ public:
 #endif
 	);
 
-	inline const f32* getVelocity() const { return this->velocity; }
+	inline const f32* const getVelocity() const { return this->velocity; }
 
 	inline const irr::core::line3d<f32>& getGroundRay() const { return this->groundRay; }
 
@@ -110,9 +110,6 @@ private:
 	irr::u16* indices;
 	u32 numIndices;
 
-
-	///The boundingbox.
-	core::aabbox3d<f32> Box;
 
 	///Material to draw the mesh.
 	video::SMaterial material;
