@@ -170,22 +170,6 @@ void Map::loadDefault()
 
 
 
-	//create flock
-	const irr::core::aabbox3df& tb = this->terrain->getBoundingBox();
-	const irr::f32 borders[4] = { 0.0f, tb.getExtent().X, 0.0f, tb.getExtent().Z }; //Xmin, Xmax, Zmin, Zmax
-
-//	const irr::core::vector3df flockTarget(3000.0f, 700.0f, 4000.0f);
-
-	this->flock = new Flock(this->demo, playerStartTarget, borders);
-
-	boidSelector = smgr->createMetaTriangleSelector();
-
-	//add boids to flock
-	for (irr::u32 i = 0; i < 20; ++i)
-		this->addBoid();
-
-
-
 	//create lens flare node
 	irr::scene::CLensFlareSceneNode* const flare = new irr::scene::CLensFlareSceneNode(smgr->getRootSceneNode(), smgr);
 	flare->setPosition(irr::core::vector3df(this->terrain->getTerrainCenter().X, 5500.0f, this->terrain->getTerrainCenter().Z));
@@ -328,16 +312,9 @@ void Map::loadDefault()
 	this->teleporters.push_back(teleporter);
 	//teleporter->setDebugDataVisible(irr::scene::EDS_BBOX); //show bounds of placeA and placeB
 
-	//add scene nodes which are effected by the teleporter
+	//add camera to the teleporter
 	teleporter->addNodeToWatchList(camera);
-/*
-	//add boids to teleporter watch list
-	const irr::core::array<irr::scene::BoidSceneNode*>& boids = this->flock->getBoids();
-	for(irr::u32 i = 0; i < boids.size(); ++i)
-	{
-		teleporter->addNodeToWatchList(boids[i]);
-	}
-*/
+
 
 
 
@@ -349,6 +326,19 @@ void Map::loadDefault()
 	//add trees
 	this->forest = new Forest(this->demo->getDevice(), this->terrain, exceptions);
 	//this->forest->randomlyPlaceVegetation(50);
+
+
+
+	//create flock
+	this->boidSelector = smgr->createMetaTriangleSelector();
+	const irr::core::aabbox3df& tb = this->terrain->getBoundingBox();
+	const irr::f32 borders[4] = { 0.0f, tb.getExtent().X, 0.0f, tb.getExtent().Z }; //Xmin, Xmax, Zmin, Zmax
+
+	this->flock = new Flock(this->demo, playerStartTarget, borders);
+
+	//add boids to flock
+	for (irr::u32 i = 0; i < 20; ++i)
+		this->addBoid();
 
 
 
@@ -598,8 +588,9 @@ void Map::update(const bool freezeTarget, const irr::core::vector3df& camPos, co
 	//check if we target a boid
 	if (this->collmgr->getCollisionPoint(line, this->boidSelector, intersection, tri, node))
 	{
-		irr::scene::BoidSceneNode* const boid = (irr::scene::BoidSceneNode* const)node;
-		this->removeBoid(boid);
+//		irr::scene::BoidSceneNode* const boid = (irr::scene::BoidSceneNode* const)node;
+
+		//this->removeBoid(boid);
 	}
 
 	//check rest
@@ -757,11 +748,14 @@ void Map::drawDebug() const
 	// add vertices for each boid
 	static irr::f32 velocity[3];
 	irr::u32 vIndex = 0;
+	const irr::scene::BoidSceneNode* boid = 0;
 	for (irr::u32 p = 0; p < numBoids; ++p)
 	{
+		boid = boids[p];
+
 		//get velocity and ground ray
-		memcpy(velocity, boids[p]->getVelocity(), sizeof(irr::f32)*3);
-		const irr::core::vector3df& boidPos = boids[p]->getPosition();
+		memcpy(velocity, boid->getVelocity(), sizeof(irr::f32)*3);
+		const irr::core::vector3df& boidPos = boid->getPosition();
 
 		//line 1 (velocity)
 		vertices[vIndex].Pos = boidPos;
@@ -772,7 +766,7 @@ void Map::drawDebug() const
 		//line 2 (ground ray)
 		vertices[vIndex + 2].Pos = boidPos;
 		vertices[vIndex + 2].Color.set(255, 0, 0, 255);
-		vertices[vIndex + 3].Pos = boids[p]->getGroundRay().end;
+		vertices[vIndex + 3].Pos = boid->getGroundRay().end;
 		vertices[vIndex + 3].Color.set(255, 255, 0, 0);
 
 		vIndex += 4;

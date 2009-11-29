@@ -157,6 +157,11 @@ private:
 
 	///The ray to test for terrain collision.
 	core::line3d<f32> groundRay;
+
+
+	f32 al;
+	f32 lastScaleTime;
+	bool forward;
 };
 
 }

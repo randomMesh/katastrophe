@@ -82,6 +82,11 @@ BoidSceneNode::BoidSceneNode(
 		}
 	}
 
+
+	this->al = 1.0f;
+	this->lastScaleTime = 0.0f;
+	this->forward = true;
+
 	++boidID;
 }
 
@@ -95,43 +100,42 @@ const core::aabbox3d<float>& BoidSceneNode::getBoundingBox() const
 	return Mesh ? Mesh->getBoundingBox() : Box;
 }
 
-f32 al = 0.0f;
-f32 lastScaleTime = 0.0f;
-bool forward = true;
+
 
 void BoidSceneNode::OnAnimate(u32 timeMs)
 {
 	if (this->perching)
 	{
-		const f32 elapsed = (timeMs - lastScaleTime);
-		lastScaleTime += elapsed;
+
+		const f32 elapsed = (timeMs - this->lastScaleTime);
+		this->lastScaleTime += elapsed;
 
 
-		if (forward)
+		if (this->forward)
 		{
-			al += .01;
+			this->al += .1;
 
-			if (al > 2)
+			if (this->al > 2.0f)
 			{
-				al = 2;
-				forward = !forward;
+				this->al = 2.0f;
+				this->forward = !this->forward;
 			}
 		}
 		else
 		{
-			al -= .01;
+			this->al -= .1;
 
-			if (al < 1.0f)
+			if (this->al < 1.0f)
 			{
-				al = 1;
-				forward = !forward;
+				al = 1.0f;
+				this->forward = !this->forward;
 			}
 		}
 
-		if (elapsed > 1500.0)
+		if (elapsed > 100.0)
 		{
 			this->RelativeScale = irr::core::vector3df(al, al, al);
-			lastScaleTime = 0;
+			this->lastScaleTime = 0;
 		}
 
 	}
@@ -482,6 +486,10 @@ void BoidSceneNode::startPerching(const core::vector3df& outCollisionPoint)
 void BoidSceneNode::stopPerching()
 {
 	this->perching = false;
+
+	this->forward = true; //reset scaling
+	this->al = 1.0f;
+	this->lastScaleTime = 0.0f;
 
 	//reset scale to normal scale
 	this->setScale(core::vector3df(1.0f, 1.0f, 1.0f));
