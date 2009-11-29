@@ -48,8 +48,8 @@ void Flock::update(irr::scene::ITriangleSelector* const selector, const bool sca
 	const bool soundEnabled = this->demo->getConfiguration()->isSoundEnabled();
 #endif
 
-	irr::u32 current;
-	for (current = 0; current < numBoids; ++current)
+
+	for (irr::u32 current = 0; current < numBoids; ++current)
 	{
 		//apply rules to boid
 		this->boids[current]->applyRules(

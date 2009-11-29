@@ -14,6 +14,11 @@ namespace irrklang
 
 namespace irr
 {
+namespace video
+{
+class S3DVertex;
+}
+
 namespace scene
 {
 
@@ -100,7 +105,11 @@ private:
 	IMesh* const Mesh;
 
 	///The normals of the mesh
-	core::array<core::line3df> normals;
+	irr::video::S3DVertex* vertices;
+	u32 numVertices;
+	irr::u16* indices;
+	u32 numIndices;
+
 
 	///The boundingbox.
 	core::aabbox3d<f32> Box;
