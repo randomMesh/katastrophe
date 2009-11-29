@@ -263,7 +263,7 @@ void BoidSceneNode::applyRules(
 	const u32 numBoids = boids.size();
 	u32 boidsPerching = 0;
 
-	BoidSceneNode* otherBoid = 0;
+	const BoidSceneNode* otherBoid = 0;
 	for (u32 other = 0; other < numBoids; ++other)
 	{
 		otherBoid = boids[other];
@@ -303,24 +303,24 @@ void BoidSceneNode::applyRules(
 	}
 
 	const irr::u32 numBoidsNotPerchingExceptThis = numBoids - boidsPerching - 1;
+	if (numBoidsNotPerchingExceptThis > 0)
+	{
+		this->rule_1[0] /= numBoidsNotPerchingExceptThis;
+		this->rule_1[1] /= numBoidsNotPerchingExceptThis;
+		this->rule_1[2] /= numBoidsNotPerchingExceptThis;
 
-	this->rule_1[0] /= numBoidsNotPerchingExceptThis;
-	this->rule_1[1] /= numBoidsNotPerchingExceptThis;
-	this->rule_1[2] /= numBoidsNotPerchingExceptThis;
+		this->rule_1[0] = (this->rule_1[0] - this->RelativeTranslation.X)/seekCenterOfMass;
+		this->rule_1[1] = (this->rule_1[1] - this->RelativeTranslation.Y)/seekCenterOfMass;
+		this->rule_1[2] = (this->rule_1[2] - this->RelativeTranslation.Z)/seekCenterOfMass;
 
-	this->rule_1[0] = (this->rule_1[0] - this->RelativeTranslation.X)/seekCenterOfMass;
-	this->rule_1[1] = (this->rule_1[1] - this->RelativeTranslation.Y)/seekCenterOfMass;
-	this->rule_1[2] = (this->rule_1[2] - this->RelativeTranslation.Z)/seekCenterOfMass;
+		this->rule_3[0] /= (numBoidsNotPerchingExceptThis);
+		this->rule_3[1] /= (numBoidsNotPerchingExceptThis);
+		this->rule_3[2] /= (numBoidsNotPerchingExceptThis);
 
-
-	this->rule_3[0] /= (numBoidsNotPerchingExceptThis);
-	this->rule_3[1] /= (numBoidsNotPerchingExceptThis);
-	this->rule_3[2] /= (numBoidsNotPerchingExceptThis);
-
-	this->rule_3[0] = (this->rule_3[0] - this->velocity[0])/matchVelocity;
-	this->rule_3[1] = (this->rule_3[1] - this->velocity[1])/matchVelocity;
-	this->rule_3[2] = (this->rule_3[2] - this->velocity[2])/matchVelocity;
-
+		this->rule_3[0] = (this->rule_3[0] - this->velocity[0])/matchVelocity;
+		this->rule_3[1] = (this->rule_3[1] - this->velocity[1])/matchVelocity;
+		this->rule_3[2] = (this->rule_3[2] - this->velocity[2])/matchVelocity;
+	}
 
 	//own rules
 

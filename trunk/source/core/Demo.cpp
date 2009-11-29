@@ -12,7 +12,6 @@
 #endif
 
 #include "MersenneTwister.h"
-#include <ctime>
 
 Demo::Demo(Configuration* const configuration, irr::IrrlichtDevice* const device
 #ifdef _SOUND
