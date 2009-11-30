@@ -156,8 +156,63 @@ void RunningState::onLeave(Demo* const demo)
 const bool RunningState::onEvent(Demo* const demo, const irr::SEvent& event)
 {
 
+	//check mouse events
+	if(irr::EET_MOUSE_INPUT_EVENT == event.EventType)
+	{
+
+		if (irr::EMIE_MOUSE_MOVED == event.MouseInput.Event)
+		{
+			this->mousePos.X = event.MouseInput.X;
+			this->mousePos.Y = event.MouseInput.Y;
+
+			return false; //if we return true here, our fps camera doesn't work anymore
+		}
+
+		//check right mouse button
+		if (irr::EMIE_RMOUSE_PRESSED_DOWN == event.MouseInput.Event)
+		{
+			this->rightMouseButton = true;
+
+			return true;
+		}
+		else if (irr::EMIE_RMOUSE_LEFT_UP == event.MouseInput.Event)
+		{
+			this->rightMouseButton = false;
+
+			return true;
+		}
+
+
+		//check middle mouse button
+		else if (irr::EMIE_MMOUSE_LEFT_UP == event.MouseInput.Event)
+		{
+			this->freezeTarget = !this->freezeTarget;
+
+			return true;
+		}
+
+		//check mouse wheel
+		else if (irr::EMIE_MOUSE_WHEEL == event.MouseInput.Event)
+		{
+			irr::scene::ICameraSceneNode* const camera = demo->getSceneManager()->getActiveCamera();
+
+			//zoom camera
+			irr::f32 newFOV = camera->getFOV();
+
+			if (event.MouseInput.Wheel < 0)
+				newFOV = irr::core::min_(newFOV + irr::core::DEGTORAD, irr::core::PI*0.5f);
+			else
+				newFOV = irr::core::max_(newFOV - irr::core::DEGTORAD, irr::core::PI*0.0125f);
+
+			camera->setFOV(newFOV);
+
+			return true;
+		}
+	}
+
+
 	//check keyboard events
-	if (event.EventType == irr::EET_KEY_INPUT_EVENT)
+	else if (event.EventType == irr::EET_KEY_INPUT_EVENT)
 	{
 		if (!event.KeyInput.PressedDown)
 		{
@@ -343,63 +398,6 @@ const bool RunningState::onEvent(Demo* const demo, const irr::SEvent& event)
 
 		keys[event.KeyInput.Key] = event.KeyInput.PressedDown;
 	}
-
-
-
-	//check mouse events
-	else if(irr::EET_MOUSE_INPUT_EVENT == event.EventType)
-	{
-
-		if (irr::EMIE_MOUSE_MOVED == event.MouseInput.Event)
-		{
-			this->mousePos.X = event.MouseInput.X;
-			this->mousePos.Y = event.MouseInput.Y;
-
-			return false; //if we return true here, our fps camera doesn't work anymore
-		}
-
-		//check right mouse button
-		if (irr::EMIE_RMOUSE_PRESSED_DOWN == event.MouseInput.Event)
-		{
-			this->rightMouseButton = true;
-
-			return true;
-		}
-		else if (irr::EMIE_RMOUSE_LEFT_UP == event.MouseInput.Event)
-		{
-			this->rightMouseButton = false;
-
-			return true;
-		}
-
-
-		//check middle mouse button
-		else if (irr::EMIE_MMOUSE_LEFT_UP == event.MouseInput.Event)
-		{
-			this->freezeTarget = !this->freezeTarget;
-
-			return true;
-		}
-
-		//check mouse wheel
-		else if (irr::EMIE_MOUSE_WHEEL == event.MouseInput.Event)
-		{
-			irr::scene::ICameraSceneNode* const camera = demo->getSceneManager()->getActiveCamera();
-
-			//zoom camera
-			irr::f32 newFOV = camera->getFOV();
-
-			if (event.MouseInput.Wheel < 0)
-				newFOV = irr::core::min_(newFOV + irr::core::DEGTORAD, irr::core::PI*0.5f);
-			else
-				newFOV = irr::core::max_(newFOV - irr::core::DEGTORAD, irr::core::PI*0.0125f);
-
-			camera->setFOV(newFOV);
-
-			return true;
-		}
-	}
-
 
 	return false;
 }

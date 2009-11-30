@@ -25,8 +25,10 @@ BoidSceneNode::BoidSceneNode(
 		IMeshSceneNode(mgr->getRootSceneNode(), mgr, boidID, position),
 		Mesh(boidMesh),
 		perching(false), perchTimer(0.0f), dontPerchTimer(0.0f),
-		mimimumAboveGround(mimimumAboveGround)
-		{
+		mimimumAboveGround(mimimumAboveGround),
+
+		firstUpdate(true), lastAnimationTime(0), forward(true)
+{
 #ifdef _DEBUG
 	setDebugName("BoidSceneNode");
 #endif
@@ -116,12 +118,6 @@ BoidSceneNode::BoidSceneNode(
 
 	this->normalsMaterial.Lighting = false;
 
-
-
-	this->al = 1.0f;
-	this->lastScaleTime = 0.0f;
-	this->forward = true;
-
 	++boidID;
 }
 
@@ -139,42 +135,35 @@ const core::aabbox3d<float>& BoidSceneNode::getBoundingBox() const
 
 void BoidSceneNode::OnAnimate(u32 timeMs)
 {
+	if (firstUpdate)
+	{
+		this->lastAnimationTime = timeMs;
+		firstUpdate = false;
+	}
+
+	const f32 elapsed = (timeMs - this->lastAnimationTime)*0.001;
+	this->lastAnimationTime = timeMs;
+
+
 	if (this->perching)
 	{
 
-		const f32 elapsed = (timeMs - this->lastScaleTime);
-		this->lastScaleTime += elapsed;
-
-
 		if (this->forward)
 		{
-			this->al += .1;
+			this->RelativeScale += irr::core::vector3df(1, 1, 1)*elapsed;
 
-			if (this->al > 2.0f)
-			{
-				this->al = 2.0f;
-				this->forward = !this->forward;
-			}
+			if (this->RelativeScale.X > 2.0f)
+				this->forward = false;
 		}
 		else
 		{
-			this->al -= .1;
+			this->RelativeScale -= irr::core::vector3df(1, 1, 1)*elapsed;
 
-			if (this->al < 1.0f)
-			{
-				al = 1.0f;
-				this->forward = !this->forward;
-			}
-		}
-
-		if (elapsed > 100.0)
-		{
-			this->RelativeScale = irr::core::vector3df(al, al, al);
-			this->lastScaleTime = 0;
+			if (this->RelativeScale.X < 1.0f)
+				this->forward = true;
 		}
 
 	}
-
 
 	ISceneNode::OnAnimate(timeMs);
 }
@@ -530,8 +519,7 @@ void BoidSceneNode::stopPerching()
 	this->perching = false;
 
 	this->forward = true; //reset scaling
-	this->al = 1.0f;
-	this->lastScaleTime = 0.0f;
+//	this->lastScaleTime = 0;
 
 	//reset scale to normal scale
 	this->setScale(core::vector3df(1.0f, 1.0f, 1.0f));

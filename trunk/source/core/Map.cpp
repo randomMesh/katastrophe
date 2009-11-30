@@ -34,6 +34,7 @@
 #endif
 
 #include <IrrlichtDevice.h>
+//#include <IMeshManipulator.h>
 
 Map::Map(Demo* const demo) :
 	demo(demo), flock(0),
@@ -160,6 +161,8 @@ void Map::loadDefault()
 	this->terrain->scaleTexture(1.0f, 50.0f);
 
 
+//	irr::scene::IMesh* terrainMesh = terrain->getMesh();
+//	smgr->getMeshManipulator()->recalculateNormals(terrainMesh, true, true);
 
 
 	// create triangle selector for the terrain

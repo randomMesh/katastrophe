@@ -14,7 +14,9 @@ namespace scene
 
 WhirlSceneNode::WhirlSceneNode(const u32 num, ISceneNode* const parent, ISceneManager* const mgr, s32 id, const f32 distance) :
 	ISceneNode(parent, mgr, id),
-	num(num)
+	num(num),
+
+	speed(200), diff(0), firstUpdate(true), lastScaleTime(0)
 {
 
 #ifdef _DEBUG
@@ -30,17 +32,15 @@ WhirlSceneNode::WhirlSceneNode(const u32 num, ISceneNode* const parent, ISceneMa
 		this->stars[i].dist = (f32(i)/num)*distance;
 	}
 
-	video::ITexture* const texture = SceneManager->getVideoDriver()->getTexture("media/images/star.bmp");
-
 	this->Material.Lighting = false;
 	this->Material.MaterialType = video::EMT_TRANSPARENT_ADD_COLOR;
-	this->Material.TextureLayer[0].Texture = texture;
+	this->Material.TextureLayer[0].Texture = SceneManager->getVideoDriver()->getTexture("media/images/star.bmp");;
 	this->Material.ZWriteEnable = false;
 
-	this->vertices[0] = irr::video::S3DVertex(-0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, irr::video::SColor(), 0.0f, 0.0f); //top left
-	this->vertices[1] = irr::video::S3DVertex( 0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, irr::video::SColor(), 1.0f, 0.0f); //top right
-	this->vertices[2] = irr::video::S3DVertex(-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, irr::video::SColor(), 0.0f, 1.0f); //bottom left
-	this->vertices[3] = irr::video::S3DVertex( 0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, irr::video::SColor(), 1.0f, 1.0f); //bottom right
+	this->vertices[0] = video::S3DVertex(-0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, video::SColor(), 0.0f, 0.0f); //top left
+	this->vertices[1] = video::S3DVertex( 0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, video::SColor(), 1.0f, 0.0f); //top right
+	this->vertices[2] = video::S3DVertex(-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, video::SColor(), 0.0f, 1.0f); //bottom left
+	this->vertices[3] = video::S3DVertex( 0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, video::SColor(), 1.0f, 1.0f); //bottom right
 
 	this->indices[0] = 0;
 	this->indices[1] = 1;
@@ -54,8 +54,6 @@ WhirlSceneNode::WhirlSceneNode(const u32 num, ISceneNode* const parent, ISceneMa
 	this->Box.reset(this->vertices[0].Pos);
 	for (u32  i = 1; i < 4; ++i)
 		this->Box.addInternalPoint(this->vertices[i].Pos);
-
-//	this->updateAbsolutePosition();
 }
 
 void WhirlSceneNode::OnRegisterSceneNode()
@@ -66,25 +64,34 @@ void WhirlSceneNode::OnRegisterSceneNode()
 	ISceneNode::OnRegisterSceneNode();
 }
 
-const irr::core::aabbox3d<irr::f32>& WhirlSceneNode::getBoundingBox() const
+const core::aabbox3d<f32>& WhirlSceneNode::getBoundingBox() const
 {
 	return this->Box;
 }
 
-irr::u32 WhirlSceneNode::getMaterialCount() const
+u32 WhirlSceneNode::getMaterialCount() const
 {
 	return 1;
 }
 
-irr::video::SMaterial& WhirlSceneNode::getMaterial(irr::u32 i)
+video::SMaterial& WhirlSceneNode::getMaterial(irr::u32 i)
 {
 	return this->Material;
 }
 
-void WhirlSceneNode::OnAnimate(irr::u32 timeMs)
+void WhirlSceneNode::OnAnimate(u32 timeMs)
 {
+	if (this->firstUpdate)
+	{
+		this->lastScaleTime = timeMs;
+		this->firstUpdate = false;
+	}
+
+	this->diff = (timeMs - this->lastScaleTime)*0.001;
+	this->lastScaleTime = timeMs;
+
 	//always face camera
-	this->RelativeRotation = irr::core::vector3df(
+	this->RelativeRotation = core::vector3df(
 		this->AbsoluteTransformation.getTranslation() - SceneManager->getActiveCamera()->getAbsolutePosition()).getHorizontalAngle();
 
 	ISceneNode::OnAnimate(timeMs);
@@ -93,31 +100,37 @@ void WhirlSceneNode::OnAnimate(irr::u32 timeMs)
 
 void WhirlSceneNode::render()
 {
-	irr::video::IVideoDriver* const driver = this->SceneManager->getVideoDriver();
+	video::IVideoDriver* const driver = this->SceneManager->getVideoDriver();
 	driver->setMaterial(this->Material);
 
-	irr::core::matrix4 rot, pos, world;
+	core::matrix4 rot, pos, world;
 
-	irr::u32 i;
-	for(i = 0; i < this->num; ++i)
+	for(u32 i = 0; i < this->num; ++i)
 	{
 		this->vertices[0].Color = this->stars[i].color;
 		this->vertices[1].Color = this->stars[i].color;
 		this->vertices[2].Color = this->stars[i].color;
 		this->vertices[3].Color = this->stars[i].color;
 
-		this->stars[i].angle += ((irr::f32)i)/(this->num*25); //TODO: make frame rate independent
+		this->stars[i].angle += ((f32)i)/(this->num*100)*speed*diff;
 
-		pos.setTranslation(irr::core::vector3df(this->stars[i].dist, 0.0f, 0.0f));
-		rot.setRotationRadians(irr::core::vector3df(0.0f, 0.0f, this->stars[i].angle));
+		pos.setTranslation(core::vector3df(this->stars[i].dist, 0.0f, 0.0f));
+		rot.setRotationRadians(core::vector3df(0.0f, 0.0f, this->stars[i].angle));
 		world = this->AbsoluteTransformation*rot*pos*rot;
 
-		driver->setTransform(irr::video::ETS_WORLD, world);
+		driver->setTransform(video::ETS_WORLD, world);
 		driver->drawIndexedTriangleList(&this->vertices[0], 4, &this->indices[0], 2);
-	}
 
-	if (DebugDataVisible & scene::EDS_BBOX)
-		driver->draw3DBox(this->Box, video::SColor(255, 255, 255, 255));
+		if (DebugDataVisible & scene::EDS_BBOX)
+		{
+			video::SMaterial mat;
+			mat.Lighting = false;
+			driver->setMaterial(mat);
+			driver->draw3DBox(this->Box, video::SColor(this->stars[i].color));
+
+			driver->setMaterial(this->Material); //reset
+		}
+	}
 }
 
 } // end namespace scene
