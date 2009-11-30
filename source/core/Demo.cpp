@@ -33,7 +33,9 @@ font(0),
 timer(device->getTimer()),
 then(timer->getTime()),
 now(0),
-elapsed(0.0f)
+elapsed(0.0f),
+
+rng(new MTRand(time(NULL)))
 {
 	//grab pointers to engines
 	device->grab();
@@ -49,8 +51,6 @@ elapsed(0.0f)
 
 	//setup material for debugging
 	this->debugMat.Lighting = false;
-
-	this->rng = new MTRand(time(NULL));
 }
 
 Demo::~Demo()

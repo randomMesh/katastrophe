@@ -55,11 +55,10 @@ private:
 
 	void teleport(ISceneNode* const node, const bool fromAToB);
 
-	const Demo* const demo; //needed for the timer
+	const Demo* const demo;
 
 	///A list of all scene nodes which are able to teleport with this teleporter.
 	core::list<ISceneNode* const> nodesToWatch;
-
 
 
 	///This box defines the area of place A.
@@ -90,6 +89,10 @@ private:
 	video::SMaterial Material;
 
 	core::aabbox3d<f32> Box;
+
+
+	bool firstUpdate;
+	u32 lastAnimationTime;
 };
 
 } // end namespace scene

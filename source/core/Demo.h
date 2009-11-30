@@ -125,7 +125,7 @@ public:
 	///\return The elapsed time.
 	inline const irr::f32 getElapsed() const { return this->elapsed; }
 
-	inline MTRand& getRandomNumberGenerator() const { return *this->rng; }
+	inline MTRand* const getRandomNumberGenerator() const { return this->rng; }
 
 private:
 

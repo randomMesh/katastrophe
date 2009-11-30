@@ -9,8 +9,8 @@
 #include <ISceneNodeAnimatorCollisionResponse.h>
 #include <ICameraSceneNode.h>
 
-#include "../core/Configuration.h"
 #include "../core/Demo.h"
+#include "../core/Configuration.h"
 #include "WhirlSceneNode.h"
 
 #ifdef _SOUND
@@ -34,7 +34,9 @@ TeleporterSceneNode::TeleporterSceneNode(
 	placeA(placeA), placeB(placeB), viceversa(viceversa),
 	useLookDirA(useLookDirA), useLookDirB(useLookDirB),
 	placeALookDir(placeALookDir), placeBLookDir(placeBLookDir),
-	dontTeleport(false), dontTeleportTimer(0.0f)
+	dontTeleport(false), dontTeleportTimer(0.0f),
+
+	firstUpdate(true), lastAnimationTime(0)
 {
 #ifdef _DEBUG
 	setDebugName("TeleporterSceneNode");
@@ -100,6 +102,16 @@ irr::video::SMaterial& TeleporterSceneNode::getMaterial(irr::u32 i)
 
 void TeleporterSceneNode::OnAnimate(irr::u32 timeMs)
 {
+	if (firstUpdate)
+	{
+		this->lastAnimationTime = timeMs;
+		firstUpdate = false;
+	}
+
+
+	const f32 elapsed = (timeMs - this->lastAnimationTime)*0.001;
+	this->lastAnimationTime = timeMs;
+
 
 	if (!this->dontTeleport)
 	{
@@ -124,14 +136,16 @@ void TeleporterSceneNode::OnAnimate(irr::u32 timeMs)
 	}
 	else
 	{
-		this->dontTeleportTimer -= this->demo->getElapsed();
+		this->dontTeleportTimer -= elapsed; //this->demo->getElapsed();
 
 		if (this->dontTeleportTimer <= 0.0f)
 		{
 			this->dontTeleport = false;
 
-			this->whirl[0]->setVisible(true);
-			this->whirl[1]->setVisible(true);
+			//this->whirl[0]->setVisible(true);
+			//this->whirl[1]->setVisible(true);
+			this->whirl[0]->setSpeed(200);
+			this->whirl[1]->setSpeed(200);
 		}
 	}
 
@@ -182,6 +196,7 @@ void TeleporterSceneNode::teleport(ISceneNode* const node, const bool fromAToB)
 	//'teleport' the node
 	node->setPosition(fromAToB ? this->placeB.getCenter() : this->placeA.getCenter());
 
+
 	//if it's a camera, set animator target
 	if (node == SceneManager->getActiveCamera())
 	{
@@ -197,6 +212,8 @@ void TeleporterSceneNode::teleport(ISceneNode* const node, const bool fromAToB)
 			((scene::ICameraSceneNode*)node)->setTarget(this->placeALookDir);
 		}
 	}
+
+
 
 	//now the interesting stuff: update animators if any
 	const core::list<ISceneNodeAnimator*> anims = node->getAnimators();
@@ -228,8 +245,11 @@ void TeleporterSceneNode::teleport(ISceneNode* const node, const bool fromAToB)
 	this->dontTeleport = true;
 	this->dontTeleportTimer = 3.0f;
 
-	this->whirl[0]->setVisible(false);
-	this->whirl[1]->setVisible(false);
+//	this->whirl[0]->setVisible(false);
+//	this->whirl[1]->setVisible(false);
+
+	this->whirl[0]->setSpeed(-800);
+	this->whirl[1]->setSpeed(-800);
 
 #ifdef _SOUND
 	irrklang::ISoundEngine* const soundEngine = this->demo->getSoundEngine();

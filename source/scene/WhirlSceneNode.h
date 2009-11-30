@@ -35,6 +35,8 @@ public:
 
 	video::SMaterial& getMaterial(u32 i);
 
+	inline void setSpeed(const s32 speed) { this->speed = speed; }
+
 private:
 
 	video::S3DVertex vertices[4];
@@ -55,6 +57,12 @@ private:
 	};
 
 	core::array<Star> stars;
+
+
+	s32 speed;
+	f32 diff;
+	bool firstUpdate;
+	u32 lastScaleTime;
 };
 
 } // end namespace scene

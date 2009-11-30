@@ -174,8 +174,8 @@ private:
 	core::line3d<f32> groundRay;
 
 
-	f32 al;
-	f32 lastScaleTime;
+	bool firstUpdate;
+	u32 lastAnimationTime;
 	bool forward;
 };
 
