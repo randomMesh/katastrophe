@@ -6,6 +6,7 @@
 #define BOIDSCENENODE_H_
 
 #include <IMeshSceneNode.h>
+#include <S3DVertex.h>
 
 namespace irrklang
 {
@@ -14,10 +15,6 @@ namespace irrklang
 
 namespace irr
 {
-namespace video
-{
-class S3DVertex;
-}
 
 namespace scene
 {
@@ -92,7 +89,7 @@ public:
 #endif
 	);
 
-	inline const f32* const getVelocity() const { return this->velocity; }
+	inline const core::vector3df& getVelocity() const { return this->velocity; }
 
 	inline const irr::core::line3d<f32>& getGroundRay() const { return this->groundRay; }
 
@@ -100,14 +97,38 @@ private:
 
 	static u32 boidID;
 
+	//! The three boids rules sufficiently demonstrate a complex emergent flocking behaviour.
+	/// They are all that is required to simulate a distributed, leaderless flocking behaviour.
+	const core::vector3df doReynolds(
+		const core::array<BoidSceneNode*>& boids,
+		const f32 distanceToOtherBoids,
+		const f32 seekCenterOfMass,
+		const f32 matchVelocity,
+		const bool scatterFlock,
+		const f32 scatterFlockModifier) const;
+
+	///Makes the boid fly towards the target.
+	//\return The offset vector to be added to the velocity.
+	const core::vector3df seekTarget(const core::vector3df& target, const f32 tendencyTowardsPlace) const;
+
+	const core::vector3df bindPosition(scene::ITriangleSelector* const selector, const f32 tendencyTowardsPlace, const f32 tendencyAvoidPlace);
+
+	void limitSpeed(const f32 speedLimit);
+
+
 	void startPerching(const core::vector3df& outCollisionPoint);
 
 	void stopPerching();
 
 
-
 	///The mesh of the boid.
 	IMesh* const Mesh;
+
+	video::S3DVertex Vertices[4];
+
+	u16 Indices[12];
+
+	core::aabbox3df Box;
 
 	///Material to draw the mesh.
 	video::SMaterial material;
@@ -123,13 +144,8 @@ private:
 	video::SMaterial normalsMaterial;
 
 
-
-	///only Y for now
-	f32 radius;
-
-
 	///The current speed of a boid. Is set by applying the rules to the boid.
-	f32 velocity[3];
+	core::vector3df velocity;
 
 
 
@@ -144,30 +160,10 @@ private:
 
 
 
-	///Boids try to fly towards the centre of mass of neighbouring boids.
-	f32 rule_1[3];
-
-	///Boids try to keep a small distance away from other objects (including other boids).
-	f32 rule_2[3];
-
-	///Boids try to match velocity with near boids.
-	f32 rule_3[3];
-
-
-	///Tendency towards a particular place
-	f32 seek[3];
-
-	///Tendency away from a particular place
-	f32 avoid[3];
-
-
 	///Xmin, Xmax, Zmin, Zmax
 	f32 borders[4];
 
 	f32 mimimumAboveGround;
-
-	///Velocity to avoid borders.
-	f32 avoidBorders[2];
 
 
 	///The ray to test for terrain collision.

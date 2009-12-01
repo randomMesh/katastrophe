@@ -75,6 +75,8 @@ void Flock::update(irr::scene::ITriangleSelector* const selector, const bool sca
 			, soundEngine, soundEnabled
 #endif
 		);
+
+
 	}
 }
 
@@ -103,18 +105,15 @@ bool Flock::removeBoid(irr::scene::BoidSceneNode* const boid)
 {
 	const irr::u32 numBoids = this->boids.size();
 
-	if (numBoids > 2) // there should be at least 2 boids in the flock
+	for(irr::u32 i = 0; i < numBoids; ++i)
 	{
-		for(irr::u32 i = 0; i < numBoids; ++i)
+		if (*this->boids[i] == *boid)
 		{
-			if (*this->boids[i] == *boid)
-			{
-				boid->remove();
-				boid->drop(); //?
-				this->boids.erase(i);
+			boid->remove();
+			boid->drop();
+			this->boids.erase(i);
 
-				return true;
-			}
+			return true;
 		}
 	}
 
