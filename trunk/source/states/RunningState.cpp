@@ -25,6 +25,7 @@
 #include <ik_ISoundEngine.h>
 #endif
 
+
 RunningState::RunningState() :
 	map(0),
 	pgCompass(0), infoText(0),
@@ -337,7 +338,12 @@ const bool RunningState::onEvent(Demo* const demo, const irr::SEvent& event)
 
 			case irr::KEY_MINUS:
 			{
-				const bool success = this->map->removeBoid(this->map->getFlock()->getBoids().getLast());
+				const irr::core::array<irr::scene::BoidSceneNode*>& boids = this->map->getFlock()->getBoids();
+
+				if (!boids.size())
+					return true;
+
+				const bool success = this->map->removeBoid(boids.getLast());
 #ifdef _SOUND
 				if (success && demo->getSoundEngine() && demo->getConfiguration()->isSoundEnabled())
 					demo->getSoundEngine()->play2D("media/sounds/button.wav");

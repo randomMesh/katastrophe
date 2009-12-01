@@ -33,9 +33,27 @@ BoidSceneNode::BoidSceneNode(
 	setDebugName("BoidSceneNode");
 #endif
 
+	video::SColor bodyColor(255, 255, 255, 0);
+	video::SColor headColor(255, 255, 0, 0);
+
+	Vertices[0] = video::S3DVertex(0.0f, 0.0f, 50.f,	1.0f, 1.0f, 0.0f, headColor, 0.0f, 1.0f);
+	Vertices[1] = video::S3DVertex(40.f, 0.0f, -50.f,	1.0f, 0.0f, 0.0f, bodyColor, 1.0f, 1.0f);
+	Vertices[2] = video::S3DVertex(-40.f, 0.0f, -50.f,	0.0f, 0.0f, 1.0f, bodyColor, 0.0f, 0.0f);
+	Vertices[3] = video::S3DVertex(0.0f, 50.f, -40.f,	0.0f, 1.0f, 1.0f, bodyColor, 1.0f, 0.0f);
+
+	Indices[0] = 2; Indices[1] = 0; Indices[2] = 3;
+	Indices[3] = 2; Indices[4] = 1; Indices[5] = 0;
+	Indices[6] = 0; Indices[7] = 1; Indices[8] = 3;
+	Indices[9] = 1; Indices[10] = 2; Indices[11] = 3;
+
+	Box.reset(Vertices[0].Pos);
+	for (s32 i = 1; i < 4; ++i)
+		Box.addInternalPoint(Vertices[i].Pos);
+
+
+
 	boidMesh->grab();
 
-	this->radius = this->Mesh->getBoundingBox().getExtent().Y/2;
 
 	this->material.TextureLayer[0].Texture = SceneManager->getVideoDriver()->getTexture("media/images/temporal-wake.jpg");
 	this->material.Shininess = 128.0f;
@@ -48,7 +66,7 @@ BoidSceneNode::BoidSceneNode(
 	memcpy(this->borders, borders, sizeof(irr::f32)*4);
 
 	//set velocity to 0
-	memset(this->velocity, 0, sizeof(irr::f32)*3);
+	//	memset(this->velocity, 0, sizeof(irr::f32)*3);
 
 	//init ground ray
 	this->groundRay.start = this->RelativeTranslation;
@@ -130,7 +148,8 @@ BoidSceneNode::~BoidSceneNode()
 
 const core::aabbox3d<float>& BoidSceneNode::getBoundingBox() const
 {
-	return Mesh->getBoundingBox();
+	//return Mesh->getBoundingBox();
+	return Box;
 }
 
 void BoidSceneNode::OnAnimate(u32 timeMs)
@@ -150,14 +169,14 @@ void BoidSceneNode::OnAnimate(u32 timeMs)
 
 		if (this->forward)
 		{
-			this->RelativeScale += irr::core::vector3df(1, 1, 1)*elapsed;
+			this->RelativeScale += irr::core::vector3df(1.0f, 1.0f, 1.0f)*elapsed;
 
 			if (this->RelativeScale.X > 2.0f)
 				this->forward = false;
 		}
 		else
 		{
-			this->RelativeScale -= irr::core::vector3df(1, 1, 1)*elapsed;
+			this->RelativeScale -= irr::core::vector3df(1.0f, 1.0f, 1.0f)*elapsed;
 
 			if (this->RelativeScale.X < 1.0f)
 				this->forward = true;
@@ -180,30 +199,32 @@ void BoidSceneNode::render()
 {
 	video::IVideoDriver* const driver = SceneManager->getVideoDriver();
 
+
 	//draw mesh
-	const IMeshBuffer* const mb = Mesh->getMeshBuffer(0);
+//	const IMeshBuffer* const mb = Mesh->getMeshBuffer(0);
 	driver->setMaterial(this->material);
 	driver->setTransform(video::ETS_WORLD, this->AbsoluteTransformation);
-	driver->drawMeshBuffer(mb);
-
+//	driver->drawMeshBuffer(mb);
+	driver->drawIndexedTriangleList(&Vertices[0], 4, &Indices[0], 4);
 
 	//draw normals
 	if (DebugDataVisible & scene::EDS_NORMALS)
 	{
 		driver->setMaterial(this->normalsMaterial);
 		driver->drawVertexPrimitiveList(this->vertices, this->numVertices, this->indices, this->numIndices/2,
-			irr::video::EVT_STANDARD, irr::scene::EPT_LINES, irr::video::EIT_16BIT);
+				irr::video::EVT_STANDARD, irr::scene::EPT_LINES, irr::video::EIT_16BIT);
 	}
 
 	//draw oabb
 	if (DebugDataVisible & scene::EDS_BBOX)
-		driver->draw3DBox(mb->getBoundingBox(), video::SColor(255,255,255,255));
+		//driver->draw3DBox(mb->getBoundingBox(), video::SColor(255,255,255,255));
+		driver->draw3DBox(Box, video::SColor(255,255,255,255));
 }
 
 u32 BoidSceneNode::getMaterialCount() const
-{
+		{
 	return 1;
-}
+		}
 
 void BoidSceneNode::setMesh(IMesh*)
 {
@@ -211,9 +232,9 @@ void BoidSceneNode::setMesh(IMesh*)
 }
 
 bool BoidSceneNode::isReadOnlyMaterials() const
-{
+		{
 	return false;
-}
+		}
 
 void BoidSceneNode::setReadOnlyMaterials(bool)
 {
@@ -224,6 +245,24 @@ video::SMaterial& BoidSceneNode::getMaterial(u32 i)
 {
 	return this->material;
 }
+
+
+const irr::core::vector3df gIrrGetLookAtRotationDegreesLH(const irr::core::vector3df& from, const irr::core::vector3df& target)
+{
+	core::matrix4 m, m2;
+	m.buildCameraLookAtMatrixLH(from, target, core::vector3df(0.0f, 1.0f, 0.0f));
+
+	if (m.getInverse(m2))
+		return m2.getRotationDegrees();
+	else
+	{
+		if ((target - from).Y < 0.0f)
+			return core::vector3df(90.0f, 0.0f, 0.0f);
+		else
+			return core::vector3df(-90.0f, 0.0f, 0.0f);
+	}
+}
+
 
 void BoidSceneNode::applyRules(
 		scene::ITriangleSelector* const selector,
@@ -239,25 +278,23 @@ void BoidSceneNode::applyRules(
 		const f32 deltaTime,
 		const f32 speedLimit
 #ifdef _SOUND
-		, irrklang::ISoundEngine* const soundEngine, const bool soundEnabled
+, irrklang::ISoundEngine* const soundEngine, const bool soundEnabled
 #endif
 )
 {
+
+	//check status
+
 	if (this->perching)
 	{
 		this->perchTimer -= deltaTime;
 
 		if (this->perchTimer > 0.0f)
-		{
-			//dont apply rules if boid is perching
-			return;
-		}
+			return; //dont apply the rules if boid is still perching
 		else
-		{
 			this->stopPerching();
-			return;
-		}
 	}
+
 	else
 	{
 		if (this->dontPerchTimer > 0.0f)
@@ -275,186 +312,30 @@ void BoidSceneNode::applyRules(
 		}
 	}
 
-	//reset rules
-	memset(this->rule_1,		0, sizeof(irr::f32)*3);
-	memset(this->rule_2,		0, sizeof(irr::f32)*3);
-	memset(this->rule_3,		0, sizeof(irr::f32)*3);
-	memset(this->seek,			0, sizeof(irr::f32)*3);
-	memset(this->avoid,			0, sizeof(irr::f32)*3);
-	memset(this->avoidBorders,	0, sizeof(irr::f32)*2); //only 2d
 
+	//rules by Reynolds (seperation, alignment, steer)
+	const core::vector3df& reynolds = this->doReynolds(boids, distanceToOtherBoids, seekCenterOfMass, matchVelocity, scatterFlock, scatterFlockModifier);
 
-	const u32 numBoids = boids.size();
-	u32 boidsPerching = 0;
+	//tendency towards a particular place
+	const core::vector3df& seek = scatterFlock ? irr::core::vector3df(0.0f, 0.0f, 0.0f) : this->seekTarget(target, tendencyTowardsPlace);
 
+	//check for borders and ground
+	const core::vector3df& avoid = this->bindPosition(selector, tendencyTowardsPlace, tendencyAvoidPlace);
 
-	//what's larger: radius or distanceToOtherBoids?
-	const u32 minDistance = this->radius < distanceToOtherBoids ? distanceToOtherBoids : this->radius;
-
-	const BoidSceneNode* otherBoid = 0;
-	for (u32 other = 0; other < numBoids; ++other)
-	{
-		otherBoid = boids[other];
-
-		if (*otherBoid != *this)
-		{
-			if (otherBoid->perching) // don't take perching boids into account
-			{
-				++boidsPerching;
-				continue;
-			}
-
-			//rule 1
-			this->rule_1[0] += otherBoid->RelativeTranslation.X;
-			this->rule_1[1] += otherBoid->RelativeTranslation.Y;
-			this->rule_1[2] += otherBoid->RelativeTranslation.Z;
-
-			//rule 2
-			if (fabs(otherBoid->RelativeTranslation.X - this->RelativeTranslation.X) < minDistance)
-			{
-				this->rule_2[0] -= otherBoid->RelativeTranslation.X - this->RelativeTranslation.X;
-			}
-			if (fabs(otherBoid->RelativeTranslation.Y - this->RelativeTranslation.Y) < minDistance)
-			{
-				this->rule_2[1] -= otherBoid->RelativeTranslation.Y - this->RelativeTranslation.Y;
-			}
-			if (fabs(otherBoid->RelativeTranslation.Z - this->RelativeTranslation.Z) < minDistance)
-			{
-				this->rule_2[2] -= otherBoid->RelativeTranslation.Z - this->RelativeTranslation.Z;
-			}
-
-			//rule 3
-			this->rule_3[0] += otherBoid->velocity[0];
-			this->rule_3[1] += otherBoid->velocity[1];
-			this->rule_3[2] += otherBoid->velocity[2];
-		}
-	}
-
-	const irr::u32 numBoidsNotPerchingExceptThis = numBoids - boidsPerching - 1;
-	if (numBoidsNotPerchingExceptThis > 0)
-	{
-		this->rule_1[0] /= numBoidsNotPerchingExceptThis;
-		this->rule_1[1] /= numBoidsNotPerchingExceptThis;
-		this->rule_1[2] /= numBoidsNotPerchingExceptThis;
-
-		this->rule_1[0] = (this->rule_1[0] - this->RelativeTranslation.X)/seekCenterOfMass;
-		this->rule_1[1] = (this->rule_1[1] - this->RelativeTranslation.Y)/seekCenterOfMass;
-		this->rule_1[2] = (this->rule_1[2] - this->RelativeTranslation.Z)/seekCenterOfMass;
-
-		this->rule_3[0] /= (numBoidsNotPerchingExceptThis);
-		this->rule_3[1] /= (numBoidsNotPerchingExceptThis);
-		this->rule_3[2] /= (numBoidsNotPerchingExceptThis);
-
-		this->rule_3[0] = (this->rule_3[0] - this->velocity[0])/matchVelocity;
-		this->rule_3[1] = (this->rule_3[1] - this->velocity[1])/matchVelocity;
-		this->rule_3[2] = (this->rule_3[2] - this->velocity[2])/matchVelocity;
-	}
-
-	//own rules
-
-	//seek : Tendency towards a particular place
-	if (!scatterFlock)
-	{
-		//Makes the boids in the flock fly towards the target.
-		//Especially for distant goals, one may want to limit the magnitude of the returned vector.
-		this->seek[0] = (target.X - this->RelativeTranslation.X)/tendencyTowardsPlace;
-		this->seek[1] = (target.Y - this->RelativeTranslation.Y)/tendencyTowardsPlace;
-		this->seek[2] = (target.Z - this->RelativeTranslation.Z)/tendencyTowardsPlace;
-	}
-
-
-	//avoid: Avoid ground and check if a boid wants to perch (if boid is touching the terrain already)
-	this->groundRay = core::line3d<irr::f32>(
-			this->RelativeTranslation, this->RelativeTranslation - irr::core::vector3df(0.0f, mimimumAboveGround, 0.0f));
-
-	//cast ray downwards to see if boid touches the terrain
-	core::vector3df outCollisionPoint;
-	core::triangle3df outTriangle;
-	const ISceneNode* node = 0;
-	if (this->SceneManager->getSceneCollisionManager()->getCollisionPoint(
-			this->groundRay, selector, outCollisionPoint, outTriangle, node))
-	{
-		//terrain is this->mimimumAboveGround or less below, go away or perch if boid touches the terrain
-		if (outCollisionPoint.Y >= this->RelativeTranslation.Y - this->radius)
-		{
-			//too late, we are already on the ground. start perching routine or go away if we perched some time ago
-
-			if (this->dontPerchTimer > 0.0f)
-			{
-				//we were perching before, so use the avoid vector to stay away from the ground
-				this->avoid[0] = -tendencyAvoidPlace*(outCollisionPoint.X - this->RelativeTranslation.X)/tendencyTowardsPlace;
-				this->avoid[1] = -tendencyAvoidPlace*(outCollisionPoint.Y - this->RelativeTranslation.Y)/tendencyTowardsPlace;
-				this->avoid[2] = -tendencyAvoidPlace*(outCollisionPoint.Z - this->RelativeTranslation.Z)/tendencyTowardsPlace;
-			}
-			else
-			{
-				this->startPerching(outCollisionPoint);
-
-#ifdef _SOUND
-				//play landing sound
-				if (soundEngine && soundEnabled)
-				{
-					irrklang::ISound* const snd = soundEngine->play3D("media/sounds/mechanical_1.wav", this->RelativeTranslation, false, true);
-					if (snd)
-					{
-						snd->setMinDistance(800.0f);
-						snd->setIsPaused(false);
-						snd->drop();
-					}
-				}
-#endif
-			}
-		}
-		else //outCollisionPoint.Y < currentBoidPos.Y - radius
-		{
-			//The calculation required is identical to that of moving towards a particular
-			//place, implemented above as 'seek' all that is required is a negative multiplier:
-
-			//avoid = -tendencyAvoidPlace*(outCollisionPoint - currentBoidPos)/tendencyTowardsPlace;
-			this->avoid[0] = -tendencyAvoidPlace* ((outCollisionPoint.X - this->RelativeTranslation.X)/tendencyTowardsPlace);
-			this->avoid[1] = -tendencyAvoidPlace* ((outCollisionPoint.Y - this->RelativeTranslation.Y)/tendencyTowardsPlace);
-			this->avoid[2] = -tendencyAvoidPlace* ((outCollisionPoint.Z - this->RelativeTranslation.Z)/tendencyTowardsPlace);
-		}
-	}
-
+	//bindPosition can make the boid perch, so check again
 	if (this->perching)
 		return;
 
-
-	//avoid x and z borders of the terrain
-	if (this->RelativeTranslation.X < this->borders[0])
-		this->avoidBorders[0] = tendencyTowardsPlace;
-	else if (this->RelativeTranslation.X > this->borders[1])
-		this->avoidBorders[0] = -tendencyTowardsPlace;
-
-	if (this->RelativeTranslation.Z < this->borders[2])
-		this->avoidBorders[1] = tendencyTowardsPlace;
-	else if (this->RelativeTranslation.Z > this->borders[3])
-		this->avoidBorders[1] = -tendencyTowardsPlace;
-
-
 	//set new velocity based upon rules
-	this->velocity[0] += ((scatterFlock ? -scatterFlockModifier*rule_1[0] : rule_1[0]) + rule_2[0] + rule_3[0] + seek[0] + avoid[0] + avoidBorders[0]);
-	this->velocity[1] += ((scatterFlock ? -scatterFlockModifier*rule_1[1] : rule_1[1]) + rule_2[1] + rule_3[1] + seek[1] + avoid[1]);
-	this->velocity[2] += ((scatterFlock ? -scatterFlockModifier*rule_1[2] : rule_1[2]) + rule_2[2] + rule_3[2] + seek[2] + avoid[2] + avoidBorders[1]);
+	this->velocity += reynolds + seek + avoid;
 
-
-	//Limiting the speed. It is a good idea to limit the magnitude of the boids' velocities,
-	//this way they don't go too fast. Without such limitations, their speed will actually
-	//fluctuate with a flocking-like tendency, and it is possible for them to momentarily go very fast.
-	const f32 absX = fabs(this->velocity[0]);
-	const f32 absY = fabs(this->velocity[1]);
-	const f32 absZ = fabs(this->velocity[2]);
-
-	if(absX > speedLimit)
-		this->velocity[0] = (this->velocity[0]/absX)*speedLimit;
-	if(absY > speedLimit)
-		this->velocity[1] = (this->velocity[1]/absY)*speedLimit;
-	if(absZ > speedLimit)
-		this->velocity[2] = (this->velocity[2]/absZ)*speedLimit;
+	this->limitSpeed(speedLimit);
 
 	//set new position based upon rules and elapsed time
-	this->RelativeTranslation += (core::vector3df(this->velocity[0], this->velocity[1], this->velocity[2])*deltaTime);
+	this->RelativeTranslation += this->velocity*deltaTime;
+
+	//turn boid
+	this->RelativeRotation = gIrrGetLookAtRotationDegreesLH(this->RelativeTranslation, this->RelativeTranslation + this->velocity);
 }
 
 void BoidSceneNode::startPerching(const core::vector3df& outCollisionPoint)
@@ -462,10 +343,10 @@ void BoidSceneNode::startPerching(const core::vector3df& outCollisionPoint)
 	this->perching = true;
 
 	//land on ground
-	this->RelativeTranslation.Y = outCollisionPoint.Y + radius;
+	this->RelativeTranslation.Y = outCollisionPoint.Y + this->Box.getExtent().Y/2;
 
 	//set velocity to 0
-	memset(this->velocity, 0, sizeof(irr::f32)*3);
+	this->velocity.set(0.0f, 0.0f, 0.0f);
 
 	//decide how long to stay
 	const irr::u32 perchTime = (rand()%6) + 3;
@@ -474,6 +355,7 @@ void BoidSceneNode::startPerching(const core::vector3df& outCollisionPoint)
 	//change color
 	this->material.EmissiveColor.set(255, 255, 0, 0);
 
+	this->groundRay.end = this->RelativeTranslation;
 
 
 	//create a particle system
@@ -512,6 +394,22 @@ void BoidSceneNode::startPerching(const core::vector3df& outCollisionPoint)
 	ISceneNodeAnimator* const anim = this->SceneManager->createDeleteAnimator(perchTime*1000);
 	ps->addAnimator(anim);
 	anim->drop();
+
+	/*
+#ifdef _SOUND
+	//play landing sound
+	if (soundEngine && soundEnabled)
+	{
+		irrklang::ISound* const snd = soundEngine->play3D("media/sounds/mechanical_1.wav", this->RelativeTranslation, false, true);
+		if (snd)
+		{
+			snd->setMinDistance(800.0f);
+			snd->setIsPaused(false);
+			snd->drop();
+		}
+	}
+#endif
+	 */
 }
 
 void BoidSceneNode::stopPerching()
@@ -519,13 +417,12 @@ void BoidSceneNode::stopPerching()
 	this->perching = false;
 
 	this->forward = true; //reset scaling
-//	this->lastScaleTime = 0;
 
 	//reset scale to normal scale
-	this->setScale(core::vector3df(1.0f, 1.0f, 1.0f));
+	this->RelativeScale = core::vector3df(1.0f, 1.0f, 1.0f);
 
-	//a little help with takeoff ;)
-//	this->velocity[1] = radius*5.0f;//?
+	//a little help with takeoff
+	this->RelativeTranslation += core::vector3df(0.0f, this->Box.getExtent().Y/2, 0.0f);
 
 	//change color
 	this->material.EmissiveColor.set(255, 255, 255, 0);
@@ -556,7 +453,7 @@ void BoidSceneNode::stopPerching()
 	em->drop();
 
 	//create particle affector
-	irr::scene::IParticleAffector* paf = ps->createFadeOutParticleAffector(irr::video::SColor(0,0,0,0), 200);
+	irr::scene::IParticleAffector* const paf = ps->createFadeOutParticleAffector(irr::video::SColor(0,0,0,0), 200);
 	ps->addAffector(paf);
 	paf->drop();
 
@@ -566,6 +463,154 @@ void BoidSceneNode::stopPerching()
 	anim->drop();
 
 	this->DebugDataVisible |= irr::scene::EDS_NORMALS;
+}
+
+
+bool inNeighborhood(const BoidSceneNode* const a, const BoidSceneNode* const b, const f32 radius)
+{
+	//simple sphere test
+
+	const core::vector3df relPos = a->getPosition() - b->getPosition();
+	const f32 dist = relPos.X*relPos.X + relPos.Y*relPos.Y + relPos.Z*relPos.Z;
+	const f32 minDist = radius + radius;
+
+	return dist <= minDist*minDist;
+}
+
+const core::vector3df BoidSceneNode::doReynolds(
+		const core::array<BoidSceneNode*>& boids,
+		const f32 distanceToOtherBoids,
+		const f32 seekCenterOfMass,
+		const f32 matchVelocity,
+		const bool scatterFlock,
+		const f32 scatterFlockModifier) const
+{
+	core::vector3df rule_1; //Boids try to fly towards the centre of mass of neighbouring boids.
+	core::vector3df rule_2; //Boids try to keep a small distance away from other objects (including other boids).
+	core::vector3df rule_3; //Boids try to match velocity with near boids.
+
+	const u32 numBoids = boids.size();
+	u32 numIgnoreBoids = 0;
+
+
+	//what's larger: radius or distanceToOtherBoids?
+	const u32 minDistance = this->Box.getExtent().Y/2 < distanceToOtherBoids ? distanceToOtherBoids : this->Box.getExtent().Y/2;
+
+	const BoidSceneNode* otherBoid = 0;
+	for (u32 other = 0; other < numBoids; ++other)
+	{
+		otherBoid = boids[other];
+
+		if (*otherBoid != *this)
+		{
+
+			// don't take boid into account which are not in our vicinity
+			// don't take perching boids into account
+			if (!inNeighborhood(this, otherBoid, (this->Box.getExtent().Y/2)*5) || otherBoid->perching)
+			{
+				++numIgnoreBoids;
+				continue;
+			}
+
+			rule_1 += otherBoid->RelativeTranslation;
+
+			//rule 2
+			if (fabs(otherBoid->RelativeTranslation.X - this->RelativeTranslation.X) < minDistance)
+			{
+				rule_2.X -= otherBoid->RelativeTranslation.X - this->RelativeTranslation.X;
+			}
+			if (fabs(otherBoid->RelativeTranslation.Y - this->RelativeTranslation.Y) < minDistance)
+			{
+				rule_2.Y -= otherBoid->RelativeTranslation.Y - this->RelativeTranslation.Y;
+			}
+			if (fabs(otherBoid->RelativeTranslation.Z - this->RelativeTranslation.Z) < minDistance)
+			{
+				rule_2.Z -= otherBoid->RelativeTranslation.Z - this->RelativeTranslation.Z;
+			}
+
+			rule_3 += otherBoid->velocity;
+		}
+	}
+
+	const irr::u32 numBoidsNotPerchingExceptThis = numBoids - numIgnoreBoids - 1;
+	if (numBoidsNotPerchingExceptThis > 0)
+	{
+		rule_1 /= numBoidsNotPerchingExceptThis;
+		rule_1 = (rule_1 - this->RelativeTranslation)/seekCenterOfMass;
+
+		rule_3 /= (numBoidsNotPerchingExceptThis);
+		rule_3 = (rule_3 - this->velocity)/matchVelocity;
+	}
+
+	return (scatterFlock ? -scatterFlockModifier*rule_1 : rule_1) + rule_2 + rule_3;
+}
+
+const core::vector3df BoidSceneNode::seekTarget(const core::vector3df& target, const f32 tendencyTowardsPlace) const
+{
+	//Especially for distant goals, one may want to limit the magnitude of the returned vector.
+	return core::vector3df((target - this->RelativeTranslation)/tendencyTowardsPlace);
+}
+
+const core::vector3df BoidSceneNode::bindPosition(scene::ITriangleSelector* const selector, const f32 tendencyTowardsPlace, const f32 tendencyAvoidPlace)
+{
+
+	core::vector3df aV;
+
+	//avoid x and z borders of the terrain
+	if (this->RelativeTranslation.X < this->borders[0])
+		aV.X = tendencyTowardsPlace;
+	else if (this->RelativeTranslation.X > this->borders[1])
+		aV.X = -tendencyTowardsPlace;
+
+	if (this->RelativeTranslation.Z < this->borders[2])
+		aV.Z = tendencyTowardsPlace;
+	else if (this->RelativeTranslation.Z > this->borders[3])
+		aV.Z = -tendencyTowardsPlace;
+
+	//ckeck ground
+	this->groundRay = core::line3d<irr::f32>(
+			this->RelativeTranslation, this->RelativeTranslation - irr::core::vector3df(0.0f, this->mimimumAboveGround, 0.0f));
+
+	//cast ray downwards to see if boid touches the terrain
+	core::vector3df outCollisionPoint;
+	core::triangle3df outTriangle;
+	const ISceneNode* node = 0;
+	if (this->SceneManager->getSceneCollisionManager()->getCollisionPoint(this->groundRay, selector, outCollisionPoint, outTriangle, node))
+	{
+		if (outCollisionPoint.Y >= this->RelativeTranslation.Y - this->Box.getExtent().Y/2)
+		{
+			if (this->dontPerchTimer > 0.0f)
+			{
+				//we were perching before, so use the avoid vector to stay away from the ground
+				aV += -tendencyAvoidPlace*this->seekTarget(outCollisionPoint, tendencyTowardsPlace);
+			}
+			else
+				this->startPerching(outCollisionPoint);
+		}
+		else
+		{
+			aV += -tendencyAvoidPlace*this->seekTarget(outCollisionPoint, tendencyTowardsPlace);
+		}
+	}
+
+	return aV;
+}
+
+void BoidSceneNode::limitSpeed(const f32 speedLimit)
+{
+	//Limiting the speed. It is a good idea to limit the magnitude of the boids' velocities,
+	//this way they don't go too fast. Without such limitations, their speed will actually
+	//fluctuate with a flocking-like tendency, and it is possible for them to momentarily go very fast.
+	const f32 absX = fabs(this->velocity.X);
+	const f32 absY = fabs(this->velocity.Y);
+	const f32 absZ = fabs(this->velocity.Z);
+
+	if(absX > speedLimit)
+		this->velocity.X = (this->velocity.X/absX)*speedLimit;
+	if(absY > speedLimit)
+		this->velocity.Y = (this->velocity.Y/absY)*speedLimit;
+	if(absZ > speedLimit)
+		this->velocity.Z = (this->velocity.Z/absZ)*speedLimit;
 }
 
 }

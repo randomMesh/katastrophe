@@ -29,7 +29,7 @@ Configuration::Configuration() :
 	seekCenterOfMass(80.0f),
 	distanceToOtherBoids(50.0f),
 	matchVelocity(80.0f),
-	tendencyTowardsPlace(20.0f),
+	tendencyTowardsPlace(50.0f),
 	tendencyAvoidPlace(100.0f),
 	minimumAboveGround(200.0f),
 	speedLimit(400.0f),

@@ -731,7 +731,7 @@ const bool OptionsState::onEvent(Demo* const demo, const irr::SEvent& event)
 				this->seekCenterBox->setText(L"80.0");
 				this->distanceBox->setText(L"50.0");
 				this->matchVelocityBox->setText(L"80.0");
-				this->tendencyTowardsBox->setText(L"20.0");
+				this->tendencyTowardsBox->setText(L"50.0");
 				this->tendencyAvoidBox->setText(L"100.0");
 				this->aboveGroundBox->setText(L"200.0");
 

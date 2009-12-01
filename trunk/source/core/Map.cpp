@@ -722,8 +722,6 @@ irr::scene::BoidSceneNode* const Map::addBoid()
 
 bool Map::removeBoid(irr::scene::BoidSceneNode* const boid)
 {
-	//if (numBoids > 2)
-
 	//remove boid from all teleporters
 	const irr::u32 numTeleporters = this->teleporters.size();
 	for (irr::u32 i = 0; i < numTeleporters; ++i)
@@ -754,7 +752,6 @@ void Map::drawDebug() const
 	irr::video::S3DVertex vertices[n_vertices];
 
 	// add vertices for each boid
-	static irr::f32 velocity[3];
 	irr::u32 vIndex = 0;
 	const irr::scene::BoidSceneNode* boid = 0;
 	for (irr::u32 p = 0; p < numBoids; ++p)
@@ -762,13 +759,12 @@ void Map::drawDebug() const
 		boid = boids[p];
 
 		//get velocity and ground ray
-		memcpy(velocity, boid->getVelocity(), sizeof(irr::f32)*3);
 		const irr::core::vector3df& boidPos = boid->getPosition();
 
 		//line 1 (velocity)
 		vertices[vIndex].Pos = boidPos;
 		vertices[vIndex].Color.set(255, 0, 255, 0);
-		vertices[vIndex + 1].Pos.set(boidPos + irr::core::vector3df(velocity[0], velocity[1], velocity[2]));
+		vertices[vIndex + 1].Pos.set(boidPos + boid->getVelocity());
 		vertices[vIndex + 1].Color.set(255, 255, 0, 0);
 
 		//line 2 (ground ray)
