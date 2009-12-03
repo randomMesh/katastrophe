@@ -80,17 +80,17 @@ void Flock::update(irr::scene::ITriangleSelector* const selector, const bool sca
 	}
 }
 
-irr::scene::BoidSceneNode* const Flock::addBoid(irr::scene::IMesh* const boidMesh)
+irr::scene::BoidSceneNode* const Flock::addBoid(irr::scene::IMeshBuffer* const shape)
 {
 	MTRand* const rng = demo->getRandomNumberGenerator();
 	rng->seed();
 
-	const irr::f32 posX = (float)rng->randInt(1500) + 1500;
-	const irr::f32 posY = (float)rng->randInt(1500) + 1500;
-	const irr::f32 posZ = (float)rng->randInt(1500) + 1500;
+	const irr::f32 posX = (float)rng->randInt(1000) + 1000;
+	const irr::f32 posY = (float)rng->randInt(1000) + 1000;
+	const irr::f32 posZ = (float)rng->randInt(1000) + 1000;
 
 	irr::scene::BoidSceneNode* const boid = new irr::scene::BoidSceneNode(
-		boidMesh,
+		shape,
 		target + irr::core::vector3df(rng->rand() < 0.5 ? posX : -posX, posY, rng->rand() < 0.5 ? posZ : -posZ),
 		this->borders,
 		this->demo->getConfiguration()->getMimimumAboveGround(),

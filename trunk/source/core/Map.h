@@ -25,6 +25,7 @@ namespace irr
 		class IVolumeLightSceneNode;
 
 		class BoidSceneNode;
+		class IMesh;
 	}
 }
 
@@ -90,8 +91,10 @@ private:
 
 	Demo* const demo;
 
+
 	Flock* flock;
 
+	irr::scene::IMesh* boidMesh;
 
 
 	///Initial player postion.

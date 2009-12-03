@@ -35,6 +35,9 @@ public:
 
 private:
 
+	//\return false if application should not start after parsing. e.g. showing help.
+	bool parseCommandLine(int argc, char* argv[]);
+
 	///A pointer to the configuration object.
 	Configuration* const configuration;
 

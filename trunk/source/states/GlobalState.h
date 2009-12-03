@@ -2,8 +2,8 @@
 // This file is part of the "Flocking boids" demo.
 // For conditions of distribution and use, see copyright notice in main.cpp
 
-#ifndef MYGLOBALSTATE_H_
-#define MYGLOBALSTATE_H_
+#ifndef GLOBALSTATE_H_
+#define GLOBALSTATE_H_
 
 #include "../core/statemanager/State.h"
 
@@ -36,4 +36,4 @@ private:
 	irr::s32 lastFPS;
 };
 
-#endif /*MYGLOBALSTATE_H_*/
+#endif /*GLOBALSTATE_H_*/
