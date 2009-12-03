@@ -30,8 +30,47 @@ Application::~Application()
 	delete this->configuration;
 }
 
+bool Application::parseCommandLine(int argc, char* argv[])
+{
+	//for now just use it for writing the boid mesh to file
+	if (argc > 1)
+	{
+		if (strcmp(argv[1],"-v") == 0 || strcmp(argv[1],"--version") == 0)
+		{
+			printf("Katastrophe V. 0.02\n");
+		}
+		else if(strcmp(argv[1],"-h") == 0 || strcmp(argv[1],"--help") == 0)
+		{
+			printf("Sorry, no help yet\n");
+		}
+		else if(strcmp(argv[1],"-w") == 0)
+		{
+			irr::IrrlichtDevice* device = irr::createDevice(irr::video::EDT_NULL);
+			Demo demo(0, device, 0);
+
+			irr::scene::IMesh* boidMesh = demo.createBoidMesh(1.0f);
+
+			irr::scene::IMeshWriter* mw = device->getSceneManager()->createMeshWriter(irr::scene::EMWT_OBJ);
+			irr::io::IWriteFile* file = device->getFileSystem()->createAndWriteFile("mesh.obj");
+			mw->writeMesh(file, boidMesh);
+
+			file->drop();
+			mw->drop();
+			boidMesh->drop();
+			device->drop();
+		}
+
+		return false;
+	}
+
+	return true;
+}
+
 bool Application::init(int argc, char* argv[])
 {
+	if (!parseCommandLine(argc, argv))
+		return false;
+
 	//read the configuration file
 	this->configuration->readFromFile("config.xml");
 

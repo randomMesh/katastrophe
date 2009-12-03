@@ -13,7 +13,7 @@ namespace irr
 	namespace scene
 	{
 		class BoidSceneNode;
-		class IMesh;
+		class IMeshBuffer;
 		class ITriangleSelector;
 	}
 };
@@ -33,7 +33,7 @@ public:
 	void update(irr::scene::ITriangleSelector* const selector, const bool scatterFlock) const;
 
 	///Adds a boid to the flock.
-	irr::scene::BoidSceneNode* const addBoid(irr::scene::IMesh* const boidMesh);
+	irr::scene::BoidSceneNode* const addBoid(irr::scene::IMeshBuffer* const shape);
 
 	///Removes a boid from the flock.
 	//\param The boid to remove.

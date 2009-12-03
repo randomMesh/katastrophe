@@ -32,7 +32,7 @@ Configuration::Configuration() :
 	tendencyTowardsPlace(50.0f),
 	tendencyAvoidPlace(100.0f),
 	minimumAboveGround(200.0f),
-	speedLimit(400.0f),
+	speedLimit(300.0f),
 
 	//grass
 	showGrass(false),

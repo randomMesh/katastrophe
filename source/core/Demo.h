@@ -19,6 +19,7 @@ namespace irr
 	namespace scene
 	{
 		class ISceneManager;
+		class IMesh;
 	}
 
 	namespace gui
@@ -98,6 +99,12 @@ public:
 		const bool bilinear = true,
 		const bool trilinear = false,
 		const irr::u16 anisotropic = 0) const;
+
+
+	irr::scene::IMesh* const createBoidMesh(
+		const irr::f32 size = 1.0f,
+		const irr::video::SColor& headColor = irr::video::SColor(255, 255, 0, 0),
+		const irr::video::SColor& bodyColor = irr::video::SColor(255, 255, 255, 0)) const;
 
 	//getter
 

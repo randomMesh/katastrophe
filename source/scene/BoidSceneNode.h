@@ -5,7 +5,7 @@
 #ifndef BOIDSCENENODE_H_
 #define BOIDSCENENODE_H_
 
-#include <IMeshSceneNode.h>
+#include <ISceneNode.h>
 #include <S3DVertex.h>
 
 namespace irrklang
@@ -19,6 +19,8 @@ namespace irr
 namespace scene
 {
 
+class IMeshBuffer;
+
 /**
  * This class implemnts a single boid in a flock
  *
@@ -29,13 +31,13 @@ namespace scene
  *  Alignment: steer towards the average heading of local flockmates
  *  Cohesion: steer to move toward the average position of local flockmates
  */
-class BoidSceneNode : public irr::scene::IMeshSceneNode
+class BoidSceneNode : public ISceneNode
 {
 
 public:
 
 	BoidSceneNode(
-		irr::scene::IMesh* const boidMesh,
+		IMeshBuffer* const shape,
 		const core::vector3df& position,
 		const irr::f32 borders[4],
 		const f32 mimimumAboveGround,
@@ -62,15 +64,6 @@ public:
 	/// The ID is currently abused in order for operator== to work. No changes allowed.
 	void setID(s32 id) { }
 
-	void setMesh(IMesh*);
-
-	//! Returns the current mesh
-	IMesh* getMesh() { return Mesh; }
-
-	void setReadOnlyMaterials(bool);
-
-	bool isReadOnlyMaterials() const;
-
 	void applyRules(
 		irr::scene::ITriangleSelector* const selector,
 		const irr::core::array<BoidSceneNode*>& boids,
@@ -92,6 +85,12 @@ public:
 	inline const core::vector3df& getVelocity() const { return this->velocity; }
 
 	inline const irr::core::line3d<f32>& getGroundRay() const { return this->groundRay; }
+
+	///Does a simple bounding-sphere collision detection.
+	//\param other The BoidSceneNode to test.
+	//\param radius The radius of the sphere.
+	//\return true if a collision occured.
+	bool isInNeighborhood(const BoidSceneNode* const other, const f32 radius) const;
 
 private:
 
@@ -121,21 +120,15 @@ private:
 	void stopPerching();
 
 
-	///The mesh of the boid.
-	IMesh* const Mesh;
+	///The shape of the boid.
+	IMeshBuffer* const shape;
 
-	video::S3DVertex Vertices[4];
-
-	u16 Indices[12];
-
-	core::aabbox3df Box;
-
-	///Material to draw the mesh.
+	///Material to draw the meshbuffer.
 	video::SMaterial material;
 
 
 	///The normals of the mesh
-	irr::video::S3DVertex* vertices;
+	irr::video::S3DVertex* normalsVertices;
 	u32 numVertices;
 	irr::u16* indices;
 	u32 numIndices;

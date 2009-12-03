@@ -72,6 +72,7 @@ void Compass::SetupQuadMesh(scene::SMeshBuffer& mesh, const f32 f32Width) const
 	mesh.Indices[0] = 0;
 	mesh.Indices[1] = 1;
 	mesh.Indices[2] = 2;
+
 	mesh.Indices[3] = 2;
 	mesh.Indices[4] = 3;
 	mesh.Indices[5] = 0;

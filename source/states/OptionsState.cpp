@@ -3,13 +3,14 @@
 // For conditions of distribution and use, see copyright notice in main.cpp
 
 #include "OptionsState.h"
+
 #include <IrrlichtDevice.h>
 
 #include <ISceneManager.h>
 #include <ITerrainSceneNode.h>
 #include <ICameraSceneNode.h>
 #include <IMeshCache.h>
-#include <IVideoDriver.h>
+
 #include <IGUIEnvironment.h>
 #include <IGUIWindow.h>
 #include <IGUIButton.h>
@@ -20,9 +21,9 @@
 #include <IGUIImage.h>
 #include <IGUIScrollBar.h>
 #include <IGUITabControl.h>
+
 #include "../core/Demo.h"
 #include "../core/Configuration.h"
-
 #include "../scene/grass/CGrassGeneratorNode.h"
 #include "../scene/grass/CWindGenerator.h"
 
@@ -76,10 +77,10 @@ OptionsState::~OptionsState()
 		this->saveButton->remove();
 	}
 
-	if (grassGeneratorNode)
+	if (this->grassGeneratorNode)
 	{
-		grassGeneratorNode->remove();
-		grassGeneratorNode->drop();
+		this->grassGeneratorNode->remove();
+		this->grassGeneratorNode->drop();
 	}
 }
 
@@ -218,12 +219,12 @@ void OptionsState::onEnter(Demo* const demo)
 	}
 
 
-	const irr::u32 textWidth = 160;
+	const irr::u32 columnWidth = 160;
 	const irr::u32 spacer = 20;
 	const irr::u32 horizontalBorder = 40;
-	const irr::u32 posX = horizontalBorder + textWidth;
-	const irr::u32 posX2 = tabControlWidth - horizontalBorder;
-	const irr::u32 depp = posX + spacer;
+	const irr::u32 posX = horizontalBorder + columnWidth;
+	const irr::u32 newXPos = posX + spacer;
+	const irr::u32 posXEnd = tabControlWidth - horizontalBorder;
 
 	irr::gui::IGUIStaticText* text = 0;
 
@@ -236,7 +237,7 @@ void OptionsState::onEnter(Demo* const demo)
 		//title text
 		text = guienv->addStaticText(
 				L"Edit the rules of the flock.",
-				irr::core::rect<irr::s32>(horizontalBorder, 20, posX2, 40), false, false, rulesTab);
+				irr::core::rect<irr::s32>(horizontalBorder, 20, posXEnd, 40), false, false, rulesTab);
 		text->setOverrideColor(titleColor);
 
 
@@ -284,35 +285,35 @@ void OptionsState::onEnter(Demo* const demo)
 
 		this->speedLimitBox = guienv->addEditBox(
 				irr::core::stringw(config->getSpeedLimit()).c_str(),
-				irr::core::rect<irr::s32>(depp, 50, posX2, 70), true, rulesTab);
+				irr::core::rect<irr::s32>(newXPos, 50, posXEnd, 70), true, rulesTab);
 
 		this->scatterFlockBox = guienv->addEditBox(
 				irr::core::stringw(config->getScatterFlockModifier()).c_str(),
-				irr::core::rect<irr::s32>(depp, 80, posX2, 100), true, rulesTab);
+				irr::core::rect<irr::s32>(newXPos, 80, posXEnd, 100), true, rulesTab);
 
 		this->seekCenterBox = guienv->addEditBox(
 				irr::core::stringw(config->getSeekCenterOfMass()).c_str(),
-				irr::core::rect<irr::s32>(depp, 110, posX2, 130), true, rulesTab);
+				irr::core::rect<irr::s32>(newXPos, 110, posXEnd, 130), true, rulesTab);
 
 		this->distanceBox = guienv->addEditBox(
 				irr::core::stringw(config->getDistanceToOtherBoids()).c_str(),
-				irr::core::rect<irr::s32>(depp, 140, posX2, 160), true, rulesTab);
+				irr::core::rect<irr::s32>(newXPos, 140, posXEnd, 160), true, rulesTab);
 
 		this->matchVelocityBox = guienv->addEditBox(
 				irr::core::stringw(config->getMatchVelocity()).c_str(),
-				irr::core::rect<irr::s32>(depp, 170, posX2, 190), true, rulesTab);
+				irr::core::rect<irr::s32>(newXPos, 170, posXEnd, 190), true, rulesTab);
 
 		this->tendencyTowardsBox = guienv->addEditBox(
 				irr::core::stringw(config->getTendencyTowardsPlace()).c_str(),
-				irr::core::rect<irr::s32>(depp, 200, posX2, 220), true, rulesTab);
+				irr::core::rect<irr::s32>(newXPos, 200, posXEnd, 220), true, rulesTab);
 
 		this->tendencyAvoidBox = guienv->addEditBox(
 				irr::core::stringw(config->getTendencyAvoidPlace()).c_str(),
-				irr::core::rect<irr::s32>(depp, 230, posX2, 250), true, rulesTab);
+				irr::core::rect<irr::s32>(newXPos, 230, posXEnd, 250), true, rulesTab);
 
 		this->aboveGroundBox = guienv->addEditBox(
 				irr::core::stringw(config->getMimimumAboveGround()).c_str(),
-				irr::core::rect<irr::s32>(depp, 260, posX2, 280), true, rulesTab);
+				irr::core::rect<irr::s32>(newXPos, 260, posXEnd, 280), true, rulesTab);
 
 		//add reset button
 		if (buttonTexture)
@@ -336,7 +337,7 @@ void OptionsState::onEnter(Demo* const demo)
 		//title text
 		text = guienv->addStaticText(
 				L"Edit video settings. You need to restart for changes to take effect.",
-				irr::core::rect<irr::s32>(horizontalBorder, 20, posX2, 40), false, false, videoTab);
+				irr::core::rect<irr::s32>(horizontalBorder, 20, posXEnd, 40), false, false, videoTab);
 		text->setOverrideColor(titleColor);
 
 
@@ -361,7 +362,7 @@ void OptionsState::onEnter(Demo* const demo)
 		text->setTextAlignment(irr::gui::EGUIA_LOWERRIGHT, irr::gui::EGUIA_CENTER);
 
 
-		this->driverSelectionBox = guienv->addComboBox(irr::core::rect<irr::s32>(depp, 50, posX2, 70), videoTab);
+		this->driverSelectionBox = guienv->addComboBox(irr::core::rect<irr::s32>(newXPos, 50, posXEnd, 70), videoTab);
 		this->driverSelectionBox->addItem(L"OpenGL");
 		this->driverSelectionBox->addItem(L"Burnings Video");
 		this->driverSelectionBox->addItem(L"Software renderer");
@@ -376,7 +377,7 @@ void OptionsState::onEnter(Demo* const demo)
 		}
 
 		this->resolutionSelectionBox = guienv->addComboBox(
-				irr::core::rect<irr::s32>(depp, 80, posX2, 100), videoTab);
+				irr::core::rect<irr::s32>(newXPos, 80, posXEnd, 100), videoTab);
 
 
 		//find resolution in config file
@@ -409,15 +410,15 @@ void OptionsState::onEnter(Demo* const demo)
 
 		//fullscreen checkbox
 		this->fullscreenBox = guienv->addCheckBox(irrlichtParams.Fullscreen,
-				irr::core::rect<irr::s32>(depp, 110, depp + 20, 130), videoTab, -1, L"");
+				irr::core::rect<irr::s32>(newXPos, 110, newXPos + 20, 130), videoTab, -1, L"");
 
 		//realtime shadows
 		this->stencilbufferBox = guienv->addCheckBox(irrlichtParams.Stencilbuffer,
-				irr::core::rect<irr::s32>(depp, 140, depp + 20, 160), videoTab, -1, L"");
+				irr::core::rect<irr::s32>(newXPos, 140, newXPos + 20, 160), videoTab, -1, L"");
 
 		//vertical sync
 		this->vsyncBox = guienv->addCheckBox(irrlichtParams.Vsync,
-				irr::core::rect<irr::s32>(depp, 170, depp + 20, 190), videoTab, -1, L"");
+				irr::core::rect<irr::s32>(newXPos, 170, newXPos + 20, 190), videoTab, -1, L"");
 
 
 		// add irrlicht logo
@@ -438,7 +439,7 @@ void OptionsState::onEnter(Demo* const demo)
 		//title text
 		text = guienv->addStaticText(
 				L"Edit camera settings.",
-				irr::core::rect<irr::s32>(horizontalBorder, 20, posX2, 40), false, false, cameraTab);
+				irr::core::rect<irr::s32>(horizontalBorder, 20, posXEnd, 40), false, false, cameraTab);
 		text->setOverrideColor(titleColor);
 
 
@@ -461,18 +462,18 @@ void OptionsState::onEnter(Demo* const demo)
 
 		this->cameraRotateSpeedBox = guienv->addEditBox(
 				irr::core::stringw(config->getCameraRotateSpeed()).c_str(),
-				irr::core::rect<irr::s32>(depp, 50, posX2, 70), true, cameraTab);
+				irr::core::rect<irr::s32>(newXPos, 50, posXEnd, 70), true, cameraTab);
 
 		this->cameraMoveSpeedBox = guienv->addEditBox(
 				irr::core::stringw(config->getCameraMoveSpeed()).c_str(),
-				irr::core::rect<irr::s32>(depp, 80, posX2, 100), true, cameraTab);
+				irr::core::rect<irr::s32>(newXPos, 80, posXEnd, 100), true, cameraTab);
 
 		this->cameraJumpSpeedBox = guienv->addEditBox(
 				irr::core::stringw(config->getCameraJumpSpeed()).c_str(),
-				irr::core::rect<irr::s32>(depp, 110, posX2, 130), true, cameraTab);
+				irr::core::rect<irr::s32>(newXPos, 110, posXEnd, 130), true, cameraTab);
 
 		this->invertCameraBox = guienv->addCheckBox(config->isInvertMouse(),
-				irr::core::rect<irr::s32>(depp, 140, depp + 20, 160), cameraTab);
+				irr::core::rect<irr::s32>(newXPos, 140, newXPos + 20, 160), cameraTab);
 	}
 
 
@@ -483,7 +484,7 @@ void OptionsState::onEnter(Demo* const demo)
 
 		//title text
 		text = guienv->addStaticText(L"Edit grass settings.",
-				irr::core::rect<irr::s32>(horizontalBorder, 20, posX2, 40), false, false, grassTab);
+				irr::core::rect<irr::s32>(horizontalBorder, 20, posXEnd, 40), false, false, grassTab);
 		text->setOverrideColor(titleColor);
 
 
@@ -511,7 +512,7 @@ void OptionsState::onEnter(Demo* const demo)
 
 		//texture text
 		const irr::u32 meep = horizontalBorder + 256 + spacer;
-		text = guienv->addStaticText(L"Texture", irr::core::rect<irr::s32>(meep, 50, posX2, 70), true, false, grassTab);
+		text = guienv->addStaticText(L"Texture", irr::core::rect<irr::s32>(meep, 50, posXEnd, 70), true, false, grassTab);
 
 
 		//add textures as images
@@ -553,9 +554,9 @@ void OptionsState::onEnter(Demo* const demo)
 
 
 		//material type text
-		text = guienv->addStaticText(L"Material type", irr::core::rect<irr::s32>(meep, 170, posX2, 190), true, false, grassTab);
+		text = guienv->addStaticText(L"Material type", irr::core::rect<irr::s32>(meep, 170, posXEnd, 190), true, false, grassTab);
 
-		irr::gui::IGUIComboBox* combo = guienv->addComboBox(irr::core::rect<irr::s32>(meep, 200, posX2, 220), grassTab);
+		irr::gui::IGUIComboBox* combo = guienv->addComboBox(irr::core::rect<irr::s32>(meep, 200, posXEnd, 220), grassTab);
 		combo->addItem(L"ALPHA_CHANNEL");
 		combo->addItem(L"ALPHA_CHANNEL_REF");
 		combo->addItem(L"ADD_COLOR");
@@ -572,7 +573,7 @@ void OptionsState::onEnter(Demo* const demo)
 
 		//title text
 		text = guienv->addStaticText(L"Edit audio settings.",
-				irr::core::rect<irr::s32>(horizontalBorder, 20, posX2, 40), false, false, soundTab);
+				irr::core::rect<irr::s32>(horizontalBorder, 20, posXEnd, 40), false, false, soundTab);
 		text->setOverrideColor(titleColor);
 
 		text = guienv->addStaticText(L"Enable sound",
@@ -586,10 +587,10 @@ void OptionsState::onEnter(Demo* const demo)
 
 
 		this->soundBox = guienv->addCheckBox(config->isSoundEnabled(),
-				irr::core::rect<irr::s32>(depp, 50, depp + 20, 70), soundTab, -1);
+				irr::core::rect<irr::s32>(newXPos, 50, newXPos + 20, 70), soundTab, -1);
 
 		this->volumeBar = guienv->addScrollBar(
-				true, irr::core::rect<irr::s32>(depp, 80, posX2, 100), soundTab);
+				true, irr::core::rect<irr::s32>(newXPos, 80, posXEnd, 100), soundTab);
 		this->volumeBar->setMax(100);
 		this->volumeBar->setMin(0);
 		this->volumeBar->setSmallStep(1);
@@ -726,7 +727,7 @@ const bool OptionsState::onEvent(Demo* const demo, const irr::SEvent& event)
 					demo->getSoundEngine()->play2D("media/sounds/button.wav");
 #endif
 				//reset flock rules to default
-				this->speedLimitBox->setText(L"400.0");
+				this->speedLimitBox->setText(L"300.0");
 				this->scatterFlockBox->setText(L"2.0");
 				this->seekCenterBox->setText(L"80.0");
 				this->distanceBox->setText(L"50.0");

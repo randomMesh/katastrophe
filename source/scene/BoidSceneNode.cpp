@@ -20,39 +20,21 @@ namespace scene
 u32 BoidSceneNode::boidID = 0;
 
 BoidSceneNode::BoidSceneNode(
-		irr::scene::IMesh* const boidMesh,
-		const core::vector3df& position, const irr::f32 borders[4], const f32 mimimumAboveGround, ISceneManager* const mgr) :
-		IMeshSceneNode(mgr->getRootSceneNode(), mgr, boidID, position),
-		Mesh(boidMesh),
-		perching(false), perchTimer(0.0f), dontPerchTimer(0.0f),
-		mimimumAboveGround(mimimumAboveGround),
+	IMeshBuffer* const shape,
+	const core::vector3df& position, const irr::f32 borders[4], const f32 mimimumAboveGround, ISceneManager* const mgr) :
+	ISceneNode(mgr->getRootSceneNode(), mgr, boidID, position),
+	shape(shape),
+	perching(false), perchTimer(0.0f), dontPerchTimer(0.0f),
+	mimimumAboveGround(mimimumAboveGround),
 
-		firstUpdate(true), lastAnimationTime(0), forward(true)
+	firstUpdate(true), lastAnimationTime(0), forward(true)
 {
 #ifdef _DEBUG
 	setDebugName("BoidSceneNode");
 #endif
 
-	video::SColor bodyColor(255, 255, 255, 0);
-	video::SColor headColor(255, 255, 0, 0);
 
-	Vertices[0] = video::S3DVertex(0.0f, 0.0f, 50.f,	1.0f, 1.0f, 0.0f, headColor, 0.0f, 1.0f);
-	Vertices[1] = video::S3DVertex(40.f, 0.0f, -50.f,	1.0f, 0.0f, 0.0f, bodyColor, 1.0f, 1.0f);
-	Vertices[2] = video::S3DVertex(-40.f, 0.0f, -50.f,	0.0f, 0.0f, 1.0f, bodyColor, 0.0f, 0.0f);
-	Vertices[3] = video::S3DVertex(0.0f, 50.f, -40.f,	0.0f, 1.0f, 1.0f, bodyColor, 1.0f, 0.0f);
-
-	Indices[0] = 2; Indices[1] = 0; Indices[2] = 3;
-	Indices[3] = 2; Indices[4] = 1; Indices[5] = 0;
-	Indices[6] = 0; Indices[7] = 1; Indices[8] = 3;
-	Indices[9] = 1; Indices[10] = 2; Indices[11] = 3;
-
-	Box.reset(Vertices[0].Pos);
-	for (s32 i = 1; i < 4; ++i)
-		Box.addInternalPoint(Vertices[i].Pos);
-
-
-
-	boidMesh->grab();
+	shape->grab();
 
 
 	this->material.TextureLayer[0].Texture = SceneManager->getVideoDriver()->getTexture("media/images/temporal-wake.jpg");
@@ -65,13 +47,9 @@ BoidSceneNode::BoidSceneNode(
 	//copy borders
 	memcpy(this->borders, borders, sizeof(irr::f32)*4);
 
-	//set velocity to 0
-	//	memset(this->velocity, 0, sizeof(irr::f32)*3);
-
 	//init ground ray
 	this->groundRay.start = this->RelativeTranslation;
 	this->groundRay.end = this->RelativeTranslation - irr::core::vector3df(0.0f, mimimumAboveGround, 0.0f);
-
 
 
 
@@ -79,26 +57,23 @@ BoidSceneNode::BoidSceneNode(
 	core::array<core::line3df> normals;
 
 	core::vector3df normalizedNormal;
-	static const f32 DebugNormalLength = 3.0f;
+	static const f32 DebugNormalLength = 10.0f;
 
-	for (u32 g = 0; g < Mesh->getMeshBufferCount(); ++g)
+
+	const u32 vSize = video::getVertexPitchFromType(shape->getVertexType());
+	const video::S3DVertex* v = (const video::S3DVertex*)shape->getVertices();
+	const bool normalize = shape->getMaterial().NormalizeNormals;
+
+	const u32 vCount = shape->getVertexCount();
+	for (u32 i = 0; i != vCount; ++i)
 	{
-		const scene::IMeshBuffer* mb = Mesh->getMeshBuffer(g);
-		const u32 vSize = video::getVertexPitchFromType(mb->getVertexType());
-		const video::S3DVertex* v = (const video::S3DVertex*)mb->getVertices();
-		const bool normalize = mb->getMaterial().NormalizeNormals;
+		normalizedNormal = v->Normal;
+		if (normalize)
+			normalizedNormal.normalize();
 
-		const u32 vCount = mb->getVertexCount();
-		for (u32 i = 0; i != vCount; ++i)
-		{
-			normalizedNormal = v->Normal;
-			if (normalize)
-				normalizedNormal.normalize();
+		normals.push_back(core::line3df(v->Pos, v->Pos + (normalizedNormal*DebugNormalLength)));
 
-			normals.push_back(core::line3df(v->Pos, v->Pos + (normalizedNormal*DebugNormalLength)));
-
-			v = (const video::S3DVertex*)((u8*)v + vSize);
-		}
+		v = (const video::S3DVertex*)((u8*)v + vSize);
 	}
 
 
@@ -116,7 +91,7 @@ BoidSceneNode::BoidSceneNode(
 		this->indices[i] = i;
 
 	// create a vertex buffer for all of the line segments
-	this->vertices = new video::S3DVertex[this->numVertices];
+	this->normalsVertices = new video::S3DVertex[this->numVertices];
 
 	// add vertices for each normal
 	u32 vIndex = 0;
@@ -125,10 +100,10 @@ BoidSceneNode::BoidSceneNode(
 		const core::line3df& normal = normals[n];
 
 		//normal
-		this->vertices[vIndex].Pos = normal.start;
-		this->vertices[vIndex].Color.set(255, 255, 255, 0);
-		this->vertices[vIndex + 1].Pos = normal.end;
-		this->vertices[vIndex + 1].Color.set(255, 128, 128, 0);
+		this->normalsVertices[vIndex].Pos = normal.start;
+		this->normalsVertices[vIndex].Color.set(255, 255, 255, 0);
+		this->normalsVertices[vIndex + 1].Pos = normal.end;
+		this->normalsVertices[vIndex + 1].Color.set(255, 128, 128, 0);
 
 		vIndex += 2;
 	}
@@ -141,15 +116,14 @@ BoidSceneNode::BoidSceneNode(
 
 BoidSceneNode::~BoidSceneNode()
 {
-	this->Mesh->drop();
-	delete[] this->vertices;
+	this->shape->drop();
+	delete[] this->normalsVertices;
 	delete[] this->indices;
 }
 
 const core::aabbox3d<float>& BoidSceneNode::getBoundingBox() const
 {
-	//return Mesh->getBoundingBox();
-	return Box;
+	return shape->getBoundingBox();
 }
 
 void BoidSceneNode::OnAnimate(u32 timeMs)
@@ -192,53 +166,39 @@ void BoidSceneNode::OnRegisterSceneNode()
 	if (IsVisible)
 		SceneManager->registerNodeForRendering(this);
 
-	IMeshSceneNode::OnRegisterSceneNode();
+	ISceneNode::OnRegisterSceneNode();
 }
 
 void BoidSceneNode::render()
 {
 	video::IVideoDriver* const driver = SceneManager->getVideoDriver();
-
-
-	//draw mesh
-//	const IMeshBuffer* const mb = Mesh->getMeshBuffer(0);
-	driver->setMaterial(this->material);
 	driver->setTransform(video::ETS_WORLD, this->AbsoluteTransformation);
-//	driver->drawMeshBuffer(mb);
-	driver->drawIndexedTriangleList(&Vertices[0], 4, &Indices[0], 4);
+
+	//draw shape meshbuffer
+	driver->setMaterial(this->material);
+	driver->drawMeshBuffer(this->shape);
+
+//	driver->drawIndexedTriangleList((video::S3DVertex*)shape->getVertices(), 4, shape->getIndices(), 4);
 
 	//draw normals
 	if (DebugDataVisible & scene::EDS_NORMALS)
 	{
 		driver->setMaterial(this->normalsMaterial);
-		driver->drawVertexPrimitiveList(this->vertices, this->numVertices, this->indices, this->numIndices/2,
-				irr::video::EVT_STANDARD, irr::scene::EPT_LINES, irr::video::EIT_16BIT);
+		driver->drawVertexPrimitiveList(this->normalsVertices, this->numVertices, this->indices, this->numIndices/2,
+			irr::video::EVT_STANDARD, irr::scene::EPT_LINES, irr::video::EIT_16BIT);
 	}
 
 	//draw oabb
 	if (DebugDataVisible & scene::EDS_BBOX)
-		//driver->draw3DBox(mb->getBoundingBox(), video::SColor(255,255,255,255));
-		driver->draw3DBox(Box, video::SColor(255,255,255,255));
+	{
+		driver->setMaterial(this->normalsMaterial);
+		driver->draw3DBox(shape->getBoundingBox(), video::SColor(255,255,255,255));
+	}
 }
 
 u32 BoidSceneNode::getMaterialCount() const
-		{
+{
 	return 1;
-		}
-
-void BoidSceneNode::setMesh(IMesh*)
-{
-	//The mesh cannot be changed
-}
-
-bool BoidSceneNode::isReadOnlyMaterials() const
-		{
-	return false;
-		}
-
-void BoidSceneNode::setReadOnlyMaterials(bool)
-{
-
 }
 
 video::SMaterial& BoidSceneNode::getMaterial(u32 i)
@@ -246,8 +206,7 @@ video::SMaterial& BoidSceneNode::getMaterial(u32 i)
 	return this->material;
 }
 
-
-const irr::core::vector3df gIrrGetLookAtRotationDegreesLH(const irr::core::vector3df& from, const irr::core::vector3df& target)
+const core::vector3df gIrrGetLookAtRotationDegreesLH(const core::vector3df& from, const core::vector3df& target)
 {
 	core::matrix4 m, m2;
 	m.buildCameraLookAtMatrixLH(from, target, core::vector3df(0.0f, 1.0f, 0.0f));
@@ -343,7 +302,7 @@ void BoidSceneNode::startPerching(const core::vector3df& outCollisionPoint)
 	this->perching = true;
 
 	//land on ground
-	this->RelativeTranslation.Y = outCollisionPoint.Y + this->Box.getExtent().Y/2;
+	this->RelativeTranslation.Y = outCollisionPoint.Y + this->shape->getBoundingBox().getExtent().Y/2;
 
 	//set velocity to 0
 	this->velocity.set(0.0f, 0.0f, 0.0f);
@@ -422,7 +381,7 @@ void BoidSceneNode::stopPerching()
 	this->RelativeScale = core::vector3df(1.0f, 1.0f, 1.0f);
 
 	//a little help with takeoff
-	this->RelativeTranslation += core::vector3df(0.0f, this->Box.getExtent().Y/2, 0.0f);
+	this->RelativeTranslation += core::vector3df(0.0f, this->shape->getBoundingBox().getExtent().Y/2, 0.0f);
 
 	//change color
 	this->material.EmissiveColor.set(255, 255, 255, 0);
@@ -466,11 +425,11 @@ void BoidSceneNode::stopPerching()
 }
 
 
-bool inNeighborhood(const BoidSceneNode* const a, const BoidSceneNode* const b, const f32 radius)
+bool BoidSceneNode::isInNeighborhood(const BoidSceneNode* const other, const f32 radius) const
 {
 	//simple sphere test
 
-	const core::vector3df relPos = a->getPosition() - b->getPosition();
+	const core::vector3df relPos = this->RelativeTranslation - other->RelativeTranslation;
 	const f32 dist = relPos.X*relPos.X + relPos.Y*relPos.Y + relPos.Z*relPos.Z;
 	const f32 minDist = radius + radius;
 
@@ -494,7 +453,8 @@ const core::vector3df BoidSceneNode::doReynolds(
 
 
 	//what's larger: radius or distanceToOtherBoids?
-	const u32 minDistance = this->Box.getExtent().Y/2 < distanceToOtherBoids ? distanceToOtherBoids : this->Box.getExtent().Y/2;
+	const irr::f32 radius = this->shape->getBoundingBox().getExtent().Y/2;
+	const u32 minDistance = radius < distanceToOtherBoids ? distanceToOtherBoids : radius;
 
 	const BoidSceneNode* otherBoid = 0;
 	for (u32 other = 0; other < numBoids; ++other)
@@ -506,7 +466,7 @@ const core::vector3df BoidSceneNode::doReynolds(
 
 			// don't take boid into account which are not in our vicinity
 			// don't take perching boids into account
-			if (!inNeighborhood(this, otherBoid, (this->Box.getExtent().Y/2)*5) || otherBoid->perching)
+			if (!this->isInNeighborhood(otherBoid, radius*5) || otherBoid->perching)
 			{
 				++numIgnoreBoids;
 				continue;
@@ -568,8 +528,8 @@ const core::vector3df BoidSceneNode::bindPosition(scene::ITriangleSelector* cons
 		aV.Z = -tendencyTowardsPlace;
 
 	//ckeck ground
-	this->groundRay = core::line3d<irr::f32>(
-			this->RelativeTranslation, this->RelativeTranslation - irr::core::vector3df(0.0f, this->mimimumAboveGround, 0.0f));
+	this->groundRay = core::line3d<f32>(
+		this->RelativeTranslation, this->RelativeTranslation - core::vector3df(0.0f, this->mimimumAboveGround, 0.0f));
 
 	//cast ray downwards to see if boid touches the terrain
 	core::vector3df outCollisionPoint;
@@ -577,7 +537,7 @@ const core::vector3df BoidSceneNode::bindPosition(scene::ITriangleSelector* cons
 	const ISceneNode* node = 0;
 	if (this->SceneManager->getSceneCollisionManager()->getCollisionPoint(this->groundRay, selector, outCollisionPoint, outTriangle, node))
 	{
-		if (outCollisionPoint.Y >= this->RelativeTranslation.Y - this->Box.getExtent().Y/2)
+		if (outCollisionPoint.Y >= this->RelativeTranslation.Y - this->shape->getBoundingBox().getExtent().Y/2)
 		{
 			if (this->dontPerchTimer > 0.0f)
 			{

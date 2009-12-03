@@ -5,6 +5,7 @@
 #include "Map.h"
 
 #include <ISceneManager.h>
+#include <IMeshSceneNode.h>
 #include <IMeshCache.h>
 #include <IVideoDriver.h>
 #include <IMetaTriangleSelector.h>
@@ -12,6 +13,7 @@
 #include <ITerrainSceneNode.h>
 #include <ICameraSceneNode.h>
 #include <SKeyMap.h>
+
 #include <IBillboardSceneNode.h>
 #include <IVolumeLightSceneNode.h>
 #include <ILightSceneNode.h>
@@ -33,23 +35,22 @@
 #include <ik_ISoundEngine.h>
 #endif
 
-#include <IrrlichtDevice.h>
-//#include <IMeshManipulator.h>
-
 Map::Map(Demo* const demo) :
-	demo(demo), flock(0),
+	demo(demo), flock(0), boidMesh(0),
 	collmgr(demo->getSceneManager()->getSceneCollisionManager()), selector(0), boidSelector(0), anim(0), ps(0),
 	terrain(0), forest(0), grassGeneratorNode(0), cursor(0), crosshair(0)
 #ifdef _SOUND
 	, wind(0)
 #endif
 {
-
+	boidMesh = demo->createBoidMesh(100.0f);
 }
 
 Map::~Map()
 {
 	this->clear();
+
+	boidMesh->drop();
 }
 
 bool Map::load(const irr::core::stringc& fileName)
@@ -204,7 +205,6 @@ void Map::loadDefault()
 	grassMap->drop();
 
 	wind->drop();
-
 
 	//add a camera
 	irr::SKeyMap keyMap[10];
@@ -699,16 +699,12 @@ void Map::stopSounds()
 
 irr::scene::BoidSceneNode* const Map::addBoid()
 {
-	irr::scene::IMesh* const boidMesh = demo->getSceneManager()->getGeometryCreator()->createSphereMesh(25.0f, 32, 32);
-
-	irr::scene::BoidSceneNode* const boid = this->flock->addBoid(boidMesh);
+	irr::scene::BoidSceneNode* const boid = this->flock->addBoid(boidMesh->getMeshBuffer(0));
 
 	irr::scene::ITriangleSelector* const boidsel = demo->getSceneManager()->createTriangleSelector(boidMesh, boid);
 	boid->setTriangleSelector(boidsel);
 	boidSelector->addTriangleSelector(boidsel);
 	boidsel->drop();
-
-	boidMesh->drop();
 
 
 	//add boid to all teleporters
