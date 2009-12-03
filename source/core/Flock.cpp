@@ -20,7 +20,7 @@ Flock::Flock(const Demo* const demo, const irr::core::vector3df& target, const i
 	tendencyAvoidPlace(demo->getConfiguration()->getTendencyAvoidPlace()),
 	speedLimit(demo->getConfiguration()->getSpeedLimit())
 {
-	memcpy(this->borders, borders, sizeof(irr::f32)*4);
+	memcpy(this->bounds, borders, sizeof(irr::f32)*4);
 }
 
 Flock::~Flock()
@@ -53,7 +53,7 @@ void Flock::update(irr::scene::ITriangleSelector* const selector, const bool sca
 	{
 		//apply rules to boid
 		this->boids[current]->applyRules(
-			selector, this->borders,
+			selector, this->bounds,
 			this->boids,
 
 			//rules in flock

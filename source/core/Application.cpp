@@ -46,7 +46,12 @@ bool Application::parseCommandLine(int argc, char* argv[])
 		else if(strcmp(argv[1],"-w") == 0)
 		{
 			irr::IrrlichtDevice* device = irr::createDevice(irr::video::EDT_NULL);
-			Demo demo(0, device, 0);
+
+			Demo demo(0, device
+#ifdef _SOUND
+					, 0
+#endif
+			);
 
 			irr::scene::IMesh* boidMesh = demo.createBoidMesh(1.0f);
 

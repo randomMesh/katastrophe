@@ -8,10 +8,12 @@
 #include <ISceneNode.h>
 #include <S3DVertex.h>
 
+#ifdef _SOUND
 namespace irrklang
 {
 	class ISoundEngine;
 }
+#endif
 
 namespace irr
 {

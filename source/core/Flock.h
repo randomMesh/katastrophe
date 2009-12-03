@@ -61,7 +61,7 @@ private:
 
 	bool paused;
 
-	irr::f32 borders[4];
+	irr::f32 bounds[4];
 
 	///Array holding pointers to all the boids.
 	irr::core::array<irr::scene::BoidSceneNode*> boids;
