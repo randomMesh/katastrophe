@@ -21,7 +21,7 @@ u32 BoidSceneNode::boidID = 0;
 
 BoidSceneNode::BoidSceneNode(
 	IMeshBuffer* const shape,
-	const core::vector3df& position, const irr::f32 borders[4], const f32 mimimumAboveGround, ISceneManager* const mgr) :
+	const core::vector3df& position, const f32 mimimumAboveGround, ISceneManager* const mgr) :
 	ISceneNode(mgr->getRootSceneNode(), mgr, boidID, position),
 	shape(shape),
 	perching(false), perchTimer(0.0f), dontPerchTimer(0.0f),
@@ -43,9 +43,6 @@ BoidSceneNode::BoidSceneNode(
 	this->material.SpecularColor.set(255, 255, 255, 255);
 	this->material.NormalizeNormals = true;
 
-
-	//copy borders
-	memcpy(this->borders, borders, sizeof(irr::f32)*4);
 
 	//init ground ray
 	this->groundRay.start = this->RelativeTranslation;
@@ -225,6 +222,7 @@ const core::vector3df gIrrGetLookAtRotationDegreesLH(const core::vector3df& from
 
 void BoidSceneNode::applyRules(
 		scene::ITriangleSelector* const selector,
+		const f32 bounds[4],
 		const core::array<BoidSceneNode*>& boids,
 		const f32 distanceToOtherBoids,
 		const f32 seekCenterOfMass,
@@ -279,7 +277,7 @@ void BoidSceneNode::applyRules(
 	const core::vector3df& seek = scatterFlock ? irr::core::vector3df(0.0f, 0.0f, 0.0f) : this->seekTarget(target, tendencyTowardsPlace);
 
 	//check for borders and ground
-	const core::vector3df& avoid = this->bindPosition(selector, tendencyTowardsPlace, tendencyAvoidPlace);
+	const core::vector3df& avoid = this->bindPosition(selector, bounds, tendencyTowardsPlace, tendencyAvoidPlace);
 
 	//bindPosition can make the boid perch, so check again
 	if (this->perching)
@@ -511,20 +509,22 @@ const core::vector3df BoidSceneNode::seekTarget(const core::vector3df& target, c
 	return core::vector3df((target - this->RelativeTranslation)/tendencyTowardsPlace);
 }
 
-const core::vector3df BoidSceneNode::bindPosition(scene::ITriangleSelector* const selector, const f32 tendencyTowardsPlace, const f32 tendencyAvoidPlace)
+const core::vector3df BoidSceneNode::bindPosition(
+	scene::ITriangleSelector* const selector,
+	const f32 bounds[4],
+	const f32 tendencyTowardsPlace, const f32 tendencyAvoidPlace)
 {
-
 	core::vector3df aV;
 
 	//avoid x and z borders of the terrain
-	if (this->RelativeTranslation.X < this->borders[0])
+	if (this->RelativeTranslation.X < bounds[0])
 		aV.X = tendencyTowardsPlace;
-	else if (this->RelativeTranslation.X > this->borders[1])
+	else if (this->RelativeTranslation.X > bounds[1])
 		aV.X = -tendencyTowardsPlace;
 
-	if (this->RelativeTranslation.Z < this->borders[2])
+	if (this->RelativeTranslation.Z < bounds[2])
 		aV.Z = tendencyTowardsPlace;
-	else if (this->RelativeTranslation.Z > this->borders[3])
+	else if (this->RelativeTranslation.Z > bounds[3])
 		aV.Z = -tendencyTowardsPlace;
 
 	//ckeck ground

@@ -53,7 +53,7 @@ void Flock::update(irr::scene::ITriangleSelector* const selector, const bool sca
 	{
 		//apply rules to boid
 		this->boids[current]->applyRules(
-			selector,
+			selector, this->borders,
 			this->boids,
 
 			//rules in flock
@@ -92,7 +92,6 @@ irr::scene::BoidSceneNode* const Flock::addBoid(irr::scene::IMeshBuffer* const s
 	irr::scene::BoidSceneNode* const boid = new irr::scene::BoidSceneNode(
 		shape,
 		target + irr::core::vector3df(rng->rand() < 0.5 ? posX : -posX, posY, rng->rand() < 0.5 ? posZ : -posZ),
-		this->borders,
 		this->demo->getConfiguration()->getMimimumAboveGround(),
 		demo->getSceneManager());
 

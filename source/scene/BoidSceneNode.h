@@ -39,7 +39,6 @@ public:
 	BoidSceneNode(
 		IMeshBuffer* const shape,
 		const core::vector3df& position,
-		const irr::f32 borders[4],
 		const f32 mimimumAboveGround,
 		ISceneManager* const mgr);
 
@@ -66,6 +65,7 @@ public:
 
 	void applyRules(
 		irr::scene::ITriangleSelector* const selector,
+		const f32 bounds[4],
 		const irr::core::array<BoidSceneNode*>& boids,
 		const irr::f32 distanceToOtherBoids,
 		const irr::f32 seekCenterOfMass,
@@ -110,7 +110,10 @@ private:
 	//\return The offset vector to be added to the velocity.
 	const core::vector3df seekTarget(const core::vector3df& target, const f32 tendencyTowardsPlace) const;
 
-	const core::vector3df bindPosition(scene::ITriangleSelector* const selector, const f32 tendencyTowardsPlace, const f32 tendencyAvoidPlace);
+	const core::vector3df bindPosition(
+		scene::ITriangleSelector* const selector,
+		const f32 bounds[4],
+		const f32 tendencyTowardsPlace, const f32 tendencyAvoidPlace);
 
 	void limitSpeed(const f32 speedLimit);
 
@@ -151,10 +154,6 @@ private:
 	///Time the boid is not allowed to perch again after perching.
 	f32 dontPerchTimer;
 
-
-
-	///Xmin, Xmax, Zmin, Zmax
-	f32 borders[4];
 
 	f32 mimimumAboveGround;
 
